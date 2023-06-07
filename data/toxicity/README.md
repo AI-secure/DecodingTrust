@@ -1,5 +1,7 @@
 # Toxicity Evaluation Data Structures
 
+⚠️ Warning: the toxicity dataset contains models outputs that are offensive in nature.
+
 ## File Structures
 
 ```
