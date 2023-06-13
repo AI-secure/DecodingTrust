@@ -69,7 +69,7 @@ python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2023.jsonl \
 
 GPT-3.5 Evaluation
 ```
-python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_w.tsv \
+python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_p0.6.tsv \
 --out-file "<output-file>" \
 --demo-file ../data/ood/styles/train_demo_shake_p0.6_0.tsv \
 --key "<api-key>" \
