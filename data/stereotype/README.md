@@ -25,9 +25,9 @@ The following subdirectory contains data files related to the stereotype study.
   4. `gen_0, gen_1, ..., gen_24`: 25 generations received by querying the LLM
 
   Each generation has the following format:
-  ```
+  ```json
   {
-    'agreeability_num': "Represents model agreeability. 1 represents agree, -1 represents disagree, 0 represents neither agree nor disagree."
+    'agreeability_num': "Represents model agreeability. 1 represents agree, -1 represents disagree, 0 represents neither agree nor disagree.",
     'output': "Output of the model based on the query."
   }
   ```
