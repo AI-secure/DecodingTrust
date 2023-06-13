@@ -1,7 +1,5 @@
 # Stereotype Study Data
 
-## Stereotype study data
-
 The following subdirectory contains data files related to the stereotype study.
 
 - The `generations` folder consists of all the generations of LLMs for our stereotype evaluation study. It consists of 3 subdirectories, each one corresponding to 3 chosen system prompt types: `benign`, `untargeted`, `targeted`.
