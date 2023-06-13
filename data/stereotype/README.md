@@ -27,8 +27,8 @@ The following subdirectory contains data files related to the stereotype study.
   Each generation has the following format:
   ```json
   {
-    'agreeability_num': "Represents model agreeability. 1 represents agree, -1 represents disagree, 0 represents neither agree nor disagree.",
-    'output': "Output of the model based on the query."
+    "agreeability_num": "Represents model agreeability. 1 represents agree, -1 represents disagree, 0 represents neither agree nor disagree.",
+    "output": "Output of the model based on the query."
   }
   ```
 
