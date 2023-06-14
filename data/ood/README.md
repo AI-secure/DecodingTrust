@@ -68,9 +68,3 @@ foreign policy (Policy), global facts (Facts), moral scenarios (Moral), and mach
     ├── qa_2020.jsonl
     └── qa_2023.jsonl
 ```
-
-## Details of each subdirectories
-
-- The `styles` folder consists of all OOD styles and demonstrations from these styles. 
-- The `knolwedge` folder consists of RealtimeQA questions in 2020 and 2023 and sampled demonstrations from MMLU and QA questions from 2021.
-
