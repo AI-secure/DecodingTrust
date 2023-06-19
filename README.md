@@ -33,6 +33,7 @@ This project is structured around subdirectories dedicated to each area of trust
 ```
 
 The data subdir includes our proposed/generated datasets essential for the evaluation of trustworthiness.
+(⚠️WARNING: This paper contains model outputs that may be considered offensive.)
 
 ## Getting Started
 
