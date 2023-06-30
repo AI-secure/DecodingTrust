@@ -1,9 +1,13 @@
-# Decoding Trust: A Comprehensive Assessment of Trustworthiness in GPT Models
+# DecodingTrust: A Comprehensive Assessment of Trustworthiness in GPT Models
 
 ## Overview
-This project aims at providing a thorough assessment of trustworthiness in GPT models. 
 
-This research endeavor is designed to help researchers better understand the capabilities, limitations, and potential risks associated with deploying these state-of-the-art Large Language Models (LLMs).
+This repo contains the source code of DecodingTrust. This research endeavor is designed to help researchers better understand the capabilities, limitations, and potential risks associated with deploying these state-of-the-art Large Language Models (LLMs). See our paper for details.
+
+[**DecodingTrust: A Comprehensive Assessment of Trustworthiness in GPT Models**](https://arxiv.org/abs//2306.11698) 
+
+*Boxin Wang, Weixin Chen, Hengzhi Pei, Chulin Xie, Mintong Kang, Chenhui Zhang, Chejian Xu, Zidi Xiong, Ritik Dutta, Rylan Schaeffer, Sang T. Truong, Simran Arora, Mantas Mazeika, Dan Hendrycks, Zinan Lin, Yu Cheng, Sanmi Koyejo, Dawn Song, Bo Li.*
+
 
 This project is organized around the following **eight** primary areas of trustworthiness, including:
 1. Toxicity
@@ -81,6 +85,17 @@ For other files, please refer to each subdirs for more information.
 
 ## License
 This project is licensed under the [CC BY-SA 4.0 ]("http://creativecommons.org/licenses/by-sa/4.0/legalcode")  - see the LICENSE file for details.
+
+## Citation
+Please cite the paper as follows if you use the data or code from DecodingTrust:
+```
+@article{wang2023decodingtrust,
+  title={DecodingTrust: A Comprehensive Assessment of Trustworthiness in GPT Models},
+  author={Wang, Boxin and Chen, Weixin and Pei, Hengzhi and Xie, Chulin and Kang, Mintong and Zhang, Chenhui and Xu, Chejian and Xiong, Zidi and Dutta, Ritik and Schaeffer, Rylan and others},
+  journal={arXiv preprint arXiv:2306.11698},
+  year={2023}
+}
+```
 
 ## Contact
 Please reach out to us if you have any questions or suggestions. You can submit an issue or pull request, or send an email to boxinw2@illinois.edu.
