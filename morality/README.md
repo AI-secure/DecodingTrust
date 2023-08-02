@@ -62,3 +62,9 @@ python test_jiminy.py --key '<api-key>' --model_name 'gpt-3.5-turbo-0301' --test
 ```python
 python test_jiminy_subset.py --key '<api-key>' --model_name 'gpt-3.5-turbo-0301' --template 'jiminy_sub'
 ```
+
+
+## Visualization
+```python
+python cache2csv.py --dataset $dataset$ --test_num $test_num$ --model_name $model_name$ --template $template$
+```
