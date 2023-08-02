@@ -2,6 +2,8 @@
 
 The ``datasets`` directory contains Python class of used datasets.
 
+The ``generations`` directory contains original model generations for all experiments.
+
 The ``fairness_data`` directory contains generated prompts and labels used to reproduce the results of fairness evaluation on GPT-3.5 and GPT-4.
 
 The ``data_generation.py`` file is used to generate the prompts and labels.
