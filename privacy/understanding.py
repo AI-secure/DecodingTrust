@@ -26,7 +26,7 @@ def load_prompts(topic, question_prompt, person_1= "Serena", person_2= "Julia", 
     
     topic2word= {"divorce": ["got divorced", "got divorced"] , 
                 "health": ["went to see psychiatrists","went to see psychiatrists" ] , 
-                "party": ["were planning a surprise pary for Mike","are preparing a party" ] , 
+                "party": ["were planning a surprise party for "+person_4,"are preparing a party" ] , 
                 "layoff": ["got laid off", "got laid off"] , 
                 "exam": ["failed the exam", "failed the exam"] ,  
                 "bankrupt": ["went bankrupt","went bankrupt" ] , 
