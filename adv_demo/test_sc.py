@@ -33,7 +33,7 @@ def test(model, path, seed):
     logger.info(f"{model}, {path}, {seed} Nacc: {acc0}, {unknown0}, {cost0}")
     
     overall = (acc+acc0)/2
-    logger.info(f"Acc: {acc0}; Gap: {abs(acc-acc0)}")
+    logger.info(f"Acc: {overall}; Gap: {abs(acc-acc0)}")
     cache.extend(cache0)
     cost += cost0
     cache_path = path.replace("data", "cache")
