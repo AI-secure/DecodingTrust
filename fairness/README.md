@@ -89,3 +89,9 @@ Evaluation using 32 fair demonstrations on GPT-4.
 ```commandline
 python main.py ++model=openai/gpt-4-0314 ++dry_run=True ++key=''  +fairness=few_shot_32_fair_demon.yaml
 ```
+
+## Calculate Fairness Scores given Model Output
+```commandline
+python score_calculation_script.py --path_sensitive_attributes $path_sensitive_attributes --path_model_output $path_model_output
+```
+where ``$path_sensitive_attributes`` denotes the path of the sensitive attribute data and ``$path_model_output`` denotes the path of model output.
