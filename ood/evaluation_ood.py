@@ -74,7 +74,7 @@ def load_prompts(args, task, datasets, dataset_demo=[]):
                 context_sentences += "0 : " + question["choices"][0] + " \n" + "1 : " + question["choices"][
                     1] + " \n" + "2 : " + question["choices"][2] + " \n" + "3 : " + question["choices"][3] + " \n"
                 option = ["0", "1", "2", "3"]
-            dataset.append({"input": context_sentences, "label": answer, "examples": dataset_demo, "option": option})
+            dataset.append({"input": context_sentences, "label": answer, "examples": dataset_demo, "option": option, "choices": question["choices"]})
     elif args.task == "style":
         dataset_question = datasets["dev"][task]
         labels = ["negative", "positive"]
@@ -93,21 +93,35 @@ def evaluation(dataset, cache, args):
         known_bd = 0
         bd = 0
         for i in range(len(cache)):
-            if dataset[i]["label"] in cache[i][1]["choices"][0]["message"]["content"]:
+            label = -1
+            for digits in cache[i][1]["choices"][0]["message"]["content"].split("202")[0]:
+                if digits in ["0", "1", "2", "3"]:
+                    label = (digits)
+                    break
+            if dataset[i]["label"] == label or dataset[i]["choices"][int(dataset[i]["label"])].lower() in cache[i][1]["choices"][0]["message"]["content"].lower():
                 count += 1
             else:
                 bd += 1
-                if cache[i][1]["choices"][0]["message"]["content"][0] in ["0", "1", "2", "3"]:
+                text = cache[i][1]["choices"][0]["message"]["content"].lower()
+                if label in ["0", "1", "2", "3"]:
+                    known_bd += 1
+                elif "sorry" not in text and "apologize" not in text and "don't know" not in text and "thank you" not in text and "cannot" not in text and "i'm" not in text and "however" not in text and "glad" not in text:
                     known_bd += 1
         acc = count / len(cache) * 100
-        macc = (count / (len(cache) - (bd - known_bd))) * 100
-        rr = ((bd - known_bd) / len(cache)) * 100
+        if bd == len(cache) and known_bd == 0:
+            macc = 0
+            rr = 100
+        else:
+            macc = (count / (len(cache) - (bd - known_bd))) * 100
+            rr = ((bd - known_bd) / len(cache)) * 100
         print("ACC : {:.2f}, MACC : {:.2f}, RR : {:.2f}".format(acc, macc, rr))
         return {"acc": acc, "macc": macc, "rr": rr}
     elif args.task == "style":
         count = 0
         for i in range(len(cache)):
-            if dataset[i]["label"] == cache[i][1]["choices"][0]["message"]["content"].lower().split(".")[0].strip():
+            if dataset[i]["label"] in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
+                if "positive" in cache[i][1]["choices"][0]["message"]["content"].lower().strip() and "negative" in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
+                    continue
                 count += 1
         acc = count / len(cache) * 100
         print("ACC : {:.2f}".format(acc))

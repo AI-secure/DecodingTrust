@@ -1,4 +1,4 @@
-data_file: ./data/ood/styles/style.json
+data_file: ./data/ood/style.json
 out_file: ./data/ood/results/${model}/style_8shot.json
 few_shot_num: 8
 task: style

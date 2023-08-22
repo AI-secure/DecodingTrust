@@ -1,4 +1,4 @@
-data_file: ./data/ood/knowledge/knowledge.json
+data_file: ./data/ood/knowledge.json
 out_file: ./data/ood/results/${model}/knowledge_standard.json
 few_shot_num: 0
 task: knowledge
