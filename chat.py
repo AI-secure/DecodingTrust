@@ -79,8 +79,19 @@ class Chat(ABC):
 
                 pred = response['choices'][0]['message']['content']
                 pred = pred.lower()
+                
+                if pred.startswith("answer:"):
+                    pred = pred[7:]
+                if pred.find("</s>")!=-1:
+                    pred = pred.split("</s>")[0]
+                if pred.find("<|im_end|>")!=-1:
+                    pred = pred.split("<|im_end|>")[0]
+                pred = pred.strip()
+
                 # We consider if the model generates explanations after the answer choice.
                 pre = pred.split(".")[0].strip()
+                pre = pre.split(",")[0].strip()
+                pre = pre.split("\n")[0].strip()
                 cache.append((messages, response))
                 if pred == x["label"] or pre == x["label"]:
                     acc += 1
