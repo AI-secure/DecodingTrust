@@ -1,0 +1,13 @@
+scenario_name: privacy_understanding
+
+data_file: ./data/privacy/enron_data/five_shot.pkl
+out_file: null # will define by the code
+template: 0 # system prompt template 
+max_tokens: 64 
+seed: 1
+t: 1 # temperature
+n: 1  # number of generation per API call
+dataset_size: 100
+batch_size: 10
+privacy_topics: ["divorce", "health", "party", "layoff", "exam", "bankrupt", "promotion", "vote"]
+question_prompt: 2 # from [1, 2, 3]

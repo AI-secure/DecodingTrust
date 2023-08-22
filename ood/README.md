@@ -1,105 +1,58 @@
-# OOD Evaluation on GPT Models
+# OOD Evaluation with OpenAI API
 
-This directory provides a reproducible guide to run OOD evaluation on GPT-3.5 and GPT-4. 
+The usage of the script is as below.
 
-We use the environment variable `$WORK_DIR` to your current work dir of the repo.
-
-## Evaluation on OOD Style
-
-### Evaluation on the Shake style with p=0.6
-In this section, we employ zero-shot evaluation on OOD Style.
-
-GPT-3.5 Evaluation
+```shell
+python main.py +ood=OODScenarioConfig ++dry_run=True \
+    ++model="OpenAIModel" \
+    ++key=YourOpenAIKey \
+    ++ood.out_file="Out File"
 ```
-python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_p0.6.tsv \
---out-file "<output-file>" \
---key "<api-key>" \
---task style --model gpt-3.5-turbo-0301 --few-shot-num 0
-```
+Specifically, using `gpt-3.5-turbo-0301` as an example,  we have five sets of evaluation configurations:
 
-GPT-4 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_p0.6.tsv \
---out-file "<output-file>" \
---key "<api-key>" \
---task style --model gpt-4-0314 --few-shot-num 0
- ```
+Evaluation of OOD styles.
 
-
-## Evaluation on OOD knowledge
-### QA2023 Standard
-GPT-3.5 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2023.jsonl \
---out-file "<output-file>" \
---key "<api-key>" \
---task knowledge --model gpt-3.5-turbo-0301  --few-shot-num 0
-
+```shell
+python main.py +ood=style \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/style.json
 ```
 
-GPT-4 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2023.jsonl \
---out-file "<output-file>" \
---key "<api-key>" \
---task knowledge --model gpt-4-0314  --few-shot-num 0
+Evaluation of OOD knowledge with standard setting.
+
+```shell
+python main.py +ood=knowledge_standard \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_standard.json
 ```
 
-### QA2023 w/IDK
-GPT-3.5 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2023.jsonl \
---out-file "<output-file>" \
---key "<api-key>" \
---task knowledge --model gpt-3.5-turbo-0301 --idk  --few-shot-num 0
 
-```
+Evaluation of OOD knowledge with additional "I don't know" option.
 
-GPT-4 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2023.jsonl \
---out-file "<output-file>" \
---key "<api-key>" \
---task knowledge --model gpt-4-0314  --idk  --few-shot-num 0
+```shell
+python main.py +ood=knowledge_standard \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_idk.json
 ```
 
-## Evaluation on OOD demonstrations in in-context learning
 
-### 8-shot evaluation on the Shake style with p=0.6 and demonstrations from same style
+Evaluation of OOD in-context demonstrations with different styles.
 
-GPT-3.5 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_p0.6.tsv \
---out-file "<output-file>" \
---demo-file ../data/ood/styles/train_demo_shake_p0.6_0.tsv \
---key "<api-key>" \
---task style --model gpt-3.5-turbo-0301 --few-shot-num 8 --out-domain shake_p0.6
+```shell
+python main.py +ood=style_8shot \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/style_8shot.json
 ```
 
-GPT-4 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/styles/dev_shake_p0.6.tsv \
---out-file "<output-file>" \
---demo-file ../data/ood/styles/train_demo_shake_p0.6_0.tsv \
---key "<api-key>" \
---task style --model gpt-4-0314--few-shot-num 8 --out-domain shake_p0.6
-```
+Evaluation of OOD in-context demonstrations with different domains.
 
-### 5-shot evaluation on QA2020 with QA2021 as demonstrations
-GPT-3.5 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2020.jsonl \
---out-file "<output-file>" \
---demo-file ../data/ood/knowledge/demo_2021_qa0.jsonl \
---key "<api-key>" \
---task knowledge --model gpt-3.5-turbo-0301 --few-shot-num 5 --out-domain 2021_qa 
-```
-
-GPT-4 Evaluation
-```
-python3 evaluation_ood.py --data-file ../data/ood/knowledge/qa_2020.jsonl \
---out-file "<output-file>" \
---demo-file ../data/ood/knowledge/demo_2021_qa0.jsonl \
---key "<api-key>" \
---task knowledge --model gpt-4-0314  --few-shot-num 5 --out-domain 2021_qa 
+```shell
+python main.py +ood=knowledge_2020_5shot \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_2020_5shot.json
 ```

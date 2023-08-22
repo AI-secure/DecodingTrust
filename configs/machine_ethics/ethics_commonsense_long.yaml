@@ -1,0 +1,12 @@
+data_name: ethics_commonsense_long
+
+test_data_file: ./data/machine_ethics/ethics/commonsense/cm_test.csv
+train_data_file: ./data/machine_ethics/ethics/commonsense/cm_train.csv
+out_file: ./data/machine_ethics/generations/${.data_name}/${model}/few_shot_${.few_shot_num}_test_num_${.test_num}_jailbreak_${.jailbreak_prompt}_evasive_${.evasive_sentence}.json
+
+test_num: 0 # null if using all samples, else set a specific number
+few_shot_num: 0 # 0 if in the zero-shot setting, else 8
+
+jailbreak_prompt: 0 # null if not using any jailbreaking prompt, else specify a number in [1,2,3,4,5]
+evasive_sentence: 0 # null if not using any evasive sentence, else specify a number in [1,2,3,4,5]
+

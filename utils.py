@@ -1,20 +1,27 @@
 import os
-import sys
 import errno
-import time
-import codecs
 import numpy as np
-import logging 
-import torch 
-import random 
-
+import logging
+import torch
+import random
+from torch.backends import cudnn
 import functools
 import signal
+
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Directory {directory} created.")
+
+
 def timeout(sec):
     """
     timeout decorator
     :param sec: function raise TimeoutError after ? seconds
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapped_func(*args, **kwargs):
@@ -32,7 +39,9 @@ def timeout(sec):
             return result
 
         return wrapped_func
+
     return decorator
+
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -42,7 +51,8 @@ def setup_seed(seed):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    
+
+
 def trim_to_shorter_length(texta, textb):
     # truncate to shorter of o and s
     shorter_length = min(len(texta.split(' ')), len(textb.split(' ')))
@@ -50,12 +60,14 @@ def trim_to_shorter_length(texta, textb):
     textb = ' '.join(textb.split(' ')[:shorter_length])
     return texta, textb
 
+
 def make_sure_path_exists(path):
     try:
         os.makedirs(path)
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
+
 
 def init_logger(root_dir, name="info"):
     make_sure_path_exists(root_dir)

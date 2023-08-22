@@ -1,0 +1,3 @@
+sys_prompt_type: targeted
+skip_generation: False
+n_gens: 25

@@ -32,7 +32,7 @@ This project is structured around subdirectories dedicated to each area of trust
 ├── adv_demo/
 ├── privacy/
 ├── ood/
-├── morality/
+├── machine_ethics/
 └── fairness/
 ```
 
@@ -48,37 +48,61 @@ git clone https://github.com/boxin-wbx/DecodingTrust.git
 cd DecodingTrust
 ```
 
-2. Create a new conda environment and activate it
+2. Create a new conda environment (requires python=3.9) and activate it
 ```bash
 conda create --name decoding_trust_env python=3.9
 conda activate decoding_trust_env
+```
+
+3. Install our customized HELM repo, from which we will call HELM request to different chat models.
+```bash
+git clone https://github.com/danielz02/helm
+cd helm
+./pre-commit.sh
+```
+
+4. Navigate to the DecodingTrust repo, and install our dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-3. Navigate to a subdirectory: Each of the eight areas has its own subdirectory containing the respective code and README.
+5. Each of the eight areas has its own subdirectory containing the respective code and README.
 
-4. Follow the specific README: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
+6. Follow the specific README: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
 
 
 ## [Important] Candidate models
-In our benchmark, to have consistent conclusions and results, currently we focus on evaluating the following two models:
-```
-gpt-3.5-turbo-0301          
-gpt-4-0314
-```
+In our benchmark, to have consistent conclusions and results, currently we mianly focus on evaluating the following two OpenAI models:
 
-**Note we use `gpt-3.5-turbo-0301` (with time stamp) instead of `gpt-3.5-turbo` for sake of model evolution.**
+- `gpt-3.5-turbo-0301`          
+- `gpt-4-0314`
+
+**Note we use `gpt-3.5-turbo-0301` (with time stamp) released in March instead of `gpt-3.5-turbo` for sake of model evolution to ensure reproducibility.**
+
+Currently, we have supported evaluating all the causal LLMs **hosted in Huggingface**. Specifically, we have tested the following open LLMs:
+
+- `Llama-v2-7B-Chat`
+- `Vicuna-7BAlpaca-7B`
+- `MPT-7B`
+- `Falcon-7B`
+- `Alpaca-7B`
+- `RedPajama-INCITE-7B-Instruct`
+
+## Tutorial
+
+We have provided a [Tutorial](Tutorial.md) to help you walk through the usage of API to evaluate different trustworthiness perspectives and LLMs.  
 
 ## Useful tips
-Please first evaluate your experiments on `gpt-3.5-turbo-0301` to check the sanity since it has lower costs.
 
-Suggesting saving the responses from OpenAI.
-
-You can check `https://arxiv.org/pdf/2302.06476.pdf` to know if your performance of ChatGPT is reasonable for standard tasks. Also you may find their task descriptions useful.
+- Please first evaluate your experiments with `++dry_run=True` flags on to check the input / output format, and use `gpt-3.5-turbo-0301` to check the generation since it has lower costs.
+- Suggesting saving the responses from OpenAI.
+- You can check `https://arxiv.org/pdf/2302.06476.pdf` to know if your performance of ChatGPT is reasonable for standard tasks. Also you may find their task descriptions useful.
 
 ## File usage
 
-- `chat.py` provides robust APIs for creating requests to OpenAI **Chat Compleition** models. Recommend implementing experiments based on this file. If you think `chat.py` is not good enough and want to make modifications, please let @acphile and @boxinw know.
+- `main.py` provides a unified entry point to evaluate all the perspectives and different LLMs with proper configuration
+- `chat.py` provides robust APIs for creating requests to OpenAI **Chat Compleition** models and Huggingface autoregressive LLMs. Recommend implementing experiments based on this file. If you think `chat.py` is not good enough and want to make modifications, please let @acphile and @boxinw know.
 - `utils.py` provide auxiliary functions   
 
 For other files, please refer to each subdirs for more information.
@@ -100,4 +124,4 @@ Please cite the paper as follows if you use the data or code from DecodingTrust:
 ## Contact
 Please reach out to us if you have any questions or suggestions. You can submit an issue or pull request, or send an email to boxinw2@illinois.edu.
 
-Thank you for your interest in Decoding Trust. We hope our work will contribute to a more trustworthy, fair, and robust AI future.
+Thank you for your interest in DecodingTrust. We hope our work will contribute to a more trustworthy, fair, and robust AI future.

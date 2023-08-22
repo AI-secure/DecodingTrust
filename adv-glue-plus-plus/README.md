@@ -5,12 +5,21 @@ Please check out `data/adv-glue-plus-plus/README.md` for the details about our A
 The usage of the script is as below
 
 ```shell
-python adv-glue-plus-plus/gpt_eval.py --model "OpenAIModel" --key "YourOpenAIKey" --data-file "AdvGLUE(++) Data" --out-file "Out File"
+python main.py +adv-glue-plus-plus=AdvGLUEPlusPlusConfig ++dry_run=True \
+    ++model="OpenAIModel" \
+    ++key=YourOpenAIKey \
+    ++adv-glue-plus-plus.data_file="AdvGLUE(++) Data"
+    ++adv-glue-plus-plus.out_file="Out File"
 ```
-Adding `--no-adv` flag will evaluate the benign accuracy of the model by reading from `original_xxx`. Adding `--resume` will resume the evaluation from a previous result should there be any interruption to a previous run.
+
+Adding `++adv-glue-plus-plus.no_adv` flag will evaluate the benign accuracy of the model by reading from `original_xxx`. Adding `++adv-glue-plus-plus.resume` will resume the evaluation from a previous result should there be any interruption to a previous run.
 
 For example, the script below evaluates `gpt-3.5-turbo-0301` on the adversarial texts generated against Alpaca-7B model.
 
 ```shell
-python adv-glue-plus-plus/gpt_eval.py --model gpt-3.5-turbo-0301 --key YourOpenAIKey --data-file data/adv-glue-plus-plus/data/alpaca.json --out-file data/adv-glue-plus-plus/data/advglue-plus-plus-adv-gpt-3.5-turbo-0301-alpaca.json
+python main.py +adv-glue-plus-plus=alpaca ++dry_run=True \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++key=YourOpenAIKey \
+    ++adv-glue-plus-plus.data_file=data/advglue/data/alpaca.json
+    ++adv-glue-plus-plus.out_file=data/advglue/data/advglue-plus-plus-adv-gpt-3.5-turbo-0301-alpaca.json
 ```

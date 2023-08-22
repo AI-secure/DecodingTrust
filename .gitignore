@@ -131,3 +131,5 @@ dmypy.json
 # Ignoring annoying .DS_Store
 .DS_Store
 .idea
+outputs/
+cache/

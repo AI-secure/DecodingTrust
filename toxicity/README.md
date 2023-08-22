@@ -10,75 +10,40 @@ In this section, we employ standard benchmarks to evaluate the toxicity of LLM g
 
 ### Evaluation on the toxic subset of RealToxicity
 
-GPT-3.5 Evaluation (under an adversarial system prompt, use `--template 0` for the benign system prompt)
+GPT-3.5 Evaluation (under an adversarial system prompt, use `++template=0` for the benign system prompt)
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/toxic.jsonl.gpt3.n=25.out1 \
- --key "<api-key>" \
- --model gpt-3.5-turbo-0301 --template 1 --n 25
+python main.py +toxicity=realtoxicityprompts-toxic  \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
 ```
 
-GPT-4 Evaluation (under an adversarial system prompt, use `--template 0` for the benign system prompt)
+GPT-4 Evaluation (under an adversarial system prompt, use `++template=0` for the benign system prompt)
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/toxic.jsonl.gpt4.n=25.out1 \
- --key "<api-key>" \
- --model gpt-4-0314 --template 1 --n 25
+python main.py +toxicity=realtoxicityprompts-toxic  \
+    ++model=openai/gpt-4-0314 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
  ```
-
-GPT-3 Evaluation (Ada, Curie, Davinci)
-```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/toxic.jsonl.davinci.n=25.out \
- --key "<api-key>" \
- --model davinci --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/toxic.jsonl.curie.n=25.out \
- --key "<api-key>" \
- --model curie --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/toxic.jsonl.ada.n=25.out \
- --key "<api-key>" \
- --model ada --template 0 --n 25
-```
 
 ### Evaluation on the nontoxic subset of RealToxicity
 
-GPT-3.5 Evaluation (under an adversarial system prompt, use `--template 0` for the benign system prompt)
+GPT-3.5 Evaluation (under an adversarial system prompt, use `++template=0` for the benign system prompt)
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/nontoxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/nontoxic.jsonl.gpt3.n=25.out1 \
- --key "<api-key>" \
- --model gpt-3.5-turbo-0301 --template 1 --n 25
+python main.py +toxicity=realtoxicityprompts-toxic  \
+    ++model=openai/gpt-3-turbo-0301 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
 ```
 
 GPT-4 Evaluation
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/nontoxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/nontoxic.jsonl.gpt4.n=25.out1 \
- --key "<api-key>" \
- --model gpt-4-0314 --template 1 --n 25
+python main.py +toxicity=realtoxicityprompts-nontoxic  \
+    ++model=openai/gpt-4-0314 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
  ```
 
-GPT-3 Evaluation (Ada, Curie, Davinci)
-```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/nontoxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/nontoxic.jsonl.davinci.n=25.out \
- --key "<api-key>" \
- --model davinci --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/nontoxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/nontoxic.jsonl.curie.n=25.out \
- --key "<api-key>" \
- --model curie --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/nontoxic.jsonl \
- --out-file data/toxicity/user_prompts/generations/realtoxicityprompts/nontoxic.jsonl.ada.n=25.out \
- --key "<api-key>" \
- --model ada --template 0 --n 25
-```
 
 ### Toxicity Evaluation using Perspective API
 
@@ -95,20 +60,22 @@ PYTHONPATH=. python3 toxicity/perspective_api.py --data-path data/toxicity/gener
 GPT-3.5 Evaluation
 ```
 for i in {0..32}; do
-  (sleep $((i* 600)) && PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/generations/system_prompts/toxic.jsonl.gpt3.t=0.out${i} \
- --key "<api-key>" \
- --model gpt-3.5-turbo-0301 --template ${i} --t 0) &
+python main.py +toxicity=realtoxicityprompts-toxic  \
+    ++model=openai/gpt-3-turbo-0301 \
+    ++toxicity.n=1 \
+    ++toxicity.template=${i} \
+    ++toxicity.t=0
 done
 ```
 
 GPT-4 Evaluation
 ```
- for i in {0..32}; do
-  (sleep $((i* 600)) && PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl \
- --out-file data/toxicity/generations/system_prompts/toxic.jsonl.gpt4.t=0.out${i} \
- --key "<api-key>" \
- --model gpt-4-0314 --template ${i} --t 0) &
+for i in {0..32}; do
+python main.py +toxicity=realtoxicityprompts-toxic  \
+    ++model=openai/gpt-4-0314 \
+    ++toxicity.n=1 \
+    ++toxicity.template=${i} \
+    ++toxicity.t=0
 done
 ```
 
@@ -143,55 +110,23 @@ Move the generated prompts to `data/toxicity/userprompts/toxic.jsonl.gpt4.n=25.o
 
 ### Evaluation on LLM-generated toxic prompts 
 
-GPT-3.5 Evaluation
+GPT-3.5 Evaluation (using gpt-4-generated toxic prompts `++toxicity=toxic-gpt4`, to use gpt-3.5-generated toxic prompts `toxicity=toxic-gpt3.5`.)
 
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.gpt3.n=25.out0 \
- --key "<api-key>" \
- --model gpt-3.5-turbo-0301 --template 0 --n 25
+python main.py +toxicity=toxic-gpt4  \
+    ++model=openai/gpt-3.5-turbo-0301 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
 ```
 
 GPT-4 Evaluation
 ```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.gpt4.n=25.out0 \
- --key "<api-key>" \
- --model gpt-4-0314 --template 0 --n 25
+python main.py +toxicity=toxic-gpt4  \
+    ++model=openai/gpt-4-0314 \
+    ++toxicity.n=25 \
+    ++toxicity.template=1
 ```
 
-GPT-3 Evaluation (Ada, Curie, Davinci)
-```
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl.davinci.n=25.out \
- --key "<api-key>" \
- --model avinci --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.davinci.n=25.out \
- --key "<api-key>" \
- --model davinci --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl.ada.n=25.out \
- --key "<api-key>" \
- --model ada --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.ada.n=25.out \
- --key "<api-key>" \
- --model ada --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl.curie.n=25.out \
- --key "<api-key>" \
- --model curie --template 0 --n 25
-
-PYTHONPATH=. python3 toxicity/text_generation.py --data-file data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl \
- --out-file data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.curie.n=25.out \
- --key "<api-key>" \
- --model curie --template 0 --n 25
-```
 
 ### Toxicity Evaluation using Perspective API
 

@@ -1,0 +1,12 @@
+scenario_name: enron_email_extraction
+
+data_file: ./data/privacy/enron_data/
+out_file: null # will define by the code
+template: 0 # system prompt template 
+max_tokens: 16 
+seed: 1
+t: 1 # temperature
+n: 1  # number of generation per API call
+dataset_size: 0 # 0 means all data
+batch_size: 5
+prompt_types: ['context-100']

@@ -1,12 +1,4 @@
-openai==0.27.7
-google-api-python-client==2.88.0
-transformers==4.29.2
-tqdm==4.65.0
-torch
-numpy
-joblib
-nltk
-pandas
-fairlearn
-tenacity
-datasets
+hydra-core
+omegaconf~=2.3.0
+pydantic~=2.1.1
+shortuuid~=1.0.11

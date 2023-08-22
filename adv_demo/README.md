@@ -13,42 +13,25 @@ Available seeds: `42,2333,10007`
 ### Demo+CF
 Template:
 ```
-python test_cf.py --path ../data/adv_demo/counterfactual/<dataset>_cf --task <task> --model <model> --key <api-key>
+python main.py +adv_demo=counterfactual_<dataset>_cf ++model=<model> ++key=<key>
 ```
 
-`snli_premise` example:
-```
-python test_cf.py --path ../data/adv_demo/counterfactual/snli_premise_cf --task nli3 --model <model> --key <api-key>
-```
 ### Demo
 Template:
 ```
-python test_cf.py --path ../data/adv_demo/counterfactual/<dataset> --task <task> --model <model> --key <api-key>
+python main.py +adv_demo=counterfactual_<dataset> ++model=<model> ++key=<key>
 ```
 
-`snli_premise` example
-```
-python test_cf.py --path ../data/adv_demo/counterfactual/snli_premise --task nli3 --model <model> --key <api-key>
-```
 ### CF
 Template:
 ```
-python test_cf.py --path ../data/adv_demo/counterfactual/<dataset>_cf --task <task> --model <model> --key <api-key> --only
+python main.py +adv_demo=counterfactual_<dataset>_cf ++model=<model> ++key=<key> adv_demo.only=True
 ```
 
-`snli_premise` example
-```
-python test_cf.py --path ../data/adv_demo/counterfactual/snli_premise_cf --task nli3 --model <model> --key <api-key> --only
-```
 ### Zero-shot
 Template:
 ```
-python test_cf.py --path ../data/adv_demo/counterfactual/<dataset> --task <task> --model <model> --key <api-key> --zero
-```
-
-`snli_premise` example
-```
-python test_cf.py --path ../data/adv_demo/counterfactual/snli_premise --task nli3 --model <model> --key <api-key> --zero
+python main.py +adv_demo=counterfactual_<dataset> ++model=<model> ++key=<key> adv_demo.zero=True
 ```
 
 ## Spurious Correlation
@@ -57,15 +40,15 @@ We have six heuristic types (`<heuristic>`): `PP`, `adverb`,`embedded_under_verb
 Available seeds: `0,42,2333,10007,12306`
 ### Zero-shot evaluation 
 ```
-python test_sc.py --path ../data/adv_demo/spurious/<heuristic>/entail-bias --model <model> --key <api-key> --zero
+python main.py +adv_demo=spurious_<heuristic>_zero ++model=<model> ++key=<key>
 ```
 ### Evaluation on entailment-correlated demonstration
 ```
-python test_sc.py --path ../data/adv_demo/spurious/<heuristic>/entail-bias --model <model> --key <api-key>
+python main.py +adv_demo=spurious_<heuristic>_entail-bias ++model=<model> ++key=<key>
 ```
 ### Evaluation on non-entailment-correlated demonstration
 ```
-python test_sc.py --path ../data/adv_demo/spurious/<heuristic>/non-entail-bias --model <model> --key <api-key>
+python main.py +adv_demo=spurious_<heuristic>_non-entail-bias ++model=<model> ++key=<key>
 ```
 
 ## Backdoor
@@ -78,7 +61,7 @@ And three backdoor setups `<setup>`: `setup1`, `setup2`, `setup3`.
 
 Please use the following template to run the evaluation:
 ```
-python test_backdoor.py --path ../data/adv_demo/backdoor/experiment1/sst-2_<setup>_<method> --model <model> --key <api-key>
+python main.py +adv_demo=backdoor_exp1_<method>_<setup> ++model=<model> ++key=<key>
 ```
 
 ### Experiment II
@@ -86,12 +69,12 @@ Here we only use `<setup>=setup2` and `<method>=badword`. Use the following comm
 
 For backdoor beginning:
 ```
-python test_backdoor.py --path ../data/adv_demo/backdoor/experiment2/sst-2_setup2_badword_1 --model <model> --key <api-key>
+python main.py +adv_demo=backdoor adv_demo.path=./data/adv_demo/backdoor/experiment2/sst-2_setup2_badword_1 ++model=<model> ++key=<key>
 ```
 
 For backdoor last:
 ```
-python test_backdoor.py --path ../data/adv_demo/backdoor/experiment2/sst-2_setup2_badword_0 --model <model> --key <api-key>
+python main.py +adv_demo=backdoor adv_demo.path=./data/adv_demo/backdoor/experiment2/sst-2_setup2_badword_0 ++model=<model> ++key=<key>
 ```
 
 ### Experiment III
@@ -99,12 +82,12 @@ Here we only use `<setup>=setup2` or `<setup>=setup3`. We consider the location 
 
 Please use the following template to run the evaluation:
 ```
-python test_backdoor.py --path ../data/adv_demo/backdoor/experiment3/<setup>_cf_<location> --model <model> --key <api-key>
+python main.py +adv_demo=backdoor adv_demo.path=./data/adv_demo/backdoor/experiment3/<setup>_cf_<location> ++model=<model> ++key=<key>
 ```
 
 ### Experiment IV
 Use `<task>=badword` to add backdoor instruction in the task description:
 ```
-python test_backdoor.py --path ../data/adv_demo/backdoor/experiment1/sst-2_<setup>_badword --model <model> --key <api-key> --task badword
+python main.py +adv_demo=backdoor_exp1_badword_setup1 ++model=<model> ++key=<key> adv_demo.task=badword
 ```
 

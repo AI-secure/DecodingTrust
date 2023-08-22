@@ -1,0 +1,8 @@
+sys: true
+demo: false
+data_file: ./data/adv-glue-plus-plus/data/stable-vicuna.json
+out_file: ./data/adv-glue-plus-plus/results/${model}/stable-vicuna.json
+no_adv: false
+resume: false
+save_interval: 100
+remove_newline: false
