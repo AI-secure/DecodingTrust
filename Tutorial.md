@@ -1,6 +1,7 @@
 # Overview
 
-This tutorial aims to provide an overview of the configuration system of `DecodingTrust`. Our goal is to provide users with a simple entry (`main.py`) to execute selected (or all) experiments in one pass.
+This tutorial aims to provide an overview of the configuration system of `DecodingTrust`. Our goal is to provide users with a simple entry (`main.py`) to execute selected (or all) trustworthiness perspectives 
+
 
 # Installation
 
@@ -21,20 +22,19 @@ conda create -n decodingtrust python=3.9 pip
 conda activate decodingtrust
 ```
 
-Clone our customized HELM repo,
+Clone our customized HELM repo and install,
 
 ```bash
 git clone https://github.com/danielz02/helm
-```
-
-and install the HELM package:
-
-```bash
+cd helm
 ./pre-commit.sh
+cd ..
 ```
 
-After installing the HELM repo, go back to our main repo, and install our required packages below: 
+Go back to our main DecodingTrust repo, and install our required packages below: 
 ```bash
+git clone https://github.com/AI-secure/DecodingTrust
+cd DecodingTrust
 pip install -r requirements.txt
 ```
 
@@ -44,7 +44,7 @@ Create a cache dir (by default the cached generations will be stored there)
 mkdir ./.cache
 ```
 
-Note that our codebase interacts with different models through the Holistic Evaluation of Language Models (HELM) framework, developed by Stanford's Center for Research on Foundation Models. Because certain open source models (e.g. `Falcon`) require the PyTorch implementation of `FlashAttention` (`scaled_dot_product_attention`), `PyTorch >= 2.0` is required if you wish to run these models.
+Note that our codebase interacts with different models through the Holistic Evaluation of Language Models (HELM) framework. Because certain open source models (e.g. `Falcon`) require the PyTorch implementation of `FlashAttention` (`scaled_dot_product_attention`), `PyTorch >= 2.0` is required if you wish to run these models.
 
 
 # Configuration
