@@ -1,0 +1,5 @@
+path: ./data/adv_demonstration/counterfactual/snli_premise
+task: nli3
+seeds: 42,2333,10007
+zero: false
+only: false

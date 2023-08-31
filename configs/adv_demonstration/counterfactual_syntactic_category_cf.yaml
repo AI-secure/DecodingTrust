@@ -1,0 +1,5 @@
+path: ./data/adv_demonstration/counterfactual/syntactic_category_cf
+task: syntactic_category
+seeds: 42,2333,10007
+zero: false
+only: false

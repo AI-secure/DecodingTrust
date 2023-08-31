@@ -1,0 +1,5 @@
+path: ./data/adv_demonstration/counterfactual/irregular_form_cf
+task: irregular_form
+seeds: 42,2333,10007
+zero: false
+only: false

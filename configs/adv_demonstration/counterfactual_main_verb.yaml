@@ -1,0 +1,5 @@
+path: ./data/adv_demonstration/counterfactual/main_verb
+task: main_verb
+seeds: 42,2333,10007
+zero: false
+only: false

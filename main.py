@@ -11,7 +11,7 @@ PERSPECTIVES = {
     "toxicity": "toxicity.text_generation_hydra",
     "fairness": "fairness.fairness_evaluation",
     "privacy": "privacy.privacy_evalution",
-    "adv_demo": "adv_demo.adv_demo_hydra",
+    "adv_demonstration": "adv_demonstration.adv_demonstration_hydra",
     "machine_ethics": "machine_ethics.test_machine_ethics",
     "ood": "ood.evaluation_ood"
 }

@@ -29,7 +29,7 @@ This project is structured around subdirectories dedicated to each area of trust
 ├── toxicity/
 ├── stereotype/
 ├── adv-glue-plus-plus/
-├── adv_demo/
+├── adv_demonstration/
 ├── privacy/
 ├── ood/
 ├── machine_ethics/

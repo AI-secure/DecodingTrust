@@ -47,7 +47,7 @@ class ToxicityConfig(BaseConfig):
 @dataclass
 class AdvDemoConfig(BaseConfig):
     path: str = "" # data folder for testing
-    task: str = "" # key for task description, check adv_demo/task_description.py for details
+    task: str = "" # key for task description, check adv_demonstration/task_description.py for details
     seeds: str = "42,2333,10007" # random seeds for testing
     zero: Optional[bool] = False # use zero-shot evaluation (only for the counterfacutal and spurious setting)
     only: Optional[bool] = False # use counterfacutal data only as the demonstration(only for thr counterfacutal setting)
