@@ -31,7 +31,7 @@ cd helm
 cd ..
 ```
 
-Go back to our main DecodingTrust repo, and install our required packages below: 
+Clone our DecodingTrust repo and install the required packages as below
 ```bash
 git clone https://github.com/AI-secure/DecodingTrust
 cd DecodingTrust
@@ -44,12 +44,12 @@ Create a cache dir (by default the cached generations will be stored there)
 mkdir ./.cache
 ```
 
-Note that our codebase interacts with different models through the Holistic Evaluation of Language Models (HELM) framework. Because certain open source models (e.g. `Falcon`) require the PyTorch implementation of `FlashAttention` (`scaled_dot_product_attention`), `PyTorch >= 2.0` is required if you wish to run these models.
+Note that certain open source models (e.g. `Falcon`) require the PyTorch implementation of `FlashAttention` (`scaled_dot_product_attention`), `PyTorch >= 2.0` is required if you wish to run these models.
 
 
 # Configuration
 
-The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations. Our codebase comes with a `BaseConfig` that specifies general information like model names and secret keys. To avoid combinatorially many configuration files, we use a modular approach to configuration management. Each trustworthy perspective, e.g. adversarial robustness as `AdvGLUEConfig`, extends `BaseConfig` and stores its dedicated configurations its separate folder under `./configs`. The configurations are defined in the `configs.py` script and registered with Hydra's `ConfigStore` in `main.py`.
+The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations. Our codebase comes with a `BaseConfig` that specifies general information like model names and secret keys. To avoid combinatorially many configuration files, we use a modularized scheme as the configure management. Each trustworthy perspective, e.g. adversarial robustness as `AdvGLUEConfig`, extends `BaseConfig` and stores its dedicated configurations in its separate folder under `./configs`. The configurations are defined in the `configs.py` script and registered with Hydra's `ConfigStore` in `main.py`.
 
 You can provide input to the script through a YAML configuration file. This file should be located in the `./configs` directory. We have provided a default configuration set in `./configs`.
 
@@ -99,7 +99,7 @@ python main.py +key=sk-YourOpenAIKey adv-glue-plus-plus=vicuna
 
 ### Run RealToxicityPrompts as an example of generation
 
-To evaluate toxicity on our sampled toxic prompts from RealToxicityPrompt, you can simply override the argument in command line input as well. For example, 
+To evaluate toxicity on our sampled toxic prompts from RealToxicityPrompt, you can simply override the argument in command line input. For example, 
 
 ```bash
 python main.py +key=sk-YourOpenAIKey toxicity=realtoxicityprompts-toxic
@@ -122,7 +122,7 @@ python main.py --config-name=another-config.yaml
 
 # Output Format
 
-For the example of AdvGLUE++, output files will be written to `./data/adv-glue-plus-plus/results/model-organization/model-name` in the following format to record the raw model queries, raw responses, parsed results, labels, and scores for each task:
+We provide a unified output format for different trustworthiness perspectives. Take AdvGLUE++ as an example.  The output files will be written to `./data/adv-glue-plus-plus/results/model-organization/model-name` in the following format to record the raw model queries, raw responses, parsed results, labels, and scores for each task:
 
 ```json
 {
