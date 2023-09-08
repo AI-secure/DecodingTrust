@@ -8,7 +8,7 @@ from typing import List, Dict, Union
 from helm.common.request import Request
 from conversation import get_conv_template
 from helm.proxy.clients.auto_client import AutoClient
-
+from response import Response
 
 class Chat(ABC):
     def __init__(self, model_name, model_type: str, prompt_price: float, completion_price: float):
@@ -175,7 +175,7 @@ class Chat(ABC):
         response = None
         for i in range(retry + 1):
             try:
-                response = self._call(messages, t, max_tokens, n)
+                response = self._call(messages, t, max_tokens, n).to_dict()
                 break
             except TimeoutError:
                 print(f"Seemingly openai is frozen, wait {i + 1}s and retry")
@@ -234,7 +234,7 @@ class Chat(ABC):
 
     def dry_run(self, messages, t=0, max_tokens=20, n=1):
         # TODO: Refactor with pydantic
-        return {
+        return Response.from_dict({
             "id": f"chatcmpl-{shortuuid.random()}",
             "object": "chat.completion",
             "created": int(time.time()),
@@ -255,7 +255,7 @@ class Chat(ABC):
                 "completion_tokens": max_tokens * n,
                 "total_tokens": self.num_tokens_from_messages(messages, self.model_name) + max_tokens * n
             }
-        }
+        })
 
 
 
@@ -317,9 +317,8 @@ class OpenAIChat(Chat):
         request = Request(**kwargs)
         response = self.client.make_request(request)
 
-        # if not response.success:
-        #     raise RuntimeError(f"Call to OpenAI model {self.model_name} failed!")
-        return response.raw_response
+        response = Response.from_dict(response.raw_response)
+        return response
 
 
 class HFChat(Chat):
@@ -377,7 +376,7 @@ class HFChat(Chat):
             raise RuntimeError(f"Call to huggingface hub model {self.model_name} failed!")
 
         # TODO: Refactor with pydantic
-        return {
+        response = Response.from_dict({
             "id": f"chatcmpl-{shortuuid.random()}",
             "object": "chat.completion",
             "created": int(time.time()),
@@ -398,4 +397,5 @@ class HFChat(Chat):
                 "completion_tokens": 0,
                 "total_tokens": 0
             }
-        }
+        })
+        return response
