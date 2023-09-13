@@ -10,6 +10,7 @@ from conversation import get_conv_template
 from helm.proxy.clients.auto_client import AutoClient
 from response import Response
 
+
 class Chat(ABC):
     def __init__(self, model_name, model_type: str, prompt_price: float, completion_price: float):
         self.model_name = model_name
@@ -79,12 +80,12 @@ class Chat(ABC):
 
                 pred = response['choices'][0]['message']['content']
                 pred = pred.lower()
-                
+
                 if pred.startswith("answer:"):
                     pred = pred[7:]
-                if pred.find("</s>")!=-1:
+                if pred.find("</s>") != -1:
                     pred = pred.split("</s>")[0]
-                if pred.find("<|im_end|>")!=-1:
+                if pred.find("<|im_end|>") != -1:
                     pred = pred.split("<|im_end|>")[0]
                 pred = pred.strip()
 
@@ -149,7 +150,7 @@ class Chat(ABC):
         except Exception as e:
             print(e)
             if len(cache) == 0:
-                return (0,0,0), []
+                return (0, 0, 0), []
         return (cost, prompt_tokens, cont_tokens), cache
 
     @abstractmethod
@@ -189,7 +190,6 @@ class Chat(ABC):
             print(f"try {retry + 1} but still no response, return None")
         return response
 
-
     def num_tokens_from_messages(self, messages, model="gpt-3.5-turbo-0613"):
         """Return the number of tokens used by a list of messages."""
         model = model.replace("openai/", "")
@@ -220,13 +220,14 @@ class Chat(ABC):
             return self.num_tokens_from_messages(messages, model="gpt-4-0613")
         else:
             raise NotImplementedError(
-                f"""num_tokens_from_messages() is not implemented for model {model}. See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens."""
+                f"""num_tokens_from_messages() is not implemented for model {model}. See https://github.com/openai
+                /openai-python/blob/main/chatml.md for information on how messages are converted to tokens."""
             )
         num_tokens = 0
         for message in messages:
             num_tokens += tokens_per_message
             for key, value in message.items():
-                num_tokens += len(encoding.encode(value,allowed_special={'<|endoftext|>'}))
+                num_tokens += len(encoding.encode(value, allowed_special={'<|endoftext|>'}))
                 if key == "name":
                     num_tokens += tokens_per_name
         num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
@@ -256,7 +257,6 @@ class Chat(ABC):
                 "total_tokens": self.num_tokens_from_messages(messages, self.model_name) + max_tokens * n
             }
         })
-
 
 
 class OpenAIChat(Chat):

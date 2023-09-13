@@ -1,3 +1,0 @@
-path: ./data/adv_demonstration/backdoor/experiment1/sst-2_setup1_badword
-task: sa
-seeds: 42,2333,10007
