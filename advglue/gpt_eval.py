@@ -14,7 +14,6 @@ from tenacity.wait import wait_random_exponential
 from datasets import load_metric, load_dataset
 from chat import Chat
 
-tasks = ['sst2', 'qqp', 'mnli', 'mnli-mm', 'qnli', 'rte']
 
 # Naming conversion...
 tasks_to_glue = {
@@ -213,8 +212,6 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
     else:
         results = {task_name: {"requests": [], "responses": [], "predictions": [], "labels": []}}
 
-    conversation_history = []
-
     pbar = tqdm(enumerate(dataset), total=len(dataset))
     for i, data in pbar:  # tqdm(dev["sst2"]):
         key1, key2 = task_to_keys[task_name]
@@ -261,10 +258,6 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
         results[task_name]["responses"].append(response)
         results[task_name]["requests"].append(request_body)
         results[task_name]["predictions"].append(prediction)
-        conversation_history += [
-            {"role": "user", "content": message},
-            response["choices"][0]["message"]
-        ]
 
         prompt_tokens += response["usage"]["prompt_tokens"]
         completion_tokens += response["usage"]["completion_tokens"]
@@ -272,6 +265,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
         pbar.set_postfix({"cost": price})
 
         if (i + 1) % OPTS.save_interval == 0 or (i + 1) == len(dataset):
+            print(f"Saving to {OPTS.out_file}")
             with open(OPTS.out_file, "w") as f:
                 json.dump(results, f, indent=4)
 
@@ -296,6 +290,8 @@ def main(OPTS):
                 results = json.load(f)
         else:
             results = {}
+
+        tasks = [OPTS.task] if isinstance(OPTS.task, str) else OPTS.task
         for task_name in tasks:  # , dataset in datasets.items():
             print(f"========== Evaluating on {task_name} ==========")
             if datasets:
@@ -312,7 +308,9 @@ def main(OPTS):
                 else:
                     dataset = dataset[(current_progress + 1):]
                     print(f"========== Resuming from {OPTS.out_file} ==========")
-            results, (prompt_tokens, completion_tokens, price) = classify(OPTS, model, dataset, task_name, results, prompt_tokens, completion_tokens, price)
+            results, (prompt_tokens, completion_tokens, price) = classify(
+                OPTS, model, dataset, task_name, results, prompt_tokens, completion_tokens, price
+            )
 
             metric = load_metric("glue", task_name if task_name != 'mnli-mm' else 'mnli')
             label_list = np.array(results[task_name]['labels'])
