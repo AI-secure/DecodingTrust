@@ -30,7 +30,7 @@ class AdvGLUEConfig:
     resume: bool = False  # Resume from previous results
     save_interval: int = 100  # Intervals to save results
     remove_newline: bool = False
-    task: Union[str, List[str]] = field(default_factory=list)
+    task: List[str] = field(default_factory=list)
 
 
 @dataclass
