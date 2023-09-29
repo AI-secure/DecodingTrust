@@ -5,7 +5,7 @@ from importlib import import_module
 from dataclasses import asdict
 
 from hydra.core.config_store import ConfigStore
-from configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
+from .configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
 
 PERSPECTIVES = {
     "stereotype": "stereotype.bias_generation",
