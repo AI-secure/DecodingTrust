@@ -8,7 +8,7 @@ from typing import List, Dict, Union
 from helm.common.request import Request
 from conversation import get_conv_template
 from helm.proxy.clients.auto_client import AutoClient
-from response import Response
+from dt.response import Response
 
 
 class Chat(ABC):

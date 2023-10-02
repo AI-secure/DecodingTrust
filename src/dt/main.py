@@ -5,7 +5,7 @@ from importlib import import_module
 from dataclasses import asdict
 
 from hydra.core.config_store import ConfigStore
-from .configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
+from dt.configs.configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
 
 PERSPECTIVES = {
     "stereotype": "stereotype.bias_generation",
@@ -23,7 +23,7 @@ cs = ConfigStore.instance()
 cs.store(name="config", node=BaseConfig)
 
 
-@hydra.main(config_path="./configs", config_name="config", version_base="1.2")
+@hydra.main(config_path="configs", config_name="config", version_base="1.2")
 def main(config: DictConfig) -> None:
     # The 'validator' methods will be called when you run the line below
     config: BaseConfig = OmegaConf.to_object(config)
