@@ -8,14 +8,14 @@ from hydra.core.config_store import ConfigStore
 from dt.configs.configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
 
 PERSPECTIVES = {
-    "stereotype": "stereotype.bias_generation",
-    "advglue": "advglue.gpt_eval",
-    "toxicity": "toxicity.text_generation_hydra",
-    "fairness": "fairness.fairness_evaluation",
-    "privacy": "privacy.privacy_evalution",
-    "adv_demonstration": "adv_demonstration.adv_demonstration_hydra",
-    "machine_ethics": "machine_ethics.test_machine_ethics",
-    "ood": "ood.evaluation_ood"
+    "stereotype": "dt.perspectives.stereotype.bias_generation",
+    "advglue": "dt.perspectives.advglue.gpt_eval",
+    "toxicity": "dt.perspectives.toxicity.text_generation_hydra",
+    "fairness": "dt.perspectives.fairness.fairness_evaluation",
+    "privacy": "dt.perspectives.privacy.privacy_evalution",
+    "adv_demonstration": "dt.perspectives.adv_demonstration.adv_demonstration_hydra",
+    "machine_ethics": "dt.perspectives.machine_ethics.test_machine_ethics",
+    "ood": "dt.perspectives.ood.evaluation_ood"
 }
 
 

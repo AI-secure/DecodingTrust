@@ -2,8 +2,8 @@ import json
 import os 
 import sys 
 sys.path.append("..") 
-from utils import make_sure_path_exists, init_logger
-from chat import Chat
+from dt.utils import make_sure_path_exists, init_logger
+from dt.chat import Chat
 from task_description import task_dic
 import openai
 import time 

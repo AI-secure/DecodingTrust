@@ -2,7 +2,7 @@ import time
 from tempfile import TemporaryDirectory
 from tqdm import tqdm
 import openai
-from chat import Chat
+from dt.chat import Chat
 import pandas as pd
 import json
 import numpy as np

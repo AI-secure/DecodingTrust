@@ -3,9 +3,9 @@ import time
 import openai
 import argparse
 import pandas as pd
-from chat import Chat
+from dt.chat import Chat
 from tempfile import TemporaryDirectory
-from stereotype.agreement_func import calculate_agreeability, model_agreement
+from dt.perspectives.stereotype.agreement_func import calculate_agreeability, model_agreement
 
 
 class MessageConstructor(object):

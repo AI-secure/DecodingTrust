@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import os
 import openai
-from utils import timeout
+from dt.utils import timeout
 
 
 class Chat(object):

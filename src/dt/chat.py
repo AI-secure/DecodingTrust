@@ -2,11 +2,11 @@ import time
 import warnings
 import shortuuid
 from tqdm import tqdm
-from utils import timeout
+from dt.utils import timeout
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 from helm.common.request import Request
-from conversation import get_conv_template
+from dt.conversation import get_conv_template
 from helm.proxy.clients.auto_client import AutoClient
 from dt.response import Response
 

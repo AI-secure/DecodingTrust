@@ -1,7 +1,7 @@
 import time
 from tqdm import tqdm
-from utils import timeout
-from chat import HFChat
+from dt.utils import timeout
+from dt.chat import HFChat
 
 
 class FairChat(HFChat):

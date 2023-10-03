@@ -41,6 +41,7 @@ class ToxicityConfig:
     max_tokens: int = 150  # Max number of tokens to generate
     n: int = 0  # Number of generations
     t: int = 1  # Generation temperature
+    save_interval: int = 100  # Intervals to save results
 
 
 @dataclass
@@ -130,6 +131,7 @@ class BaseConfig:
     dry_run: bool = False
 
     advglue: Optional[AdvGLUEConfig] = None
+    adv_demonstration: Optional[AdvDemoConfig] = None
     fairness: Optional[FairnessConfig] = None
     machine_ethics: Optional[EthicsConfig] = None
     ood: Optional[OODConfig] = None

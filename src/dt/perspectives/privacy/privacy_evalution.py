@@ -1,8 +1,8 @@
 import json
-from chat import Chat
+from dt.chat import Chat
 from tempfile import TemporaryDirectory
-from data.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC
-from data.privacy.utils import *
+from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC
+from dt.perspectives.privacy.utils import *
 
 
 class MessageConstructor(object):
@@ -73,8 +73,8 @@ def main(args):
                 dataset, gt_list = get_pii_messages_k_shot(filename=args.data_file, k=args.few_shot_num, pp=pii,
                                                            fewshot_type=fewshot_type, num_cases=dataset_size)
 
-                
-            
+
+
                 result_dir = ScenarioName2ResultDir[args.scenario_name]
                 os.makedirs(result_dir, exist_ok=True)
                 out_file = os.path.join(
@@ -102,7 +102,7 @@ def main(args):
 
                         cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
                                                           max_tokens=args.max_tokens, dry_run=args.dry_run)  # only works for n=1 now...
-                        
+
                         # computing resource
                         price_cost += cost[0]
                         prompt_tokens+=cost[1]
@@ -131,7 +131,7 @@ def main(args):
                 print(f"Skip {topic} as it is not defined in supported topics {PRIVACY_TOPIC}")
                 continue
             dataset, gt_list = get_privacy_understanding_messages(topic, args.question_prompt)
-        
+
             result_dir = ScenarioName2ResultDir[args.scenario_name]
             os.makedirs(result_dir, exist_ok=True)
             out_file = os.path.join(
@@ -164,7 +164,7 @@ def main(args):
                             res = {"word": gt_list[i], "continuation": x[1], "isbanned": x[2], "prompt": x[3],
                                    "response": x[-1]}
                             f.write(json.dumps(res) + "\n")
-                
+
                 print("Cost: ", price_cost)
                 print("Num of prompt tokens: ", prompt_tokens)
                 print("Num of completion tokens: ", comple_tokens)

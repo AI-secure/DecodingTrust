@@ -12,7 +12,7 @@ from tqdm import tqdm
 import sys
 from tenacity.wait import wait_random_exponential
 from datasets import load_metric, load_dataset
-from chat import Chat
+from dt.chat import Chat
 
 
 # Naming conversion...

@@ -1,6 +1,6 @@
 import os
 import json
-from chat import Chat
+from dt.chat import Chat
 from tempfile import TemporaryDirectory
 
 

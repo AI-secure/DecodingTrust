@@ -1,12 +1,12 @@
 import os
 import json
-from fairness.fair_chat import FairChat
-from fairness.task_description import task_dic
+from dt.perspectives.fairness.fair_chat import FairChat
+from dt.perspectives.fairness.task_description import task_dic
 import numpy as np
 from tempfile import TemporaryDirectory
 from fairlearn.metrics import equalized_odds_difference
 from fairlearn.metrics import demographic_parity_difference
-from chat import Chat
+from dt.chat import Chat
 
 
 def main(args):

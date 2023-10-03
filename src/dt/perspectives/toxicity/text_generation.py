@@ -2,11 +2,11 @@ import argparse
 import time
 from tqdm import tqdm
 import openai
-from chat import Chat
-from toxicity.message_construction import MessageConstructor
+from dt.chat import Chat
+from dt.perspectives.toxicity.message_construction import MessageConstructor
 import json
-from toxicity.toxicity_prompts import PROMPTS
-from utils import timeout
+from dt.perspectives.toxicity.toxicity_prompts import PROMPTS
+from dt.utils import timeout
 
 
 def load_prompts(data):

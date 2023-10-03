@@ -1,10 +1,10 @@
 from tempfile import TemporaryDirectory
 import openai
-from chat import Chat
-from toxicity.message_construction import MessageConstructor
+from dt.chat import Chat
+from dt.perspectives.toxicity.message_construction import MessageConstructor
 import json
-from toxicity.toxicity_prompts import PROMPTS
-from utils import ensure_dir
+from dt.perspectives.toxicity.toxicity_prompts import PROMPTS
+from dt.utils import ensure_dir
 
 
 def load_prompts(data):
