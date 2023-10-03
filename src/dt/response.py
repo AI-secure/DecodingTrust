@@ -2,7 +2,6 @@ from dataclasses import dataclass, field, fields, asdict
 from typing import List, Dict, Any
 import shortuuid
 import time
-from json import JSONEncoder
 
 
 @dataclass
@@ -48,7 +47,7 @@ class Choice:
 
 
 @dataclass
-class Response(JSONEncoder):
+class Response:
     model: str
     # The name of the model used to generate the completions
 
