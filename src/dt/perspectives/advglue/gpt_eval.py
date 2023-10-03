@@ -266,6 +266,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
 
         if (i + 1) % OPTS.save_interval == 0 or (i + 1) == len(dataset):
             print(f"Saving to {OPTS.out_file}")
+            os.makedirs(os.path.dirname(OPTS.out_file), exist_ok=True)
             with open(OPTS.out_file, "w") as f:
                 json.dump(results, f, indent=4)
 
@@ -321,6 +322,7 @@ def main(OPTS):
             score = metric.compute(predictions=pred_list, references=label_list)
             results[task_name]["score"] = score
 
+            os.makedirs(os.path.dirname(OPTS.out_file), exist_ok=True)
             with open(OPTS.out_file, "w") as f:
                 json.dump(results, f, indent=4)
             print(f"# Prompt Tokens: {prompt_tokens} \t # Completion Tokens: {completion_tokens} \t Price: {price}")

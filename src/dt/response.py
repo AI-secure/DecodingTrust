@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, fields, asdict
 from typing import List, Dict, Any
 import shortuuid
 import time
+from json import JSONEncoder
 
 
 @dataclass
@@ -18,6 +19,9 @@ class Message:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 @dataclass
 class Choice:
@@ -39,9 +43,12 @@ class Choice:
     def to_dict(self) -> Dict[str, Any]:
         return {"index": self.index, "message": self.message.to_dict(), "finish_reason": self.finish_reason}
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 
 @dataclass
-class Response:
+class Response(JSONEncoder):
     model: str
     # The name of the model used to generate the completions
 
@@ -76,6 +83,12 @@ class Response:
         choices = [choice.to_dict() for choice in self.choices]
         return {"id": self.id, "object": self.object, "created": self.created, "model": self.model, "choices": choices,
                 "usage": self.usage}
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __dict__(self):
+        return self.to_dict()
 
 
 if __name__ == '__main__':
