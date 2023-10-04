@@ -86,9 +86,6 @@ class Response:
     def __getitem__(self, item):
         return getattr(self, item)
 
-    def __dict__(self):
-        return self.to_dict()
-
 
 if __name__ == '__main__':
     # Example dictionary representing a chat completion object
