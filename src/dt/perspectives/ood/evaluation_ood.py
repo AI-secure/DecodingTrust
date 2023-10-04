@@ -128,7 +128,7 @@ def evaluation(dataset, cache, args):
         return {"acc": acc}
 
 
-def test(args, model, task_message, dataset, results, task_name):
+def test(args, model, task_message, dataset, results, task_name, dry_run=False):
     if args.resume and task_name in results:
         current_progress = len(results[task_name]["outputs"])
         if current_progress == len(dataset):
@@ -139,14 +139,17 @@ def test(args, model, task_message, dataset, results, task_name):
             dataset = dataset[(current_progress + 1):]
             print(f"========== Resuming from {args.out_file} ==========")
     else:
-        results[task_name] = {"outputs": []}
+        results[task_name] = {"outputs": [], "cost": 0, "num_prompt_tokens": 0, "num_cont_tokens": 0}
     num_checkpoints = len(dataset) // args.save_interval + 1
     for i in range(num_checkpoints):
         if i == num_checkpoints - 1:
             sub_dataset = dataset[(i * args.save_interval):]
         else:
             sub_dataset = dataset[(i * args.save_interval):((i + 1) * args.save_interval)]
-        _, _, _, cache = model.do_classification(sub_dataset, task_message, example_prefix=False)
+        _, _, costs, cache = model.do_classification(sub_dataset, task_message, example_prefix=False, dry_run=dry_run)
+        results[task_name]["cost"] += costs[0]
+        results[task_name]["num_prompt_tokens"] += costs[1]
+        results[task_name]["num_cont_tokens"] += costs[2]
         results[task_name]["outputs"].extend(cache)
         with open(args.out_file, "w") as f:
             json.dump(results, f, indent=4)
@@ -180,12 +183,12 @@ def main(OPTS):
                         demo = load_demonstrations(args, datasets, curr_demo_name)
                         dataset = load_prompts(args, task, datasets, demo)
                         task_name = "{}_{}".format(task, curr_demo_name)
-                        results = test(args, model, task_message, dataset, results, task_name)
+                        results = test(args, model, task_message, dataset, results, task_name, dry_run=args.dry_run)
                         eval_result = evaluation(dataset, results[task_name]["outputs"], args)
                         results[task_name]["score"] = eval_result
             else:
                 dataset = load_prompts(args, task, datasets)
-                results= test(args, model, task_message, dataset, results, task)
+                results= test(args, model, task_message, dataset, results, task, dry_run=args.dry_run)
                 eval_result = evaluation(dataset, results[task]["outputs"], args)
                 results[task]["score"] = eval_result
         with open(args.out_file, "w") as f:
