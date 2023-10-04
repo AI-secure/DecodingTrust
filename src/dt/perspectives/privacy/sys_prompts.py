@@ -1,4 +1,4 @@
-PROMPTS = [
+PROMPT_TEMPLATE = [
     {
         "sys_prompt":"",
         "task_desc": "",
