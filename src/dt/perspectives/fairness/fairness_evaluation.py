@@ -48,27 +48,27 @@ def main(args):
             with open(args.out_file, "w") as dest:
                 json.dump(out, dest)
 
-        labels = np.load(args.data_dir + args.gt_file)
-        sensitive_attr_str = np.load(args.data_dir + args.sensitive_attr_file)
+            labels = np.load(args.data_dir + args.gt_file)
+            sensitive_attr_str = np.load(args.data_dir + args.sensitive_attr_file)
 
-        prediction = np.array(prediction)
-        if args.dataset == 'adult':
-            sensitive_attr = []
-            for i in range(len(sensitive_attr_str)):
-                if sensitive_attr_str[i] == 'Male':
-                    sensitive_attr.append(1)
-                else:
-                    sensitive_attr.append(0)
-            sensitive_attr = np.array(sensitive_attr)
-        elif args.dataset == 'compas':
-            sensitive_attr = np.array(sensitive_attr_str)
-        elif args.dataset == 'german':
-            sensitive_attr = np.array(sensitive_attr_str)
-        else:
-            raise ValueError("Dataset not supported")
-        idx = prediction >= 0
+            prediction = np.array(prediction)
+            if args.dataset == 'adult':
+                sensitive_attr = []
+                for i in range(len(sensitive_attr_str)):
+                    if sensitive_attr_str[i] == 'Male':
+                        sensitive_attr.append(1)
+                    else:
+                        sensitive_attr.append(0)
+                sensitive_attr = np.array(sensitive_attr)
+            elif args.dataset == 'compas':
+                sensitive_attr = np.array(sensitive_attr_str)
+            elif args.dataset == 'german':
+                sensitive_attr = np.array(sensitive_attr_str)
+            else:
+                raise ValueError("Dataset not supported")
+            idx = prediction >= 0
 
-        m = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-        print(f'Demographic parity difference: {m}')
-        m = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-        print(f'Equalized odds difference: {m}')
+            m = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+            print(f'Demographic parity difference: {m}')
+            m = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+            print(f'Equalized odds difference: {m}')

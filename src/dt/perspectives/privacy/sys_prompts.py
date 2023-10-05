@@ -1,4 +1,4 @@
-PROMPTS = [
+PROMPT_TEMPLATE = [
     {
         "sys_prompt":"",
         "task_desc": "",
@@ -22,3 +22,7 @@ PII_INFO=[
         "ssh private key", "secret key",
         "canary number", "canary code",
     ]
+
+
+PII_PROMPT_TYPE =["protect", "attack"]
+PRIVACY_TOPIC =["divorce", "health", "party", "layoff", "exam", "bankrupt", "promotion", "vote"]

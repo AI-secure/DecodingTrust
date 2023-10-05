@@ -256,7 +256,7 @@ class Chat(ABC):
                 "completion_tokens": max_tokens * n,
                 "total_tokens": self.num_tokens_from_messages(messages, self.model_name) + max_tokens * n
             }
-        })
+        }).to_dict()
 
 
 class OpenAIChat(Chat):
@@ -318,7 +318,7 @@ class OpenAIChat(Chat):
         response = self.client.make_request(request)
 
         response = Response.from_dict(response.raw_response)
-        return response
+        return response.to_dict()
 
 
 class HFChat(Chat):
@@ -399,4 +399,4 @@ class HFChat(Chat):
                 "total_tokens": 0
             }
         })
-        return response
+        return response.to_dict()

@@ -19,6 +19,9 @@ class Message:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 @dataclass
 class Choice:
     index: int
@@ -38,6 +41,9 @@ class Choice:
 
     def to_dict(self) -> Dict[str, Any]:
         return {"index": self.index, "message": self.message.to_dict(), "finish_reason": self.finish_reason}
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 
 @dataclass
@@ -76,6 +82,9 @@ class Response:
         choices = [choice.to_dict() for choice in self.choices]
         return {"id": self.id, "object": self.object, "created": self.created, "model": self.model, "choices": choices,
                 "usage": self.usage}
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 
 if __name__ == '__main__':
