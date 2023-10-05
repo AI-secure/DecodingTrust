@@ -1,8 +1,12 @@
 import json
+import os
+
 from dt.chat import Chat
 from tempfile import TemporaryDirectory
 from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC
-from dt.perspectives.privacy.utils import *
+
+from dt.perspectives.privacy.utils import get_privacy_understanding_messages, load_enron_email_prompts, \
+    get_pii_messages_k_shot
 
 
 class MessageConstructor(object):
@@ -52,9 +56,9 @@ def main(args):
     dataset_size = args.dataset_size
 
     all_cost = {}
-    all_prompt_tokens={}
-    all_comple_tokens={}
-    all_num_prompt={}
+    all_prompt_tokens = {}
+    all_comple_tokens = {}
+    all_num_prompt = {}
 
     if args.scenario_name == "pii":
 
@@ -73,8 +77,6 @@ def main(args):
                 dataset, gt_list = get_pii_messages_k_shot(filename=args.data_file, k=args.few_shot_num, pp=pii,
                                                            fewshot_type=fewshot_type, num_cases=dataset_size)
 
-
-
                 result_dir = ScenarioName2ResultDir[args.scenario_name]
                 os.makedirs(result_dir, exist_ok=True)
                 out_file = os.path.join(
@@ -87,9 +89,9 @@ def main(args):
 
                 num_batches = int(dataset_size / args.batch_size)
                 price_cost = 0
-                prompt_tokens=0
-                comple_tokens=0
-                num_prompt=0
+                prompt_tokens = 0
+                comple_tokens = 0
+                num_prompt = 0
                 with TemporaryDirectory(dir="./.cache") as dirname:
                     model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname,
                                            api_key=args.key)
@@ -101,13 +103,14 @@ def main(args):
                         batch_gt = gt_list[batch_start:batch_end]
 
                         cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
-                                                          max_tokens=args.max_tokens, dry_run=args.dry_run)  # only works for n=1 now...
+                                                          max_tokens=args.max_tokens,
+                                                          dry_run=args.dry_run)  # only works for n=1 now...
 
                         # computing resource
                         price_cost += cost[0]
-                        prompt_tokens+=cost[1]
-                        comple_tokens+=cost[2]
-                        num_prompt+=len(cache)
+                        prompt_tokens += cost[1]
+                        comple_tokens += cost[2]
+                        num_prompt += len(cache)
 
                         with open(out_file, "a") as f:
                             for idx, x in enumerate(cache):
@@ -117,10 +120,10 @@ def main(args):
                     print("Cost: ", price_cost)
                     print("Num of prompt tokens: ", prompt_tokens)
                     print("Num of completion tokens: ", comple_tokens)
-                    all_cost[pii]=price_cost
-                    all_prompt_tokens[pii]=prompt_tokens
-                    all_comple_tokens[pii]=comple_tokens
-                    all_num_prompt[pii]=num_prompt
+                    all_cost[pii] = price_cost
+                    all_prompt_tokens[pii] = prompt_tokens
+                    all_comple_tokens[pii] = comple_tokens
+                    all_num_prompt[pii] = num_prompt
 
 
     elif args.scenario_name == "privacy_understanding":
@@ -143,21 +146,22 @@ def main(args):
 
             print(f"Saving to {out_file}")
             price_cost = 0
-            prompt_tokens=0
-            comple_tokens=0
-            num_prompt=0
+            prompt_tokens = 0
+            comple_tokens = 0
+            num_prompt = 0
             with TemporaryDirectory(dir="./.cache") as dirname:
-                model = Chat.from_helm(model_name=args.model, conv_template=args.conv_template, cache=dirname,
+                model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname,
                                        api_key=args.key)
                 for i, data in enumerate(dataset):
                     batch_data = [data] * dataset_size
                     cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
-                                                      max_tokens=args.max_tokens, dry_run=args.dry_run)  # only works for n=1 now...
+                                                      max_tokens=args.max_tokens,
+                                                      dry_run=args.dry_run)  # only works for n=1 now...
                     # computing resource
                     price_cost += cost[0]
-                    prompt_tokens+=cost[1]
-                    comple_tokens+=cost[2]
-                    num_prompt+=len(cache)
+                    prompt_tokens += cost[1]
+                    comple_tokens += cost[2]
+                    num_prompt += len(cache)
 
                     with open(out_file, "a") as f:
                         for idx, x in enumerate(cache):
@@ -168,10 +172,10 @@ def main(args):
                 print("Cost: ", price_cost)
                 print("Num of prompt tokens: ", prompt_tokens)
                 print("Num of completion tokens: ", comple_tokens)
-                all_cost[topic]=price_cost
-                all_prompt_tokens[topic]=prompt_tokens
-                all_comple_tokens[topic]=comple_tokens
-                all_num_prompt[topic]=num_prompt
+                all_cost[topic] = price_cost
+                all_prompt_tokens[topic] = prompt_tokens
+                all_comple_tokens[topic] = comple_tokens
+                all_num_prompt[topic] = num_prompt
 
 
     elif args.scenario_name == "enron_email_extraction":
@@ -185,7 +189,6 @@ def main(args):
             else:
                 dataset = dataset[:dataset_size]
 
-            
             result_dir = ScenarioName2ResultDir[args.scenario_name]
             os.makedirs(result_dir, exist_ok=True)
             out_file = os.path.join(
@@ -195,12 +198,12 @@ def main(args):
             )
             print(f"Saving to {out_file}")
             price_cost = 0
-            prompt_tokens=0
-            comple_tokens=0
-            num_prompt=0
+            prompt_tokens = 0
+            comple_tokens = 0
+            num_prompt = 0
             with TemporaryDirectory(dir="./.cache") as dirname:
 
-                model = Chat.from_helm(model_name=args.model, conv_template=args.conv_template, cache=dirname,
+                model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname,
                                        api_key=args.key)
 
                 num_batches = int(dataset_size / args.batch_size)
@@ -211,16 +214,16 @@ def main(args):
                     batch_data = dataset[batch_start:batch_end]
                     batch_name = name_list[batch_start:batch_end]
                     batch_email = email_list[batch_start:batch_end]
-                    
 
-                    cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t, 
-                                                      max_tokens=args.max_tokens, dry_run=args.dry_run)  # only works for n=1 now...
+                    cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
+                                                      max_tokens=args.max_tokens,
+                                                      dry_run=args.dry_run)  # only works for n=1 now...
                     # computing resource
-                    
+
                     price_cost += cost[0]
-                    prompt_tokens+=cost[1]
-                    comple_tokens+=cost[2]
-                    num_prompt+=len(cache)
+                    prompt_tokens += cost[1]
+                    comple_tokens += cost[2]
+                    num_prompt += len(cache)
 
                     if not os.path.exists(os.path.dirname(out_file)):
                         os.makedirs(os.path.dirname(out_file))
@@ -230,35 +233,30 @@ def main(args):
                                    "isbanned": x[2], "prompt": x[3], "response": x[-1]}
                             f.write(json.dumps(res) + "\n")
 
-               
-                
                 print("dataset size: ", dataset_size)
                 print("Cost: ", price_cost)
                 print("Num of prompt tokens: ", prompt_tokens)
                 print("Num of completion tokens: ", comple_tokens)
-                all_cost[prompt_type]=price_cost
-                all_prompt_tokens[prompt_type]=prompt_tokens
-                all_comple_tokens[prompt_type]=comple_tokens
-                all_num_prompt[prompt_type]=num_prompt
-
+                all_cost[prompt_type] = price_cost
+                all_prompt_tokens[prompt_type] = prompt_tokens
+                all_comple_tokens[prompt_type] = comple_tokens
+                all_num_prompt[prompt_type] = num_prompt
 
     print("*********final results summary******")
 
-
-    cost_over_all_settings=0
-    prompt_tokens_over_all_settings=0
-    comple_tokens_over_all_settings=0
-    num_prompt_over_all_settings=0
+    cost_over_all_settings = 0
+    prompt_tokens_over_all_settings = 0
+    comple_tokens_over_all_settings = 0
+    num_prompt_over_all_settings = 0
     for key in all_cost.keys():
         print("scenario: ", key)
         print("Cost: ", all_cost[key])
         print("Num of prompt tokens: ", all_prompt_tokens[key])
         print("Num of completion tokens: ", all_comple_tokens[key])
-        cost_over_all_settings+=all_cost[key]
-        prompt_tokens_over_all_settings+=all_prompt_tokens[key]
-        comple_tokens_over_all_settings+=all_comple_tokens[key]
-        num_prompt_over_all_settings+=all_num_prompt[key]
-    
+        cost_over_all_settings += all_cost[key]
+        prompt_tokens_over_all_settings += all_prompt_tokens[key]
+        comple_tokens_over_all_settings += all_comple_tokens[key]
+        num_prompt_over_all_settings += all_num_prompt[key]
 
     print("*********sum results summary******")
     print("sum - Cost: ", cost_over_all_settings)
