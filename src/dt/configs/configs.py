@@ -1,3 +1,4 @@
+from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
 from dataclasses import dataclass, field
 from typing import Optional, List, Union
 from enum import Enum, auto
@@ -6,18 +7,6 @@ from enum import Enum, auto
 class ModelType(Enum):
     CHAT = auto()
     COMPLETION = auto()
-
-
-class ModelLoader(Enum):
-    HF = auto()
-    GPTQ = auto()
-    AWQ = auto()
-
-
-class WeightType(Enum):
-    BFLOAT16 = auto()
-    FLOAT16 = auto()
-    FLOAT32 = auto()
 
 
 @dataclass

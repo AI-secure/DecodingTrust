@@ -276,7 +276,23 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
 def main(OPTS):
     TASK2SHORTPROMPT["mnli-mm"] = TASK2SHORTPROMPT["mnli"]
     with TemporaryDirectory(dir="./.cache") as dirname:
-        model = Chat.from_helm(model_name=OPTS.model, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key)
+        from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
+        from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
+
+        if OPTS.model_loader != ModelLoader.HF:
+            quant_config = HuggingfaceModelQuantizationConfig(
+                model_loader=OPTS.model_loader, quant_file=OPTS.quant_file,
+                tokenizer_name=OPTS.tokenizer_name
+            )
+        else:
+            quant_config = None
+ 
+ 
+        model = Chat.from_helm(
+            model_name=OPTS.model, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
+            quantization_config=quant_config,
+            model_dtype=OPTS.torch_dtype
+        )
 
         if OPTS.data_file:
             with open(OPTS.data_file) as f:
