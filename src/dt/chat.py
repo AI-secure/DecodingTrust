@@ -177,7 +177,7 @@ class Chat(ABC):
         response = None
         for i in range(retry + 1):
             try:
-                response = self._call(messages, t, max_tokens, n).to_dict()
+                response = self._call(messages, t, max_tokens, n)  # .to_dict()
                 break
             except TimeoutError:
                 print(f"Seemingly openai is frozen, wait {i + 1}s and retry")
