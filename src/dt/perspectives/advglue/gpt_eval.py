@@ -14,7 +14,6 @@ from tenacity.wait import wait_random_exponential
 from datasets import load_metric, load_dataset
 from dt.chat import Chat
 
-
 # Naming conversion...
 tasks_to_glue = {
     "sst2": "sst2",
@@ -276,21 +275,8 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
 def main(OPTS):
     TASK2SHORTPROMPT["mnli-mm"] = TASK2SHORTPROMPT["mnli"]
     with TemporaryDirectory(dir="./.cache") as dirname:
-        from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
-        from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
-
-        if OPTS.model_loader != ModelLoader.HF:
-            quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=OPTS.model_loader, quant_file=OPTS.quant_file,
-                tokenizer_name=OPTS.tokenizer_name
-            )
-        else:
-            quant_config = None
- 
- 
         model = Chat.from_helm(
             OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
-            quantization_config=quant_config,
             model_dtype=OPTS.torch_dtype
         )
 
