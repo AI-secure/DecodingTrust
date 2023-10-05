@@ -23,6 +23,7 @@ class Chat(ABC):
         if model_name.lower().startswith("openai/"):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):
+            kwargs.pop("api_key")
             return HFChat(model_name.replace("hf/", ""), **kwargs)
 
     def calc_price(self, response):
