@@ -333,6 +333,7 @@ class HFChat(Chat):
 
         self.client = AutoClient(credentials={}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
+        self.model_name = self.model_name.split("@")[0]
 
     def messages_to_prompt(self, messages: Union[List[Dict], str]):
         if isinstance(messages, str):
