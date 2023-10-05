@@ -29,7 +29,7 @@ class Chat(ABC):
             )
         else:
             quant_config = None
-        kwargs["quant_config"] = quant_config
+        kwargs["quantization_config"] = quant_config
         kwargs["model_dtype"] = OPTS.torch_dtype
 
         if model_name.lower().startswith("openai/"):
