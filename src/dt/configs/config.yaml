@@ -5,6 +5,7 @@ key: ${oc.env:OPENAI_API_KEY} # TODO: Expunge API key exposed from commit e1ca59
 model_loader: HF
 torch_dtype: BFLOAT16
 quant_file: null
+tokenizer_name: null
 trust_remote_code: true
 use_auth_token: true
 dry_run: False
