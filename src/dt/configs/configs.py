@@ -115,6 +115,7 @@ class BaseConfig:
     trust_remote_code: bool = True
     use_auth_token: bool = True
     disable_exllama: bool = True  # Configuration from AutoGPTQForCausalLM
+    quant_file: Optional[str] = None
     # TODO: Handle device map - change HELM's default behavior
 
     dry_run: bool = False
