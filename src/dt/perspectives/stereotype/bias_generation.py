@@ -263,7 +263,7 @@ def main(OPTS):
     if not OPTS.skip_generation:
         with TemporaryDirectory(dir="./.cache") as dirname:
             model = Chat.from_helm(
-                OPTS.model, OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key
+                OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key
             )
             cost = 0
             prompt_tokens = 0

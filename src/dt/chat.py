@@ -7,7 +7,10 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 from helm.common.request import Request
 from dt.conversation import get_conv_template
+from dt.configs.configs import BaseConfig
 from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
+from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
 from dt.response import Response
 
 
@@ -19,19 +22,18 @@ class Chat(ABC):
         self.completion_price = completion_price
 
     @staticmethod
-    def from_helm(model_name: str, OPTS, **kwargs):
-        from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
-        from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
-        if OPTS.model_loader != ModelLoader.HF:
+    def from_helm(main_config: BaseConfig, **kwargs):
+        if main_config.model_loader != ModelLoader.HF:
             quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=OPTS.model_loader, quant_file=OPTS.quant_file,
-                tokenizer_name=OPTS.tokenizer_name
+                model_loader=main_config.model_loader, quant_file=main_config.quant_file,
             )
         else:
             quant_config = None
         kwargs["quantization_config"] = quant_config
-        kwargs["model_dtype"] = OPTS.torch_dtype
+        kwargs["model_dtype"] = main_config.torch_dtype
+        kwargs["tokenizer_name"] = main_config.tokenizer_name
 
+        model_name: str = main_config.model
         if model_name.lower().startswith("openai/"):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):

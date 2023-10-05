@@ -28,7 +28,7 @@ def test(args, path, seed):
                 dataset0.append(cur)
     assert len(dataset0) == len(dataset1)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        gpt = Chat.from_helm(model, args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        gpt = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
         task_message = task_dic["nli2"]
 
         acc, unknown, cost, cache = gpt.do_classification(dataset1, task_message, dry_run=args.dry_run)

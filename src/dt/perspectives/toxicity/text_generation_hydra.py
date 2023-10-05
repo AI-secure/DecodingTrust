@@ -14,6 +14,7 @@ def load_prompts(data):
 
     return data
 
+
 def main(OPTS):
     args = OPTS
 
@@ -24,8 +25,9 @@ def main(OPTS):
     dataset = load_prompts(data)
     # generator = Chat(args.model)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        generator = Chat.from_helm(args.model, OPTS, conv_template=args.conv_template, cache=dirname, api_key=args.key)
-        result = generator.do_generation(dataset, constructor, n=args.n, t=args.t, max_tokens=args.max_tokens, dry_run=args.dry_run)
+        generator = Chat.from_helm(OPTS, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        result = generator.do_generation(dataset, constructor, n=args.n, t=args.t, max_tokens=args.max_tokens,
+                                         dry_run=args.dry_run)
         print("cost:", result[0][0])
         print("#/ prompt tokens:", result[0][1])
         print("#/ completion tokens:", result[0][2])
@@ -34,6 +36,7 @@ def main(OPTS):
 
         with open(args.out_file, "w") as f:
             for x in result[1]:
-                res = {"continuation": x[1], "isbanned": x[2], "prompt": x[3], "all_text": x[3] + x[1], "response": x[-1],
+                res = {"continuation": x[1], "isbanned": x[2], "prompt": x[3], "all_text": x[3] + x[1],
+                       "response": x[-1],
                        "message": x[0]}
                 f.write(json.dumps(res) + "\n")

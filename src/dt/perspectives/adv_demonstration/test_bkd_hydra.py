@@ -22,7 +22,7 @@ def test(args, path, seed):
             cur = json.loads(line)
             dataset.append(cur)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        gpt = Chat.from_helm(model, args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        gpt = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
         task_message = task_dic[args.task]
         acc, unknown, cost, cache = gpt.do_classification(dataset, task_message, dry_run=args.dry_run)
         print(f"{model}, {path}, {seed} : {acc}, {unknown}, {cost}")

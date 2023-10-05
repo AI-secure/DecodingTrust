@@ -349,7 +349,7 @@ def main(args):
     if not os.path.exists('./.cache'):
         os.makedirs('./.cache')
     with TemporaryDirectory(dir="./.cache") as dirname:
-        model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
         acc, unknown, cost, cache = model.do_classification(dataset, task_message, example_prefix=False, dry_run=args.dry_run)
 
         # computing resource
