@@ -91,7 +91,7 @@ def main(args):
                 comple_tokens=0
                 num_prompt=0
                 with TemporaryDirectory(dir="./.cache") as dirname:
-                    model = Chat.from_helm(model_name=args.model, conv_template=args.conv_template, cache=dirname,
+                    model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname,
                                            api_key=args.key)
 
                     for batch_idx in range(num_batches):

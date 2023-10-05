@@ -19,7 +19,19 @@ class Chat(ABC):
         self.completion_price = completion_price
 
     @staticmethod
-    def from_helm(model_name: str, **kwargs):
+    def from_helm(model_name: str, OPTS, **kwargs):
+        from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
+        from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
+        if OPTS.model_loader != ModelLoader.HF:
+            quant_config = HuggingfaceModelQuantizationConfig(
+                model_loader=OPTS.model_loader, quant_file=OPTS.quant_file,
+                tokenizer_name=OPTS.tokenizer_name
+            )
+        else:
+            quant_config = None
+        kwargs["quant_config"] = quant_config
+        kwargs["model_dtype"] = OPTS.torch_dtype
+
         if model_name.lower().startswith("openai/"):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):

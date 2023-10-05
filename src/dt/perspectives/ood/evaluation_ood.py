@@ -164,7 +164,7 @@ def main(OPTS):
     task_message = load_task_messages(args)
     with TemporaryDirectory(dir="./.cache") as dirname:
         os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-        model = Chat.from_helm(model_name=args.model, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        model = Chat.from_helm(args.model, args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
         if args.resume:
             assert os.path.exists(args.out_file)
             with open(args.out_file) as f:

@@ -289,7 +289,7 @@ def main(OPTS):
  
  
         model = Chat.from_helm(
-            model_name=OPTS.model, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
+            model_name=OPTS.model, OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
             quantization_config=quant_config,
             model_dtype=OPTS.torch_dtype
         )
