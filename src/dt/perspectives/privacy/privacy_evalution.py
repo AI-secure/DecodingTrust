@@ -125,7 +125,6 @@ def main(args):
                     all_comple_tokens[pii] = comple_tokens
                     all_num_prompt[pii] = num_prompt
 
-
     elif args.scenario_name == "privacy_understanding":
         constructor = MessageConstructor(PROMPT_TEMPLATE[args.template]['sys_prompt'],
                                          PROMPT_TEMPLATE[args.template]['task_desc'])
@@ -176,7 +175,6 @@ def main(args):
                 all_prompt_tokens[topic] = prompt_tokens
                 all_comple_tokens[topic] = comple_tokens
                 all_num_prompt[topic] = num_prompt
-
 
     elif args.scenario_name == "enron_email_extraction":
         constructor = EnronMessageConstructor(PROMPT_TEMPLATE[args.template]['sys_prompt'],
