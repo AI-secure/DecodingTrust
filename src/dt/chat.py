@@ -326,6 +326,7 @@ class HFChat(Chat):
         super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
 
         try:
+            import os
             if os.path.exists(model_name):
                 from helm.proxy.clients.huggingface_model_registry import register_huggingface_local_model_config
                 register_huggingface_local_model_config(self.model_name, **kwargs)
