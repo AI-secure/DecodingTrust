@@ -24,16 +24,236 @@ This project is structured around subdirectories dedicated to each area of trust
 
 ```
 .
+├── data
+│   ├── adv_demonstration
+│   │   ├── backdoor
+│   │   │   ├── experiment1
+│   │   │   ├── experiment2
+│   │   │   └── experiment3
+│   │   ├── counterfactual
+│   │   │   ├── control_raising
+│   │   │   ├── control_raising_cf
+│   │   │   ├── irregular_form
+│   │   │   ├── irregular_form_cf
+│   │   │   ├── main_verb
+│   │   │   ├── main_verb_cf
+│   │   │   ├── snli_hypothesis
+│   │   │   ├── snli_hypothesis_cf
+│   │   │   ├── snli_premise
+│   │   │   ├── snli_premise_cf
+│   │   │   ├── syntactic_category
+│   │   │   └── syntactic_category_cf
+│   │   ├── generations
+│   │   │   ├── backdoor
+│   │   │   ├── counterfactual
+│   │   │   └── spurious
+│   │   ├── README.md
+│   │   └── spurious
+│   │       ├── adverb
+│   │       ├── embedded_under_verb
+│   │       ├── l_relative_clause
+│   │       ├── passive
+│   │       ├── PP
+│   │       └── s_relative_clause
+│   ├── adv-glue-plus-plus
+│   │   ├── data
+│   │   │   ├── advglue_plus_plus.json
+│   │   │   ├── alpaca.json
+│   │   │   ├── stable-vicuna.json
+│   │   │   └── vicuna.json
+│   │   └── README.md
+│   ├── fairness
+│   │   ├── data
+│   │   │   └── adult
+│   │   ├── data_generation.py
+│   │   ├── datasets
+│   │   │   ├── abstract_dataset.py
+│   │   │   ├── adult.py
+│   │   │   └── __init__.py
+│   │   ├── fairness_data
+│   │   │   ├── adult_0_200_test_base_rate_0.0.jsonl
+│   │   │   ├── adult_0_200_test_base_rate_0.5.jsonl
+│   │   │   ├── adult_0_200_test_base_rate_1.0.jsonl
+│   │   │   ├── adult_0_200_train_br_0.0_test_br_0.0.jsonl
+│   │   │   ├── adult_0_200_train_br_0.0_test_br_0.5.jsonl
+│   │   │   ├── adult_0_200_train_br_0.0_test_br_1.0.jsonl
+│   │   │   ├── adult_0_8.jsonl
+│   │   │   ├── adult_16_200_train_br_0.0_test_br_0.5.jsonl
+│   │   │   ├── adult_32_200_train_base_rate_0.0.jsonl
+│   │   │   ├── adult_32_200_train_base_rate_0.5.jsonl
+│   │   │   ├── adult_32_200_train_base_rate_1.0.jsonl
+│   │   │   ├── adult_32_200_train_br_0.0_test_br_0.0.jsonl
+│   │   │   ├── adult_32_200_train_br_0.0_test_br_0.5.jsonl
+│   │   │   ├── adult_32_200_train_br_0.5_test_br_0.0.jsonl
+│   │   │   ├── adult_32_200_train_br_1.0_test_br_0.0.jsonl
+│   │   │   ├── gt_labels_adult_0_200_test_base_rate_0.0.npy
+│   │   │   ├── gt_labels_adult_0_200_test_base_rate_0.5.npy
+│   │   │   ├── gt_labels_adult_0_200_test_base_rate_1.0.npy
+│   │   │   ├── gt_labels_adult_0_8.npy
+│   │   │   ├── gt_labels_adult_16_200_train_br_0.0_test_br_0.5.npy
+│   │   │   ├── gt_labels_adult_32_200_train_base_rate_0.0.npy
+│   │   │   ├── gt_labels_adult_32_200_train_base_rate_0.5.npy
+│   │   │   ├── gt_labels_adult_32_200_train_base_rate_1.0.npy
+│   │   │   ├── gt_labels_adult_32_200_train_br_0.0_test_br_0.5.npy
+│   │   │   ├── sensitive_attr_adult_0_200_test_base_rate_0.0.npy
+│   │   │   ├── sensitive_attr_adult_0_200_test_base_rate_0.5.npy
+│   │   │   ├── sensitive_attr_adult_0_200_test_base_rate_1.0.npy
+│   │   │   ├── sensitive_attr_adult_0_8.npy
+│   │   │   ├── sensitive_attr_adult_16_200_train_br_0.0_test_br_0.5.npy
+│   │   │   ├── sensitive_attr_adult_32_200_train_base_rate_0.0.npy
+│   │   │   ├── sensitive_attr_adult_32_200_train_base_rate_0.5.npy
+│   │   │   ├── sensitive_attr_adult_32_200_train_base_rate_1.0..npy
+│   │   │   └── sensitive_attr_adult_32_200_train_br_0.0_test_br_0.5.npy
+│   │   ├── generations
+│   │   │   ├── gpt-3.5-turbo-0301_adult_0_200_8.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_0_200.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_0.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_15.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_16_200.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_30.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_32_200.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_32_60.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_32.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_34.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_4_200.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult_8_200.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_adult.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_compas_0_60.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_compas_4_8.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_german_0_60.jsonl
+│   │   │   ├── gpt-3.5-turbo-0301_german_0_80.jsonl
+│   │   │   ├── gpt-4-0314_adult_0_200_8.jsonl
+│   │   │   ├── gpt-4-0314_adult_0_200.jsonl
+│   │   │   ├── gpt-4-0314_adult_0_40_8.jsonl
+│   │   │   ├── gpt-4-0314_adult_0.jsonl
+│   │   │   ├── gpt-4-0314_adult_15.jsonl
+│   │   │   ├── gpt-4-0314_adult_16_200.jsonl
+│   │   │   ├── gpt-4-0314_adult_30.jsonl
+│   │   │   ├── gpt-4-0314_adult_32_200.jsonl
+│   │   │   ├── gpt-4-0314_adult_32_60.jsonl
+│   │   │   ├── gpt-4-0314_adult_32.jsonl
+│   │   │   ├── gpt-4-0314_adult_34.jsonl
+│   │   │   ├── gpt-4-0314_adult_4_200.jsonl
+│   │   │   ├── gpt-4-0314_adult_8_200.jsonl
+│   │   │   ├── gpt-4-0314_adult.jsonl
+│   │   │   ├── gpt-4-0314_compas_0_60.jsonl
+│   │   │   ├── gpt-4-0314_german_0_60.jsonl
+│   │   │   ├── gpt-4-0314_german_0_80.jsonl
+│   │   │   ├── gpt-4-0314_german_16_60.jsonl
+│   │   │   └── gpt-4-0314_german_32_60.jsonl
+│   │   └── README.md
+│   ├── machine_ethics
+│   │   ├── ethics
+│   │   │   ├── commonsense
+│   │   │   ├── deontology
+│   │   │   ├── justice
+│   │   │   ├── README.txt
+│   │   │   ├── utilitarianism
+│   │   │   └── virtue
+│   │   ├── jiminy_subset.csv
+│   │   ├── jiminy_test.json
+│   │   ├── jiminy_train.json
+│   │   └── README.md
+│   ├── ood
+│   │   ├── generations
+│   │   │   ├── knowledge
+│   │   │   └── styles
+│   │   ├── knowledge
+│   │   │   └── knowledge.json
+│   │   ├── knowledge.json
+│   │   ├── README.md
+│   │   ├── style.json
+│   │   └── styles
+│   │       └── style.json
+│   ├── privacy
+│   │   ├── enron_data
+│   │   │   ├── context.pkl
+│   │   │   ├── email2name.pkl
+│   │   │   ├── email_freq.pkl
+│   │   │   ├── five_shot_non_domain.pkl
+│   │   │   ├── five_shot.pkl
+│   │   │   ├── name2email.pkl
+│   │   │   ├── one_shot_non_domain.pkl
+│   │   │   ├── one_shot.pkl
+│   │   │   ├── two_shot_non_domain.pkl
+│   │   │   └── two_shot.pkl
+│   │   ├── generations
+│   │   │   ├── enron
+│   │   │   ├── pii
+│   │   │   └── understanding
+│   │   ├── README.md
+│   │   ├── sys_prompts.py
+│   │   └── utils.py
+│   ├── stereotype
+│   │   ├── dataset
+│   │   │   ├── stereotype_bias_data.jsonl
+│   │   │   ├── system_prompts.csv
+│   │   │   └── user_prompts.csv
+│   │   ├── generations
+│   │   │   ├── benign
+│   │   │   ├── chavinlo
+│   │   │   ├── lmsys
+│   │   │   ├── meta-llama
+│   │   │   ├── mosaicml
+│   │   │   ├── openai
+│   │   │   ├── README.md
+│   │   │   ├── targeted
+│   │   │   ├── tiiuae
+│   │   │   ├── together
+│   │   │   └── untargeted
+│   │   └── README.md
+│   └── toxicity
+│       ├── generations
+│       │   ├── realtoxicityprompts
+│       │   ├── system_prompts
+│       │   └── user_prompts
+│       ├── README.md
+│       ├── toxicity_prompts.py
+│       └── user_prompts
+│           ├── nontoxic.jsonl
+│           ├── toxic.jsonl
+│           ├── toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.all.jsonl
+│           ├── toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl
+│           ├── toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.all.jsonl
+│           └── toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl
+├── Dockerfile
+├── dry_run.sh
+├── LICENSE
+├── pyproject.toml
 ├── README.md
-├── data/
-├── toxicity/
-├── stereotype/
-├── adv-glue-plus-plus/
-├── adv_demonstration/
-├── privacy/
-├── ood/
-├── machine_ethics/
-└── fairness/
+├── requirements.txt
+├── setup.cfg
+├── src
+│   └── dt
+│       ├── chat.py
+│       ├── configs
+│       │   ├── adv_demonstration
+│       │   ├── advglue
+│       │   ├── configs.py
+│       │   ├── config.yaml
+│       │   ├── fairness
+│       │   ├── __init__.py
+│       │   ├── machine_ethics
+│       │   ├── ood
+│       │   ├── privacy
+│       │   ├── stereotype
+│       │   └── toxicity
+│       ├── conversation.py
+│       ├── __init__.py
+│       ├── main.py
+│       ├── perspectives
+│       │   ├── adv_demonstration
+│       │   ├── advglue
+│       │   ├── fairness
+│       │   ├── __init__.py
+│       │   ├── machine_ethics
+│       │   ├── ood
+│       │   ├── privacy
+│       │   ├── stereotype
+│       │   └── toxicity
+│       ├── response.py
+│       └── utils.py
+└── Tutorial.md
 ```
 
 The data subdir includes our proposed/generated datasets essential for the evaluation of trustworthiness.
@@ -41,36 +261,55 @@ The data subdir includes our proposed/generated datasets essential for the evalu
 
 ## Getting Started
 
-1. Clone the repository: Start by cloning this repository to your local machine. You can use the following command:
+### (Conda +) Pip
 
 ```bash
-git clone https://github.com/boxin-wbx/DecodingTrust.git
+conda create --name dt-test python=3.9
+conda activate dt-test
+pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git"
+```
+
+Please note that this will install PyTorch with `pip`. If your system does not have a `CUDA` version compatible with the `pip` wheel. Please install `PyTorch` with `Conda` first, as shown below.
+
+```bash
+conda create --name dt-test python=3.9 pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda activate dt-test
+pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git@release"
+```
+
+If you would like to install an editable version, please clone the repository first.
+
+```bash
+git clone https://github.com/AI-secure/DecodingTrust.git
 cd DecodingTrust
+git checkout release
+pip install -e .
 ```
 
-2. Create a new conda environment (requires python=3.9) and activate it
+### Notes
++ Each of the eight areas has its own subdirectory containing the respective code and README.
+
++ Follow the specific `README`: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
+
+
+### Docker / Singularity
+
+To use DecodingTrust with docker, simply pull the following docker image.
 ```bash
-conda create --name decoding_trust_env python=3.9
-conda activate decoding_trust_env
+sudo docker pull danielz01/decoding-trust
+docker run -it \
+    -v /path/on/host:/path/in/container \
+    --gpus all \
+    decoding-trust/v1.0:latest dt-run [arg1 arg2 ...]
 ```
-
-3. Install our customized HELM repo, from which we will call HELM request to different chat models.
+To use it in through singularity or apptainer container environments on HPC environments, simply run the following.
 ```bash
-git clone https://github.com/danielz02/helm
-cd helm
-./pre-commit.sh
+module load singularity  # Change it to whatever module name your singularity / apptainer environment was given
+singularity pull decoding-trust-v1.0.sif docker://danielz01/decoding-trust
+singularity exec --nv --bind /path/on/host:/path/in/container decoding-trust-v1.0.sif dt-run [arg1 arg2]
 ```
 
-4. Navigate to the DecodingTrust repo, and install our dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-5. Each of the eight areas has its own subdirectory containing the respective code and README.
-
-6. Follow the specific README: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
-
+We will also have a build for `ppc64le` platforms soon. Stay tuned!
 
 ## [Important] Candidate models
 In our benchmark, to have consistent conclusions and results, currently we mianly focus on evaluating the following two OpenAI models:
