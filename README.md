@@ -181,9 +181,7 @@ This project is structured around subdirectories dedicated to each area of trust
 │   │   │   ├── enron
 │   │   │   ├── pii
 │   │   │   └── understanding
-│   │   ├── README.md
-│   │   ├── sys_prompts.py
-│   │   └── utils.py
+│   │   └── README.md
 │   ├── stereotype
 │   │   ├── dataset
 │   │   │   ├── stereotype_bias_data.jsonl
