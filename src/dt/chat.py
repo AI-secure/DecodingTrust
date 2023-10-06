@@ -38,7 +38,7 @@ class Chat(ABC):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):
             kwargs.pop("api_key")
-            return HFChat(model_name.replace("hf/", ""), **kwargs)
+            return HFChat(model_name.replace("hf/", "").rstrip("/"), **kwargs)
 
     def calc_price(self, response):
         s = 0
@@ -344,10 +344,12 @@ class HFChat(Chat):
             import os
             if os.path.exists(model_name):
                 from helm.proxy.clients.huggingface_model_registry import register_huggingface_local_model_config
-                register_huggingface_local_model_config(self.model_name, **kwargs)
+                registered_config = register_huggingface_local_model_config(self.model_name, **kwargs)
+                self.model_name = registered_config.model_id
             else:
                 from helm.proxy.clients.huggingface_model_registry import register_huggingface_hub_model_config
-                register_huggingface_hub_model_config(self.model_name, **kwargs)
+                registered_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
+                self.model_name = registered_config.model_name
         except ValueError as e:
             print(e)
 
