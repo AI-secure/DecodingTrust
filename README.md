@@ -298,13 +298,13 @@ sudo docker pull danielz01/decoding-trust
 docker run -it \
     -v /path/on/host:/path/in/container \
     --gpus all \
-    decoding-trust/v1.0:latest dt-run [arg1 arg2 ...]
+    decoding-trust/v1.0:latest [arg1 arg2 ...]
 ```
 To use it in through singularity or apptainer container environments on HPC environments, simply run the following.
 ```bash
 module load singularity  # Change it to whatever module name your singularity / apptainer environment was given
 singularity pull decoding-trust-v1.0.sif docker://danielz01/decoding-trust
-singularity exec --nv --bind /path/on/host:/path/in/container decoding-trust-v1.0.sif dt-run [arg1 arg2]
+singularity exec --nv --bind /path/on/host:/path/in/container decoding-trust-v1.0.sif [arg1 arg2]
 ```
 
 We will also have a build for `ppc64le` platforms soon. Stay tuned!
