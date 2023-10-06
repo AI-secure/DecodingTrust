@@ -66,11 +66,16 @@ You can provide input to the script through a YAML configuration file. This file
 
 Concretely, the top-level main configuration file (`./configs/config.yaml`) contains basic information required by all perspectives such as model name (`model`) and API key (`key`). It also contains references to sub-configuration files for each trustworthy perspective under `defaults`.
 
+We support three types of model name specifications.
++ OpenAI Models: `openai/model-name`
++ Huggingface Hub Models: `hf/namespace/repo-name`
++ Local Models: `hf/path/to/local/hf/repo`
+
 ```yaml
 model: "openai/gpt-3.5-turbo-0301"
 type: CHAT
 conv_template: null
-key: null # TODO: Expunge API key exposed from commit e1ca5999
+key: null
 model_loader: HF
 torch_dtype: BFLOAT16
 quant_file: null
