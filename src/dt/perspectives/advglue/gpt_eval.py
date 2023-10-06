@@ -274,6 +274,8 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
 
 def main(OPTS):
     TASK2SHORTPROMPT["mnli-mm"] = TASK2SHORTPROMPT["mnli"]
+    if not os.path.exists("./.cache"):
+        os.makedirs("./.cache")
     with TemporaryDirectory(dir="./.cache") as dirname:
         model = Chat.from_helm(
             OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
