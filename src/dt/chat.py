@@ -344,21 +344,18 @@ class HFChat(Chat):
             import os
             if os.path.exists(model_name):
                 from helm.proxy.clients.huggingface_model_registry import register_huggingface_local_model_config
-                registered_config = register_huggingface_local_model_config(self.model_name, **kwargs)
-                self.model_name = registered_config.model_id
+                self.model_config = register_huggingface_local_model_config(self.model_name, **kwargs)
             else:
                 from helm.proxy.clients.huggingface_model_registry import register_huggingface_hub_model_config
-                registered_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
-                self.model_name = registered_config.model_name
+                self.model_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
         except ValueError as e:
+            from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+            self.model_config = get_huggingface_model_config(model_name)
             print(e)
 
         self.client = AutoClient(credentials={}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
-        if "@" in self.model_name:
-            self.model_name, self.revision = self.model_name.split("@")
-        else:
-            self.revision = ""
+        self.model_name = self.model_config.model_id
 
     def messages_to_prompt(self, messages: Union[List[Dict], str]):
         if isinstance(messages, str):
