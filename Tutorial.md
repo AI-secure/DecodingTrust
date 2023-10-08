@@ -2,74 +2,18 @@
 
 This tutorial aims to provide an overview of the configuration system of `DecodingTrust`. Our goal is to provide users with a simple entry (`main.py`) to execute selected (or all) trustworthiness perspectives 
 
-
-# Installation
-
-## (Conda +) Pip
-
-```bash
-conda create --name dt-test python=3.9
-conda activate dt-test
-pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git"
-```
-
-Please note that this will install PyTorch with `pip`. If your system does not have a `CUDA` version compatible with the `pip` wheel. Please install `PyTorch` with `Conda` first, as shown below.
-
-```bash
-conda create --name dt-test python=3.9 pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-conda activate dt-test
-pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git@release"
-```
-
-If you would like to install an editable version, please clone the repository first.
-
-```bash
-git clone https://github.com/AI-secure/DecodingTrust.git
-cd DecodingTrust
-git checkout release
-pip install -e .
-```
-
-Create a cache dir (by default the cached generations will be stored there)
-
-```bash
-mkdir ./.cache
-```
-
-Note that certain open source models (e.g. `Falcon`) require the PyTorch implementation of `FlashAttention` (`scaled_dot_product_attention`), `PyTorch >= 2.0` is required if you wish to run these models.
-
-## Docker / Singularity
-
-To use DecodingTrust with docker, simply pull the following docker image.
-```bash
-sudo docker pull danielz01/decoding-trust
-docker run -it \
-    -v /path/on/host:/path/in/container \
-    --gpus all \
-    decoding-trust/v1.0:latest [arg1 arg2 ...]
-```
-To use it in through singularity or apptainer container environments on HPC environments, simply run the following.
-```bash
-module load singularity  # Change it to whatever module name your singularity / apptainer environment was given
-singularity pull decoding-trust-v1.0.sif docker://danielz01/decoding-trust
-singularity exec --nv --bind /path/on/host:/path/in/container decoding-trust-v1.0.sif [arg1 arg2]
-```
-
-We will also have a build for `ppc64le` platforms soon. Stay tuned!
-
-
 # Configuration
 
 The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations. Our codebase comes with a `BaseConfig` that specifies general information like model names and secret keys. To avoid combinatorially many configuration files, we use a modularized scheme as the configure management. Each trustworthy perspective, e.g. adversarial robustness as `AdvGLUEConfig`, extends `BaseConfig` and stores its dedicated configurations in its separate folder under `./configs`. The configurations are defined in the `configs.py` script and registered with Hydra's `ConfigStore` in `main.py`.
 
-You can provide input to the script through a YAML configuration file. This file should be located in the `./configs` directory. We have provided a default configuration set in `./configs`.
+You can provide input to the script through a YAML configuration file. This file should be located in the `./src/dt/configs` directory. We have provided a default configuration set in `./configs`.
 
 Concretely, the top-level main configuration file (`./configs/config.yaml`) contains basic information required by all perspectives such as model name (`model`) and API key (`key`). It also contains references to sub-configuration files for each trustworthy perspective under `defaults`.
 
 We support three types of model name specifications.
 + OpenAI Models: `openai/model-name`
 + Huggingface Hub Models: `hf/namespace/repo-name`
-+ Local Models: `hf/path/to/local/hf/repo`
++ Local Models: `hf//path/to/local/hf/repo`
 
 ```yaml
 model: "openai/gpt-3.5-turbo-0301"
@@ -187,7 +131,7 @@ We provide a unified output format for different trustworthiness perspectives. T
             },
             ],
             "predictions": [1],
-            "labels": [1,],
+            "labels": [1],
             "scores": {"accuracy": 1.00}
         }
     ],
