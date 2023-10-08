@@ -261,34 +261,49 @@ The data subdir includes our proposed/generated datasets essential for the evalu
 
 ### (Conda +) Pip
 
+For now, we suggest installing DecodingTrust by cloning our repository and install it in editable mode. This will keep the data, code, and configurations in the same place. 
+
+```bash
+git clone https://github.com/AI-secure/DecodingTrust.git && cd DecodingTrust
+git checkout release
+pip install -e .
+```
+
+Please note that this will install PyTorch with `pip`. If your system does not have a `CUDA` version compatible with the PyTorch `pip` wheel. To install `PyTorch` with `Conda` first, as shown below.
+
+```bash
+conda create --name dt-test python=3.9 pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda activate dt-test
+pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git"
+```
+
+It is also possible to install DecodingTrust as a standalone package, but you will need to clone our repository again to run it will our data.
 ```bash
 conda create --name dt-test python=3.9
 conda activate dt-test
 pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git"
 ```
 
-Please note that this will install PyTorch with `pip`. If your system does not have a `CUDA` version compatible with the `pip` wheel. Please install `PyTorch` with `Conda` first, as shown below.
+### Support for the `ppc64le` Architecture 
 
-```bash
-conda create --name dt-test python=3.9 pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-conda activate dt-test
-pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git@release"
+We also support the `ppc64le` architecture of IBM Power-9 platforms. To install on this platform, please first make sure you have the following `conda` channels so that we can utilize pre-built packages.
+
+```
+--add channels 'defaults'   # lowest priority
+--add channels 'https://public.dhe.ibm.com/ibmdl/export/pub/software/server/ibm-ai/conda-early-access/'
+--add channels 'https://public.dhe.ibm.com/ibmdl/export/pub/software/server/ibm-ai/conda/'
+--add channels 'https://opence.mit.edu'
+--add channels 'https://ftp.osuosl.org/pub/open-ce/current/'
+--add channels 'conda-forge'   # highest priority
 ```
 
-If you would like to install an editable version, please clone the repository first.
+Then, install the following pre-built packages.
 
 ```bash
-git clone https://github.com/AI-secure/DecodingTrust.git
-cd DecodingTrust
-git checkout release
-pip install -e .
+mamba create --name dt-test python==3.9 pytorch=2.0.1 torchvision=0.15.2 spacy=3.5.3 scipy=1.10.1 fairlearn~=0.9.0 scikit-learn~=1.1.2 pandas~=2.0.3 pyarrow~=11.0.0 rust -c conda-forge
 ```
 
-### Notes
-+ Each of the eight areas has its own subdirectory containing the respective code and README.
-
-+ Follow the specific `README`: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
-
+Finally, install DecodingTrust with `pip` as usual.
 
 ### Docker / Singularity
 
@@ -307,7 +322,13 @@ singularity pull decoding-trust-v1.0.sif docker://danielz01/decoding-trust
 singularity exec --nv --bind /path/on/host:/path/in/container decoding-trust-v1.0.sif [arg1 arg2]
 ```
 
-We will also have a build for `ppc64le` platforms soon. Stay tuned!
+We will also have a container build for `ppc64le` platforms soon. Stay tuned!
+
+### Notes
++ Each of the eight areas has its own subdirectory containing the respective code and README.
+
++ Follow the specific `README`: Every subdirectory has its own README. Refer to these documents for information on how to run the scripts and interpret the results.
+
 
 ## [Important] Candidate models
 In our benchmark, to have consistent conclusions and results, currently we mianly focus on evaluating the following two OpenAI models:
@@ -317,7 +338,7 @@ In our benchmark, to have consistent conclusions and results, currently we mianl
 
 **Note we use `gpt-3.5-turbo-0301` (with time stamp) released in March instead of `gpt-3.5-turbo` for sake of model evolution to ensure reproducibility.**
 
-Currently, we have supported evaluating all the causal LLMs **hosted in Huggingface**. Specifically, we have tested the following open LLMs:
+Currently, we have supported evaluating all the causal LLMs **hosted in Huggingface** or hosted locally. Specifically, we have tested the following open LLMs:
 
 - `Llama-v2-7B-Chat`
 - `Vicuna-7BAlpaca-7B`
