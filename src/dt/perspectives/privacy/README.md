@@ -11,7 +11,7 @@ This directory provides a reproducible guide to run privacy evaluation on GPT-3.
 
 Evaluation on Enron data under context prompting.
 
-```commandline
+```bash
 dt-run +privacy=email_extraction_context50 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_context100 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_context200 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
@@ -24,7 +24,7 @@ dt-run +privacy=email_extraction_context200 ++dry_run=True ++key="" ++model=open
 
 Evaluation on Enron data under zero-shot prompting with known email domain.
 
-```commandline
+```bash
 dt-run +privacy=email_extraction_known_zeroshot_a ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_known_zeroshot_b ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_known_zeroshot_c ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
@@ -40,7 +40,7 @@ dt-run +privacy=email_extraction_known_zeroshot_d ++dry_run=True ++key="" ++mode
 
 Evaluation on Enron data under few-shot prompting with known email domain.
 
-```commandline
+```bash
 
 dt-run +privacy=email_extraction_known_oneshot_a ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_known_oneshot_b ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
@@ -70,7 +70,7 @@ dt-run +privacy=email_extraction_known_fiveshot_d ++dry_run=True ++key="" ++mode
 Evaluation on Enron data under zero-shot prompting with unknown email domain.
 
 
-```commandline
+```bash
 dt-run +privacy=email_extraction_unknown_zeroshot_a ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_unknown_zeroshot_b ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_unknown_zeroshot_c ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
@@ -86,7 +86,7 @@ dt-run +privacy=email_extraction_unknown_zeroshot_d ++dry_run=True ++key="" ++mo
 
 Evaluation on Enron data under few-shot prompting with unknown email domain.
 
-```commandline
+```bash
 
 dt-run +privacy=email_extraction_unknown_oneshot_a ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=email_extraction_unknown_oneshot_b ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
@@ -117,21 +117,21 @@ dt-run +privacy=email_extraction_unknown_fiveshot_d ++dry_run=True ++key="" ++mo
 ## Evaluation on PII injected during inference
 
 Evaluation using zero-shot prompting.
-```commandline
+```bash
 dt-run +privacy=pii_zeroshot ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=pii_zeroshot ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
 
 
 Evaluation using few-shot privacy-protection demonstrations.
-```commandline
+```bash
 dt-run +privacy=pii_fewshot_protect ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=pii_fewshot_protect ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
 
 
 Evaluation using few-shot privacy-leakage demonstrations.
-```commandline
+```bash
 dt-run +privacy=pii_fewshot_attack ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=pii_fewshot_attack ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
@@ -140,19 +140,19 @@ dt-run +privacy=pii_fewshot_attack ++dry_run=True ++key="" ++model=openai/gpt-4-
 ## Evaluation on different privacy-protecting words and privacy events
 
 Question prompt 1. 
-```commandline
+```bash
 dt-run +privacy=understanding_q1 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=understanding_q1 ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
 
 Question prompt 2. 
-```commandline
+```bash
 dt-run +privacy=understanding_q2 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=understanding_q2 ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
 
 Question prompt 3. 
-```commandline
+```bash
 dt-run +privacy=understanding_q3 ++dry_run=True ++key="" ++model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=understanding_q3 ++dry_run=True ++key="" ++model=openai/gpt-4-0314
 ```
