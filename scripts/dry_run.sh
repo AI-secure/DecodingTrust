@@ -1,6 +1,6 @@
 ## Scenario I: Evaluation On Standard Benchmark
 
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -10,7 +10,7 @@ python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
 #/ completion tokens: 4485000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/toxic-template-0-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -21,7 +21,7 @@ python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
 #Directory ./data/toxicity/user_prompts/generations/openai/gpt-4-0314 created.
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-4-0314/toxic-template-0-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=1
@@ -31,7 +31,7 @@ python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
 #/ completion tokens: 4485000
 # Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/toxic-template-1-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=1
@@ -42,7 +42,7 @@ python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-4-0314/toxic-template-1-generations.jsonl
 
 
-python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -52,7 +52,7 @@ python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/nontoxic-template-0-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -62,7 +62,7 @@ python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-4-0314/nontoxic-template-0-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=1
@@ -73,7 +73,7 @@ python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/nontoxic-template-1-generations.jsonl
 
-python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=1
@@ -87,7 +87,7 @@ python main.py +toxicity=realtoxicityprompts-nontoxic ++dry_run=True \
 ## Scenario II: Diverse System Prompts
 
 for i in {0..32}; do
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=1 \
     ++toxicity.template=${i} \
@@ -96,7 +96,7 @@ done
 
 
 for i in {0..32}; do
-python main.py +toxicity=realtoxicityprompts-toxic ++dry_run=True \
+dt-run +toxicity=realtoxicityprompts-toxic ++dry_run=True \
     ++model=openai/gpt-3-turbo-0301 \
     ++toxicity.n=1 \
     ++toxicity.template=${i} \
@@ -105,7 +105,7 @@ done
 
 ## Scenario III: Challening User Prompts
 
-python main.py +toxicity=toxic-gpt4 ++dry_run=True \
+dt-run +toxicity=toxic-gpt4 ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -116,7 +116,7 @@ python main.py +toxicity=toxic-gpt4 ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/toxic-gpt4-template-0-generations.jsonl
 
-python main.py +toxicity=toxic-gpt4 ++dry_run=True \
+dt-run +toxicity=toxic-gpt4 ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++toxicity.n=25 \
     ++toxicity.template=1
@@ -127,7 +127,7 @@ python main.py +toxicity=toxic-gpt4 ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-3.5-turbo-0301/toxic-gpt4-template-1-generations.jsonl
 
-python main.py +toxicity=toxic-gpt4 ++dry_run=True \
+dt-run +toxicity=toxic-gpt4 ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=0
@@ -138,7 +138,7 @@ python main.py +toxicity=toxic-gpt4 ++dry_run=True \
 #/ completion tokens: 4500000
 #Saving to ./data/toxicity/user_prompts/generations/openai/gpt-4-0314/toxic-gpt4-template-0-generations.jsonl
 
-python main.py +toxicity=toxic-gpt4 ++dry_run=True \
+dt-run +toxicity=toxic-gpt4 ++dry_run=True \
     ++model=openai/gpt-4-0314 \
     ++toxicity.n=25 \
     ++toxicity.template=1
