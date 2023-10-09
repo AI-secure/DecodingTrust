@@ -39,6 +39,10 @@ class Chat(ABC):
         elif model_name.startswith("hf/"):
             kwargs.pop("api_key")
             return HFChat(model_name.replace("hf/", "").rstrip("/"), **kwargs)
+        elif model_name.startswith("together/"):
+            return TogetherChat(model_name, **kwargs)
+        else:
+            raise ValueError("Unsupported model organization")
 
     def calc_price(self, response):
         s = 0
@@ -413,6 +417,80 @@ class HFChat(Chat):
                     "message": {
                         "role": "assistant",
                         "content": self.post_process_generation(msg.text)
+                    },
+                    "finish_reason": msg.finish_reason
+                }
+                for i, msg in enumerate(response.completions)
+            ],
+            "usage": {  # Not implemented for now
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0
+            }
+        })
+        return response.to_dict()
+
+
+class TogetherChat(Chat):
+    def __init__(self, model_name: str, conv_template: str, cache: str, api_key, **kwargs):
+        super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
+
+        self.client = AutoClient(credentials={"togetherApiKey": api_key}, cache_path=cache)
+        self.conv_template = get_conv_template(conv_template)
+        self.model_name = self.model_name
+
+    # TODO: Refactor to remove duplications
+    def messages_to_prompt(self, messages: Union[List[Dict], str]):
+        if isinstance(messages, str):
+            return messages  # Override prompt templates / simply use as the prompt for completion model
+
+        conv = self.conv_template.copy()
+        for message in messages:
+            if "name" in message:
+                warnings.warn("'name' argument is not supported.")
+            msg_role = message["role"]
+            if msg_role == "system":
+                conv.system = message["content"]
+            elif msg_role == "user":
+                conv.append_message(conv.roles[0], message["content"])
+            elif msg_role == "assistant":
+                conv.append_message(conv.roles[1], message["content"])
+            else:
+                raise ValueError(f"Unknown role: {msg_role}")
+        conv.append_message(conv.roles[1], None)
+        return conv.get_prompt()  # Prompt generated from the selected template
+
+    @timeout(600)
+    def _call(self, messages, t=0, max_tokens=20, n=1):
+        prompt = self.messages_to_prompt(messages)
+
+        kwargs = {}
+        if self.conv_template.stop_token_ids:
+            kwargs["stop_sequences"] = self.conv_template.stop_token_ids
+            kwargs["echo_prompt"] = False
+            kwargs["repetition_penalty"] = 1
+            kwargs["top_p"] = 0.7
+            kwargs["top_k"] = 50
+        request = Request(
+            model=self.model_name, prompt=prompt, num_completions=n, max_tokens=max_tokens, temperature=t, **kwargs
+        )
+        response = self.client.make_request(request)
+
+        if not response.success:
+            raise RuntimeError(f"Call to together model {self.model_name} failed!")
+
+        # TODO: Refactor with pydantic
+        response = Response.from_dict({
+            "id": f"chatcmpl-{shortuuid.random()}",
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": self.model_name,
+            "choices": [
+                {
+                    "index": i,
+                    "message": {
+                        "role": "assistant",
+                        "content": msg.text
                     },
                     "finish_reason": msg.finish_reason
                 }
