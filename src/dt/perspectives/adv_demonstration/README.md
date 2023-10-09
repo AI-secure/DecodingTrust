@@ -13,25 +13,25 @@ Available seeds: `42,2333,10007`
 ### Demo+CF
 Template:
 ```
-python main.py +adv_demonstration=counterfactual_<dataset>_cf ++model=<model> ++key=<key>
+dt-run +adv_demonstration=counterfactual_<dataset>_cf ++model=<model> ++key=<key>
 ```
 
 ### Demo
 Template:
 ```
-python main.py +adv_demonstration=counterfactual_<dataset> ++model=<model> ++key=<key>
+dt-run +adv_demonstration=counterfactual_<dataset> ++model=<model> ++key=<key>
 ```
 
 ### CF
 Template:
 ```
-python main.py +adv_demonstration=counterfactual_<dataset>_cf ++model=<model> ++key=<key> adv_demonstration.only=True
+dt-run +adv_demonstration=counterfactual_<dataset>_cf ++model=<model> ++key=<key> adv_demonstration.only=True
 ```
 
 ### Zero-shot
 Template:
 ```
-python main.py +adv_demonstration=counterfactual_<dataset> ++model=<model> ++key=<key> adv_demonstration.zero=True
+dt-run +adv_demonstration=counterfactual_<dataset> ++model=<model> ++key=<key> adv_demonstration.zero=True
 ```
 
 ## Spurious Correlation
@@ -40,15 +40,15 @@ We have six heuristic types (`<heuristic>`): `PP`, `adverb`,`embedded_under_verb
 Available seeds: `0,42,2333,10007,12306`
 ### Zero-shot evaluation 
 ```
-python main.py +adv_demonstration=spurious_<heuristic>_zero ++model=<model> ++key=<key>
+dt-run +adv_demonstration=spurious_<heuristic>_zero ++model=<model> ++key=<key>
 ```
 ### Evaluation on entailment-correlated demonstration
 ```
-python main.py +adv_demonstration=spurious_<heuristic>_entail-bias ++model=<model> ++key=<key>
+dt-run +adv_demonstration=spurious_<heuristic>_entail-bias ++model=<model> ++key=<key>
 ```
 ### Evaluation on non-entailment-correlated demonstration
 ```
-python main.py +adv_demonstration=spurious_<heuristic>_non-entail-bias ++model=<model> ++key=<key>
+dt-run +adv_demonstration=spurious_<heuristic>_non-entail-bias ++model=<model> ++key=<key>
 ```
 
 ## Backdoor
@@ -61,7 +61,7 @@ And three backdoor setups `<setup>`: `setup1`, `setup2`, `setup3`.
 
 Please use the following template to run the evaluation:
 ```
-python main.py +adv_demonstration=backdoor_exp1_<method>_<setup> ++model=<model> ++key=<key>
+dt-run +adv_demonstration=backdoor_exp1_<method>_<setup> ++model=<model> ++key=<key>
 ```
 
 ### Experiment II
@@ -69,12 +69,12 @@ Here we only use `<setup>=setup2` and `<method>=badword`. Use the following comm
 
 For backdoor beginning:
 ```
-python main.py +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment2/sst-2_setup2_badword_1 ++model=<model> ++key=<key>
+dt-run +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment2/sst-2_setup2_badword_1 ++model=<model> ++key=<key>
 ```
 
 For backdoor last:
 ```
-python main.py +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment2/sst-2_setup2_badword_0 ++model=<model> ++key=<key>
+dt-run +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment2/sst-2_setup2_badword_0 ++model=<model> ++key=<key>
 ```
 
 ### Experiment III
@@ -82,12 +82,12 @@ Here we only use `<setup>=setup2` or `<setup>=setup3`. We consider the location 
 
 Please use the following template to run the evaluation:
 ```
-python main.py +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment3/<setup>_cf_<location> ++model=<model> ++key=<key>
+dt-run +adv_demonstration=backdoor adv_demonstration.path=./data/adv_demonstration/backdoor/experiment3/<setup>_cf_<location> ++model=<model> ++key=<key>
 ```
 
 ### Experiment IV
 Use `<task>=badword` to add backdoor instruction in the task description:
 ```
-python main.py +adv_demonstration=backdoor_exp1_badword_setup1 ++model=<model> ++key=<key> adv_demonstration.task=badword
+dt-run +adv_demonstration=backdoor_exp1_badword_setup1 ++model=<model> ++key=<key> adv_demonstration.task=badword
 ```
 

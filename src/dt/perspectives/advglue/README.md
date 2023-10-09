@@ -5,7 +5,7 @@ Please check out `data/adv-glue-plus-plus/README.md` for the details about our A
 The usage of the script is as below
 
 ```shell
-python main.py +advglue=AdvGLUEPlusPlusConfig ++dry_run=True \
+dt-run +advglue=AdvGLUEPlusPlusConfig ++dry_run=True \
     ++model="OpenAIModel" \
     ++key=YourOpenAIKey \
     ++advglue.data_file="AdvGLUE(++) Data"
@@ -17,7 +17,7 @@ Adding `++advglue.no_adv` flag will evaluate the benign accuracy of the model by
 For example, the script below evaluates `gpt-3.5-turbo-0301` on the adversarial texts generated against Alpaca-7B model.
 
 ```shell
-python main.py +advglue=alpaca ++dry_run=True \
+dt-run +advglue=alpaca ++dry_run=True \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++advglue.data_file=data/adv-glue-plus-plus/data/alpaca.json

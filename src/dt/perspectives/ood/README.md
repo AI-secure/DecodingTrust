@@ -3,7 +3,7 @@
 The usage of the script is as below.
 
 ```shell
-python main.py +ood=OODScenarioConfig ++dry_run=True \
+dt-run +ood=OODScenarioConfig ++dry_run=True \
     ++model="OpenAIModel" \
     ++key=YourOpenAIKey \
     ++ood.out_file="Out File"
@@ -13,7 +13,7 @@ Specifically, using `gpt-3.5-turbo-0301` as an example,  we have five sets of ev
 Evaluation of OOD styles.
 
 ```shell
-python main.py +ood=style \
+dt-run +ood=style \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/style.json
@@ -22,7 +22,7 @@ python main.py +ood=style \
 Evaluation of OOD knowledge with standard setting.
 
 ```shell
-python main.py +ood=knowledge_standard \
+dt-run +ood=knowledge_standard \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_standard.json
@@ -32,7 +32,7 @@ python main.py +ood=knowledge_standard \
 Evaluation of OOD knowledge with additional "I don't know" option.
 
 ```shell
-python main.py +ood=knowledge_standard \
+dt-run +ood=knowledge_standard \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_idk.json
@@ -42,7 +42,7 @@ python main.py +ood=knowledge_standard \
 Evaluation of OOD in-context demonstrations with different styles.
 
 ```shell
-python main.py +ood=style_8shot \
+dt-run +ood=style_8shot \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/style_8shot.json
@@ -51,7 +51,7 @@ python main.py +ood=style_8shot \
 Evaluation of OOD in-context demonstrations with different domains.
 
 ```shell
-python main.py +ood=knowledge_2020_5shot \
+dt-run +ood=knowledge_2020_5shot \
     ++model=openai/gpt-3.5-turbo-0301 \
     ++key=YourOpenAIKey \
     ++oods.out_file=data/ood/results/gpt-3.5-turbo-0301/knowledge_2020_5shot.json
