@@ -254,8 +254,8 @@ def main(OPTS):
     if not os.path.exists('./data/stereotype/generations/'):
         os.mkdir('./data/stereotype/generations/')
 
-    if not os.path.exists('./data/stereotype/outputs/'):
-        os.mkdir('./data/stereotype/outputs/')
+    if not os.path.exists('./results/stereotype/outputs/'):
+        os.makedirs('./results/stereotype/outputs/', exist_ok=True)
 
     '''if not os.path.exists('./data/stereotype/generations/' + OPTS.sys_prompt_type):
         os.mkdir('./data/stereotype/generations/' + OPTS.sys_prompt_type)'''

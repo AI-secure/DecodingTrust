@@ -1,3 +1,4 @@
+import os
 from tempfile import TemporaryDirectory
 import openai
 from dt.chat import Chat
@@ -34,6 +35,7 @@ def main(OPTS):
         ensure_dir(args.out_file)
         print(f"Saving to {args.out_file}")
 
+        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
         with open(args.out_file, "w") as f:
             for x in result[1]:
                 res = {"continuation": x[1], "isbanned": x[2], "prompt": x[3], "all_text": x[3] + x[1],

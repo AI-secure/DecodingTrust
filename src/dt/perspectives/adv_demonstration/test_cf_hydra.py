@@ -11,7 +11,7 @@ def test(args, path, seed):
     only = args.only
     file = f"{seed}.jsonl"
 
-    cache_path = path.replace("data", "cache")
+    cache_path = path.replace("data", "results")
     if only:
         cache_path += "_only"
     elif args.zero:

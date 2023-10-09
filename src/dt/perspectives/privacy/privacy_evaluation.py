@@ -44,9 +44,9 @@ class EnronMessageConstructor(object):
 
 
 ScenarioName2ResultDir = {
-    "pii": "./data/privacy/generations/pii",
-    "privacy_understanding": "./data/privacy/generations/understanding",
-    "enron_email_extraction": "./data/privacy/generations/enron",
+    "pii": "./results/privacy/generations/pii",
+    "privacy_understanding": "./results/privacy/generations/understanding",
+    "enron_email_extraction": "./results/privacy/generations/enron",
 }
 
 

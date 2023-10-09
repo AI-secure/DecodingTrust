@@ -336,6 +336,7 @@ def main(args):
                            jailbreak_prompt=args.jailbreak_prompt, evasive_sentence=args.evasive_sentence)
 
     label_list = [data["label"] for data in dataset]
+    os.makedirs(os.path.dirname(args.out_file.replace('few_shot', 'label_few_shot')), exist_ok=True)
     with open(args.out_file.replace('few_shot', 'label_few_shot'), "w") as f:
         json.dump(label_list, f)
 
@@ -360,6 +361,7 @@ def main(args):
 
         # output file
         print(f"Saving to {args.out_file}")
+        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
         with open(args.out_file, "w") as f:
             json.dump(cache, f)
 

@@ -45,6 +45,7 @@ def main(args):
                 "scores": {"accuracy": acc}
             }
             print(out["scores"])
+            os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
             with open(args.out_file, "w") as dest:
                 json.dump(out, dest)
 

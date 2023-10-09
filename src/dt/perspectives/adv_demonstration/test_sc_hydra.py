@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 def test(args, path, seed):
     model = args.model
     file = f"{seed}.jsonl"
-    cache_path = path.replace("data", "cache")
+    cache_path = path.replace("data", "results")
     cache_file = model.replace("/", "_") + "_" + file
     if os.path.exists(os.path.join(cache_path, cache_file)):
         print("Skipping", os.path.join(cache_path, cache_file))
