@@ -1,7 +1,7 @@
 model: "openai/gpt-3.5-turbo-0301"
 type: CHAT
 conv_template: null
-key: null # TODO: Expunge API key exposed from commit e1ca5999
+key: null
 model_loader: HF
 torch_dtype: BFLOAT16
 quant_file: null

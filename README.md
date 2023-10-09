@@ -265,7 +265,6 @@ For now, we suggest installing DecodingTrust by cloning our repository and insta
 
 ```bash
 git clone https://github.com/AI-secure/DecodingTrust.git && cd DecodingTrust
-git checkout release
 pip install -e .
 ```
 
@@ -374,7 +373,7 @@ Please cite the paper as follows if you use the data or code from DecodingTrust:
 @article{wang2023decodingtrust,
   title={DecodingTrust: A Comprehensive Assessment of Trustworthiness in GPT Models},
   author={Wang, Boxin and Chen, Weixin and Pei, Hengzhi and Xie, Chulin and Kang, Mintong and Zhang, Chenhui and Xu, Chejian and Xiong, Zidi and Dutta, Ritik and Schaeffer, Rylan and others},
-  journal={arXiv preprint arXiv:2306.11698},
+  booktitle={Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
   year={2023}
 }
 ```
