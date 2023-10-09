@@ -1,0 +1,7 @@
+data_file: ./data/ood/style.json
+out_file: ./results/ood/results/${model}/style_8shot.json
+few_shot_num: 8
+task: style
+idk: null
+resume: False
+save_interval: 100

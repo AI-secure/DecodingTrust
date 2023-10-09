@@ -2,3 +2,4 @@ hydra-core
 omegaconf~=2.3.0
 pydantic~=2.1.1
 shortuuid~=1.0.11
+crfm-helm @ git+https://github.com/danielz02/helm.git@main

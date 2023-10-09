@@ -1,9 +1,0 @@
-sys: false
-demo: true
-data_file: null
-out_file: ./data/adv-glue-plus-plus/results/${model}/glue-benign-demo.json
-no_adv: true
-resume: false
-save_interval: 100
-remove_newline: false
-task: ["sst2", "qqp", "mnli"]
