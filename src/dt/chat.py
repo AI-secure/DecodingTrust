@@ -353,6 +353,9 @@ class HFChat(Chat):
             self.model_config = get_huggingface_model_config(model_name)
             print(e)
 
+        if self.model_config is None:
+            raise ValueError("Unable to retrieve model config")
+
         self.client = AutoClient(credentials={}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
         self.model_name = self.model_config.model_id
