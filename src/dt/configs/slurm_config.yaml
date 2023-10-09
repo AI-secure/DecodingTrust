@@ -11,6 +11,7 @@ use_auth_token: true
 dry_run: False
 
 defaults:
+  - _self_
   - override hydra/launcher: submitit_slurm
 
 hydra:
@@ -26,7 +27,7 @@ hydra:
     tasks_per_node: 1
     mem_gb: 62
     nodes: 1
-    gres: null
+    gres: gpu:1
     name: ${hydra.job.name}
     partition: compute
     comment: null

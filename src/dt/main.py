@@ -21,12 +21,14 @@ PERSPECTIVES = {
 
 cs = ConfigStore.instance()
 cs.store(name="config", node=BaseConfig)
+cs.store(name="slurm_config", node=BaseConfig)
 
 
 @hydra.main(config_path="configs", config_name="config", version_base="1.2")
 def main(config: DictConfig) -> None:
     # The 'validator' methods will be called when you run the line below
     config: BaseConfig = OmegaConf.to_object(config)
+    assert isinstance(config, BaseConfig)
 
     for name, module_name in PERSPECTIVES.items():
         if getattr(config, name) is not None:
