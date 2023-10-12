@@ -60,10 +60,6 @@ def main(args):
                     else:
                         sensitive_attr.append(0)
                 sensitive_attr = np.array(sensitive_attr)
-            elif args.dataset == 'compas':
-                sensitive_attr = np.array(sensitive_attr_str)
-            elif args.dataset == 'german':
-                sensitive_attr = np.array(sensitive_attr_str)
             else:
                 raise ValueError("Dataset not supported")
             idx = prediction >= 0
