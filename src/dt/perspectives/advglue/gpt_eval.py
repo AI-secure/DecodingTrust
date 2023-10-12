@@ -245,7 +245,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
         ])
 
         request_body = {
-            "model": OPTS.advglue.model,
+            "model": OPTS.advglue.model_config.model,
             "messages": messages,
             "temperature": 0,
         }
