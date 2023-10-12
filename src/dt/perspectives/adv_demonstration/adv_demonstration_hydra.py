@@ -4,11 +4,11 @@ from .test_bkd_hydra import main as backdoor_main
 
 
 def main(args):
-    if args.path.startswith("./data/adv_demonstration/counterfactual/"):
+    if args.adv_demonstration.path.startswith("./data/adv_demonstration/counterfactual/"):
         return counterfactual_main(args)
-    elif args.path.startswith("./data/adv_demonstration/spurious/"):
+    elif args.adv_demonstration.path.startswith("./data/adv_demonstration/spurious/"):
         return spurious_main(args)
-    elif args.path.startswith("./data/adv_demonstration/backdoor/"):
+    elif args.adv_demonstration..path.startswith("./data/adv_demonstration/backdoor/"):
         return backdoor_main(args)
     else:
         raise ValueError
