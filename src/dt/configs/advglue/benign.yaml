@@ -1,5 +1,5 @@
-sys: true
-demo: false
+sys: false
+demo: true
 data_file: null
 out_file: ./results/adv-glue-plus-plus/${model_config.model}/glue-benign-demo.json
 no_adv: true
