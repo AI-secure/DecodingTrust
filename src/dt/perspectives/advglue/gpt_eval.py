@@ -250,7 +250,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
             "temperature": 0,
         }
         # response = request_once(request_body)
-        response = model.call(messages=messages, t=0, max_tokens=16, dry_run=OPTS.advglue.dry_run)
+        response = model.call(messages=messages, t=0, max_tokens=16, dry_run=OPTS.dry_run)
 
         prediction = response_to_labels("yesno")(response, task_name)
         results[task_name]["labels"].append(label)
