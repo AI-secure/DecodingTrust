@@ -35,6 +35,7 @@ class Chat(ABC):
         kwargs["model_dtype"] = main_config.model_config.torch_dtype
         kwargs["conv_template"] = main_config.model_config.conv_template
         kwargs["tokenizer_name"] = main_config.model_config.tokenizer_name
+        kwargs["device_map"] = main_config.model_config.device_map
 
         model_name: str = main_config.model_config.model
         if model_name.lower().startswith("openai/"):
