@@ -64,7 +64,10 @@ def main(args):
                 raise ValueError("Dataset not supported")
             idx = prediction >= 0
 
-            m = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            print(f'Demographic parity difference: {m}')
-            m = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            print(f'Equalized odds difference: {m}')
+            if not all(idx==False):
+                m_dpd = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+                m_eod = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+            else:
+                m_dpd = m_eod = 0
+            print(f'Demographic parity difference: {m_dpd}')
+            print(f'Equalized odds difference: {m_eod}')
