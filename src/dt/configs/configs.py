@@ -122,7 +122,7 @@ class ModelConfig:
 class BaseConfig:
     # TODO: Handle device map - change HELM's default behavior
     model_config: ModelConfig
-    disable_sys_prompt: Optional[bool]
+    disable_sys_prompt: Optional[bool] = False
 
     key: Optional[str] = None  # OpenAI API Key or Huggingface Secret
     dry_run: bool = False

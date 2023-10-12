@@ -4,7 +4,7 @@ model_config:
   conv_template: null
 
   model_loader: HF
-  torch_dtype: BFLOAT16
+  torch_dtype: null
   quant_file: null
   tokenizer_name: null
   trust_remote_code: true
