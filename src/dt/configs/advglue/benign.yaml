@@ -1,7 +1,7 @@
 sys: true
 demo: false
 data_file: null
-out_file: ./results/adv-glue-plus-plus/${model}/glue-benign-demo.json
+out_file: ./results/adv-glue-plus-plus/${model_config.model}/glue-benign-demo.json
 no_adv: true
 resume: false
 save_interval: 100
