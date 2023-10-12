@@ -116,6 +116,7 @@ class ModelConfig:
     disable_exllama: bool = True  # Configuration from AutoGPTQForCausalLM
     quant_file: Optional[str] = None
     tokenizer_name: Optional[str] = None
+    device_map: Optional[str] = "auto"
 
 
 @dataclass
