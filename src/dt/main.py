@@ -32,14 +32,8 @@ def main(config: DictConfig) -> None:
 
     for name, module_name in PERSPECTIVES.items():
         if getattr(config, name) is not None:
-            perspective_config = asdict(config)
-            del perspective_config[name]
-            for k, v in asdict(getattr(config, name)).items():
-                perspective_config[k] = v
-            perspective_args = namedtuple(f"Config", list(perspective_config.keys()))
-
             perspective_module = import_module(module_name)
-            perspective_module.main(perspective_args(**perspective_config))
+            perspective_module.main(config)
 
 
 if __name__ == "__main__":
