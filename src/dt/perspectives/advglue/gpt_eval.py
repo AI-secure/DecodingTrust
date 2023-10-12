@@ -277,10 +277,7 @@ def main(OPTS):
     if not os.path.exists("./.cache"):
         os.makedirs("./.cache")
     with TemporaryDirectory(dir="./.cache") as dirname:
-        model = Chat.from_helm(
-            OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
-            model_dtype=OPTS.torch_dtype
-        )
+        model = Chat.from_helm(OPTS, cache=dirname)
 
         if OPTS.data_file:
             with open(OPTS.data_file) as f:

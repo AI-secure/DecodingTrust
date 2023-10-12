@@ -23,22 +23,25 @@ class Chat(ABC):
 
     @staticmethod
     def from_helm(main_config: BaseConfig, **kwargs):
-        if main_config.model_loader != ModelLoader.HF:
+        if main_config.model_config.model_loader != ModelLoader.HF:
             quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=main_config.model_loader, quant_file=main_config.quant_file,
+                model_loader=main_config.model_config.model_loader, quant_file=main_config.model_config.quant_file,
             )
         else:
             quant_config = None
-        kwargs["quantization_config"] = quant_config
-        kwargs["model_dtype"] = main_config.torch_dtype
-        kwargs["tokenizer_name"] = main_config.tokenizer_name
 
-        model_name: str = main_config.model
+        kwargs["api_key"] = main_config.key
+        kwargs["quantization_config"] = quant_config
+        kwargs["model_dtype"] = main_config.model_config.torch_dtype
+        kwargs["conv_template"] = main_config.model_config.conv_template
+        kwargs["tokenizer_name"] = main_config.model_config.tokenizer_name
+
+        model_name: str = main_config.model_config.model
         if model_name.lower().startswith("openai/"):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):
             kwargs.pop("api_key")
-            return HFChat(model_name.replace("hf/", "").rstrip("/"), **kwargs)
+            return HFChat(model_name.removeprefix("hf/").rstrip("/"), **kwargs)
         elif model_name.startswith("together/"):
             return TogetherChat(model_name, **kwargs)
         else:
@@ -341,7 +344,7 @@ class OpenAIChat(Chat):
 
 
 class HFChat(Chat):
-    def __init__(self, model_name: str, conv_template: str, cache: str, **kwargs):
+    def __init__(self, model_name: str, conv_template: str, cache: str, disable_sys_prompt: None = False, **kwargs):
         super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
 
         try:
@@ -363,6 +366,7 @@ class HFChat(Chat):
         self.client = AutoClient(credentials={}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
         self.model_name = self.model_config.model_id
+        self.disable_sys_prompt = disable_sys_prompt
 
     def messages_to_prompt(self, messages: Union[List[Dict], str]):
         if isinstance(messages, str):
@@ -374,7 +378,10 @@ class HFChat(Chat):
                 warnings.warn("'name' argument is not supported.")
             msg_role = message["role"]
             if msg_role == "system":
-                conv.system = message["content"]
+                if self.disable_sys_prompt:
+                    warnings.warn("User system prompt ignored! Using default system prompt instead.")
+                else:
+                    conv.system = message["content"]
             elif msg_role == "user":
                 conv.append_message(conv.roles[0], message["content"])
             elif msg_role == "assistant":
@@ -431,13 +438,17 @@ class HFChat(Chat):
         return response.to_dict()
 
 
+# TODO: Change to inherit from OpenAIChat
 class TogetherChat(Chat):
-    def __init__(self, model_name: str, conv_template: str, cache: str, api_key, **kwargs):
+    def __init__(self, model_name: str, conv_template: str, cache: str, api_key: str, disable_sys_prompt: bool = False, **kwargs):
         super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
 
         self.client = AutoClient(credentials={"togetherApiKey": api_key}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
-        self.model_name = self.model_name
+
+        from helm.proxy.clients.together_client import register_custom_together_model
+        self.model_name = register_custom_together_model(model_name).name
+        self.disable_sys_prompt = disable_sys_prompt
 
     # TODO: Refactor to remove duplications
     def messages_to_prompt(self, messages: Union[List[Dict], str]):
@@ -450,7 +461,10 @@ class TogetherChat(Chat):
                 warnings.warn("'name' argument is not supported.")
             msg_role = message["role"]
             if msg_role == "system":
-                conv.system = message["content"]
+                if self.disable_sys_prompt:
+                    warnings.warn("User system prompt ignored! Using default system prompt instead.")
+                else:
+                    conv.system = message["content"]
             elif msg_role == "user":
                 conv.append_message(conv.roles[0], message["content"])
             elif msg_role == "assistant":
@@ -464,13 +478,10 @@ class TogetherChat(Chat):
     def _call(self, messages, t=0, max_tokens=20, n=1):
         prompt = self.messages_to_prompt(messages)
 
-        kwargs = {}
-        if self.conv_template.stop_token_ids:
-            kwargs["stop_sequences"] = self.conv_template.stop_token_ids
-            kwargs["echo_prompt"] = False
-            kwargs["repetition_penalty"] = 1
-            kwargs["top_p"] = 0.7
-            kwargs["top_k"] = 50
+        kwargs = {
+            "stop_sequences": ["</s>", "[/INST]", "[INST]"], "echo_prompt": False, "top_p": 0.7, "top_k_per_token": 50
+        }
+        # kwargs["repetition_penalty"] = 1
         request = Request(
             model=self.model_name, prompt=prompt, num_completions=n, max_tokens=max_tokens, temperature=t, **kwargs
         )

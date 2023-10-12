@@ -17,8 +17,7 @@ def main(args):
 
     with TemporaryDirectory(dir="./.cache") as dirname:
         if args.dry_run:
-            model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname,
-                                   api_key=args.key)
+            model = Chat.from_helm(args, cache=dirname)
 
             acc, unknown, cost, cache = model.do_classification(dataset, task_message=task_dic[args.dataset],
                                                                 example_prefix=False,

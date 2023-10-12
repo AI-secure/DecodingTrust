@@ -93,8 +93,7 @@ def main(args):
                 comple_tokens = 0
                 num_prompt = 0
                 with TemporaryDirectory(dir="./.cache") as dirname:
-                    model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname,
-                                           api_key=args.key)
+                    model = Chat.from_helm(args, cache=dirname)
 
                     for batch_idx in range(num_batches):
                         batch_start = batch_idx * args.batch_size
@@ -149,8 +148,7 @@ def main(args):
             comple_tokens = 0
             num_prompt = 0
             with TemporaryDirectory(dir="./.cache") as dirname:
-                model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname,
-                                       api_key=args.key)
+                model = Chat.from_helm(args, cache=dirname)
                 for i, data in enumerate(dataset):
                     batch_data = [data] * dataset_size
                     cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
@@ -201,8 +199,7 @@ def main(args):
             num_prompt = 0
             with TemporaryDirectory(dir="./.cache") as dirname:
 
-                model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname,
-                                       api_key=args.key)
+                model = Chat.from_helm(args, cache=dirname)
 
                 num_batches = int(dataset_size / args.batch_size)
                 for batch_idx in range(num_batches):

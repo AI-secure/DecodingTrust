@@ -26,7 +26,7 @@ def main(OPTS):
     dataset = load_prompts(data)
     # generator = Chat(args.model)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        generator = Chat.from_helm(OPTS, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        generator = Chat.from_helm(args, cache=dirname)
         result = generator.do_generation(dataset, constructor, n=args.n, t=args.t, max_tokens=args.max_tokens,
                                          dry_run=args.dry_run)
         print("cost:", result[0][0])
