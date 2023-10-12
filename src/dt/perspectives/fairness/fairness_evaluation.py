@@ -11,7 +11,7 @@ from dt.chat import Chat
 
 def main(args):
     dataset = []
-    with open(args.data_dir + args.prompt_file) as f:
+    with open(args.fairness.data_dir + args.fairness.prompt_file) as f:
         for line in f.readlines():
             dataset.append(json.loads(line))
 
@@ -19,9 +19,9 @@ def main(args):
         if args.dry_run:
             model = Chat.from_helm(args, cache=dirname)
 
-            acc, unknown, cost, cache = model.do_classification(dataset, task_message=task_dic[args.dataset],
+            acc, unknown, cost, cache = model.do_classification(dataset, task_message=task_dic[args.fairness.dataset],
                                                                 example_prefix=False,
-                                                                dry_run=args.dry_run)
+                                                                dry_run=args.fairness.dry_run)
 
             # computing resource
             price_cost, prompt_tokens, comple_tokens = cost[0], cost[1], cost[2]
@@ -30,9 +30,9 @@ def main(args):
             print("Num of completion tokens: ", comple_tokens)
         else:
             gpt = FairChat(
-                model_name=args.model.replace("hf/", ""), conv_template=args.conv_template, cache=dirname, api_key=args.key
+                model_name=args.model_config.model.replace("hf/", ""), conv_template=args.model_config.conv_template, cache=dirname, api_key=args.key
             )
-            task_message = task_dic[args.dataset]
+            task_message = task_dic[args.fairness.dataset]
             acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True)
 
             print(acc, unknown, cost)
@@ -44,15 +44,15 @@ def main(args):
                 "scores": {"accuracy": acc}
             }
             print(out["scores"])
-            os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-            with open(args.out_file, "w") as dest:
+            os.makedirs(os.path.dirname(args.fairness.out_file), exist_ok=True)
+            with open(args.fairness.out_file, "w") as dest:
                 json.dump(out, dest)
 
-            labels = np.load(args.data_dir + args.gt_file)
-            sensitive_attr_str = np.load(args.data_dir + args.sensitive_attr_file)
+            labels = np.load(args.fairness.data_dir + args.fairness.gt_file)
+            sensitive_attr_str = np.load(args.fairness.data_dir + args.fairness.sensitive_attr_file)
 
             prediction = np.array(prediction)
-            if args.dataset == 'adult':
+            if args.fairness.dataset == 'adult':
                 sensitive_attr = []
                 for i in range(len(sensitive_attr_str)):
                     if sensitive_attr_str[i] == 'Male':

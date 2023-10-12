@@ -328,24 +328,24 @@ def load_dataset(data_name, test_data_file, train_data_file, test_num, few_shot_
 
 
 def main(args):
-    dir_path = "./data/machine_ethics/generations/{}/{}".format(args.data_name, args.model)
+    dir_path = "./data/machine_ethics/generations/{}/{}".format(args.machine_ethics.data_name, args.model_config.model)
     os.makedirs(dir_path, exist_ok=True)
 
-    dataset = load_dataset(data_name=args.data_name, test_data_file=args.test_data_file,
-                           train_data_file=args.train_data_file, test_num=args.test_num, few_shot_num=args.few_shot_num,
-                           jailbreak_prompt=args.jailbreak_prompt, evasive_sentence=args.evasive_sentence)
+    dataset = load_dataset(data_name=args.machine_ethics.data_name, test_data_file=args.test_data_file,
+                           train_data_file=args.machine_ethics.train_data_file, test_num=args.machine_ethics.test_num, few_shot_num=args.machine_ethics.few_shot_num,
+                           jailbreak_prompt=args.machine_ethics.jailbreak_prompt, evasive_sentence=args.machine_ethics.evasive_sentence)
 
     label_list = [data["label"] for data in dataset]
     os.makedirs(os.path.dirname(args.out_file.replace('few_shot', 'label_few_shot')), exist_ok=True)
     with open(args.out_file.replace('few_shot', 'label_few_shot'), "w") as f:
         json.dump(label_list, f)
 
-    if args.data_name == 'jiminy':
-        task_message = message_dic[args.data_name] if args.jailbreak_prompt == 0 else message_dic[args.data_name] + \
-                                                                                  jiminy_prompt_dic[args.jailbreak_prompt]
+    if args.machine_ethics.data_name == 'jiminy':
+        task_message = message_dic[args.machine_ethics.data_name] if args.machine_ethics.jailbreak_prompt == 0 else message_dic[args.machine_ethics.data_name] + \
+                                                                                  jiminy_prompt_dic[args.machine_ethics.jailbreak_prompt]
     else:
-        task_message = message_dic[args.data_name] if args.jailbreak_prompt == 0 else message_dic[args.data_name] + \
-                                                                                  prompt_dic[args.jailbreak_prompt]
+        task_message = message_dic[args.machine_ethics.data_name] if args.machine_ethics.jailbreak_prompt == 0 else message_dic[args.machine_ethics.machine_ethics.data_name] + \
+                                                                                  prompt_dic[args.machine_ethics.jailbreak_prompt]
 
     if not os.path.exists('./.cache'):
         os.makedirs('./.cache')
@@ -360,13 +360,13 @@ def main(args):
         print("Num of completion tokens: ", comple_tokens)
 
         # output file
-        print(f"Saving to {args.out_file}")
-        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-        with open(args.out_file, "w") as f:
+        print(f"Saving to {args.machine_ethics.out_file}")
+        os.makedirs(os.path.dirname(args.machine_ethics.out_file), exist_ok=True)
+        with open(args.machine_ethics.out_file, "w") as f:
             json.dump(cache, f)
 
         # # accuracy
-        # if args.data_name == 'ethics_util':
+        # if args.machine_ethics.data_name == 'ethics_util':
         #     sample_count = int(len(acc) / 2)
         #
         #     list_better = list(range(0, len(acc), 2))
@@ -385,8 +385,8 @@ def main(args):
     """
     Calculate ACC in zero-shot setting
     """
-    if args.few_shot_num == 0 and args.jailbreak_prompt == 0 and args.evasive_sentence == 0:
-        option = option_dic[args.data_name]
+    if args.machine_ethics.few_shot_num == 0 and args.machine_ethics.jailbreak_prompt == 0 and args.machine_ethics.evasive_sentence == 0:
+        option = option_dic[args.machine_ethics.machine_ethics.data_name]
         cnt, acc_cnt = 0, 0  # we don't calculate refuse rate in this case since we calculate ACC based on answers which lie in option
         for i, data in enumerate(cache):
             message, response = data[0], data[1]
@@ -408,8 +408,8 @@ def main(args):
     """
     Calculate ACC in few-shot setting
     """
-    if args.few_shot_num > 0:
-        option = option_dic[args.data_name]
+    if args.machine_ethics.few_shot_num > 0:
+        option = option_dic[args.machine_ethics.data_name]
         cnt, acc_cnt = 0, 0  # we don't calculate refuse rate in this case since we calculate ACC based on answers which lie in option
         for i, data in enumerate(cache):
             message, response = data[0], data[1]
@@ -431,7 +431,7 @@ def main(args):
     """
     Calculate FPR averaged on jailbreaking prompts
     """
-    if args.jailbreak_prompt != 0:
+    if args.machine_ethics.jailbreak_prompt != 0:
         cnt_total, fpr_cnt_total, ref_cnt_total = 0, 0, 0
         cnt, fpr_cnt, ref_cnt = 0, 0, 0  # we calculate refuse rate in this case
         for i, data in enumerate(cache):
@@ -461,7 +461,7 @@ def main(args):
     """
     Calculate FPR averaged on evasive sentences
     """
-    if args.evasive_sentence != 0:
+    if args.machine_ethics.evasive_sentence != 0:
         cnt_total, fpr_cnt_total, ref_cnt_total = 0, 0, 0
         cnt, fpr_cnt, ref_cnt = 0, 0, 0  # we calculate refuse rate in this case
         for i, data in enumerate(cache):

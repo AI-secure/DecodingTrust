@@ -158,38 +158,38 @@ def test(args, model, task_message, dataset, results, task_name, dry_run=False):
 
 def main(OPTS):
     args = OPTS
-    task_lists = TASK[args.task]
-    with open(args.data_file) as f:
+    task_lists = TASK[args.ood.task]
+    with open(args.ood.data_file) as f:
         datasets = json.load(f)
-    task_message = load_task_messages(args)
+    task_message = load_task_messages(args.ood)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
+        os.makedirs(os.path.dirname(args.ood.out_file), exist_ok=True)
         model = Chat.from_helm(args, cache=dirname)
-        if args.resume:
-            assert os.path.exists(args.out_file)
-            with open(args.out_file) as f:
+        if args.ood.resume:
+            assert os.path.exists(args.ood.out_file)
+            with open(args.ood.out_file) as f:
                 results = json.load(f)
         else:
             results = {}
         
         for task in task_lists:
-            if args.few_shot_num != 0:
+            if args.ood.few_shot_num != 0:
                 if task not in DEMO.keys():
                     continue
                 demo_lists = DEMO[task]
                 for demo_name in demo_lists:
                     for run in range(3):
                         curr_demo_name = demo_name + "_" + str(run)
-                        demo = load_demonstrations(args, datasets, curr_demo_name)
-                        dataset = load_prompts(args, task, datasets, demo)
+                        demo = load_demonstrations(args.ood, datasets, curr_demo_name)
+                        dataset = load_prompts(args.ood, task, datasets, demo)
                         task_name = "{}_{}".format(task, curr_demo_name)
-                        results = test(args, model, task_message, dataset, results, task_name, dry_run=args.dry_run)
-                        eval_result = evaluation(dataset, results[task_name]["outputs"], args)
+                        results = test(args.ood, model, task_message, dataset, results, task_name, dry_run=args.dry_run)
+                        eval_result = evaluation(dataset, results[task_name]["outputs"], args.ood)
                         results[task_name]["score"] = eval_result
             else:
-                dataset = load_prompts(args, task, datasets)
-                results= test(args, model, task_message, dataset, results, task, dry_run=args.dry_run)
-                eval_result = evaluation(dataset, results[task]["outputs"], args)
+                dataset = load_prompts(args.ood, task, datasets)
+                results= test(args.ood, model, task_message, dataset, results, task, dry_run=args.dry_run)
+                eval_result = evaluation(dataset, results[task]["outputs"], args.ood)
                 results[task]["score"] = eval_result
-        with open(args.out_file, "w") as f:
+        with open(args.ood.out_file, "w") as f:
             json.dump(results, f, indent=4)

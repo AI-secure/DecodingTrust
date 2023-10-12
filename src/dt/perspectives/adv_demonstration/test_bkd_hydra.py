@@ -8,7 +8,7 @@ from .task_description import task_dic
 
 
 def test(args, path, seed):
-    model = args.model
+    model = args.model_config.model
     file = f"{seed}.jsonl"
     cache_path = path.replace("data", "results")
     cache_file = model.replace("/", "_") + "_" + file
@@ -23,7 +23,7 @@ def test(args, path, seed):
             dataset.append(cur)
     with TemporaryDirectory(dir="./.cache") as dirname:
         gpt = Chat.from_helm(args, cache=dirname)
-        task_message = task_dic[args.task]
+        task_message = task_dic[args.adv_demonstration.task]
         acc, unknown, cost, cache = gpt.do_classification(dataset, task_message, dry_run=args.dry_run)
         print(f"{model}, {path}, {seed} : {acc}, {unknown}, {cost}")
 
@@ -39,12 +39,12 @@ def test(args, path, seed):
 
 
 def main(args):
-    seeds = [int(x) for x in str(args.seeds).split(",")]
+    seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     print(args)
     tot, tp, tc = 0, 0, 0 
     for seed in seeds:
         for suffix in ["_asr", "_cacc"]:
-            res = test(args, args.path + suffix, seed)
+            res = test(args, args.adv_demonstration.path + suffix, seed)
             tot += res[-1][0]
             tp += res[-1][1]
             tc += res[-1][2]

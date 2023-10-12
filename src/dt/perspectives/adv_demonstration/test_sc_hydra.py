@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 
 def test(args, path, seed):
-    model = args.model
+    model = args.model_config.model
     file = f"{seed}.jsonl"
     cache_path = path.replace("data", "results")
     cache_file = model.replace("/", "_") + "_" + file
@@ -20,7 +20,7 @@ def test(args, path, seed):
     with open(os.path.join(path, file)) as f:
         for line in f.readlines():
             cur = json.loads(line)
-            if args.zero:
+            if args.adv_demonstration.zero:
                 cur["examples"] = []
             if cur["label"] == "yes":
                 dataset1.append(cur)
@@ -53,11 +53,11 @@ def test(args, path, seed):
 
 
 def main(args):
-    seeds = [int(x) for x in str(args.seeds).split(",")]
+    seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     print(args)
     tot, tp, tc = 0, 0, 0 
     for seed in seeds:
-        res = test(args, args.path, seed)
+        res = test(args, args.adv_demonstration.path, seed)
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]

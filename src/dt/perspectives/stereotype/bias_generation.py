@@ -239,9 +239,9 @@ def main(OPTS):
     model_4 = "gpt-4-0314"
 
     # user_template_key = args.user_prompt_key
-    model_name = OPTS.model
+    model_name = OPTS.model_config.model
     dry_run = OPTS.dry_run
-    n_generations = OPTS.n_gens
+    n_generations = OPTS.stereotype.n_gens
 
     columns_ = ['model', 'system_prompt', 'user_prompt']
 
@@ -260,7 +260,7 @@ def main(OPTS):
     '''if not os.path.exists('./data/stereotype/generations/' + OPTS.sys_prompt_type):
         os.mkdir('./data/stereotype/generations/' + OPTS.sys_prompt_type)'''
 
-    if not OPTS.skip_generation:
+    if not OPTS.stereotype.skip_generation:
         with TemporaryDirectory(dir="./.cache") as dirname:
             model = Chat.from_helm(OPTS, cache=dirname)
             cost = 0
@@ -289,17 +289,17 @@ def main(OPTS):
 
                         user_prompt = task_desc[0] + user_prompt
 
-                        if OPTS.sys_prompt_type == 'untargeted':
+                        if OPTS.stereotype.sys_prompt_type == 'untargeted':
                             system_prompt = untargeted_system_prompt[0]
 
-                        elif OPTS.sys_prompt_type == 'targeted':
+                        elif OPTS.stereotype.sys_prompt_type == 'targeted':
                             if target_groups[k_] in capitalized_target_groups:
                                 system_prompt = targeted_system_prompt[0].replace('[target_group]', target_groups[k_])
                             else:
                                 t = target_groups[k_].lower()
                                 system_prompt = targeted_system_prompt[0].replace('[target_group]', t)
 
-                        elif OPTS.sys_prompt_type == 'benign':
+                        elif OPTS.stereotype.sys_prompt_type == 'benign':
                             system_prompt = benign_system_prompt[0]
 
                         else:
@@ -315,7 +315,7 @@ def main(OPTS):
                         base_dir = './data/stereotype/generations/'
                         csv_prefix = model_name.replace('/', '_')
                         
-                        csv_name = base_dir + '/' + OPTS.sys_prompt_type + '/' + csv_prefix + '_' + \
+                        csv_name = base_dir + '/' + OPTS.stereotype.sys_prompt_type + '/' + csv_prefix + '_' + \
                                      user_template_key + '.csv'
                         response = runPipeline(csv_name, system_prompt, [user_prompt], n_generations, 150, columns_, model_name,
                                     task_desc[0], model, dry_run)
@@ -327,8 +327,8 @@ def main(OPTS):
             print("#/ prompt tokens:", prompt_tokens)
             print("#/ completion tokens:", completion_tokens)
             if dry_run == False:
-                calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, csv_prefix)
+                calculate_agreeability(OPTS.stereotype.sys_prompt_type, model_name, n_generations, csv_prefix)
     else:
         org_name = model_name.split('/')[0]
         model_name = model_name.strip(org_name + '/')
-        calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
+        calculate_agreeability(OPTS.stereotype.sys_prompt_type, model_name, n_generations, org_name)

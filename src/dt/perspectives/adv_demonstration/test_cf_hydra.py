@@ -7,14 +7,14 @@ from .task_description import task_dic
 
 
 def test(args, path, seed):
-    model = args.model
-    only = args.only
+    model = args.model_config.model
+    only = args.adv_demonstration.only
     file = f"{seed}.jsonl"
 
     cache_path = path.replace("data", "results")
     if only:
         cache_path += "_only"
-    elif args.zero:
+    elif args.adv_demonstration.zero:
         cache_path += "_zero"
     cache_file = model.replace("/", "_") + "_" + file
     if os.path.exists(os.path.join(cache_path, cache_file)):
@@ -28,11 +28,11 @@ def test(args, path, seed):
             if only:
                 assert "cf" in path
                 dataset[-1]["examples"] = dataset[-1]["examples"][-1:]
-            elif args.zero:
+            elif args.adv_demonstration.zero:
                 dataset[-1]["examples"] = []
     with TemporaryDirectory(dir="./.cache") as dirname:
         gpt = Chat.from_helm(args, cache=dirname)
-        task_message = task_dic[args.task]
+        task_message = task_dic[args.adv_demonstration.task]
         acc, unknown, cost, cache = gpt.do_classification(dataset, task_message, dry_run=args.dry_run)
         print(f"{model}, {path}, {seed}: {acc}, {unknown}, {cost}")
     make_sure_path_exists(cache_path)
@@ -46,13 +46,13 @@ def test(args, path, seed):
 
 
 def main(args):
-    seeds = [int(x) for x in str(args.seeds).split(",")]
+    seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     tot, tp, tc = 0, 0, 0 
     for seed in seeds:
-        res = test(args, args.path, seed)
+        res = test(args, args.adv_demonstration.path, seed)
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
-        if args.zero or args.only:
+        if args.adv_demonstration.zero or args.adv_demonstration.only:
             break
     print(tot, tp, tc)

@@ -52,42 +52,42 @@ ScenarioName2ResultDir = {
 
 def main(args):
     print(args)
-    out_file = args.out_file
-    dataset_size = args.dataset_size
+    out_file = args.privacy.out_file
+    dataset_size = args.privacy.dataset_size
 
     all_cost = {}
     all_prompt_tokens = {}
     all_comple_tokens = {}
     all_num_prompt = {}
 
-    if args.scenario_name == "pii":
+    if args.privacy.scenario_name == "pii":
 
-        for pii in args.personal_infos:
+        for pii in args.privacy.personal_infos:
             if pii not in PII_INFO:
                 print(f"Skip {pii} as it is not defined in supported PII types {PII_INFO}")
                 continue
-            constructor = MessageConstructor(PROMPT_TEMPLATE[args.template]['sys_prompt'].format(pii),
-                                             PROMPT_TEMPLATE[args.template]['task_desc'])
+            constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'].format(pii),
+                                             PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
 
-            for fewshot_type in args.prompt_types:
+            for fewshot_type in args.privacy.prompt_types:
                 if fewshot_type not in PII_PROMPT_TYPE:
                     print(f"Skip {fewshot_type} as it is not defined in supported prompt types {PII_PROMPT_TYPE}")
                     continue
 
-                dataset, gt_list = get_pii_messages_k_shot(filename=args.data_file, k=args.few_shot_num, pp=pii,
+                dataset, gt_list = get_pii_messages_k_shot(filename=args.privacy.data_file, k=args.privacy.few_shot_num, pp=pii,
                                                            fewshot_type=fewshot_type, num_cases=dataset_size)
 
-                result_dir = ScenarioName2ResultDir[args.scenario_name]
+                result_dir = ScenarioName2ResultDir[args.privacy.scenario_name]
                 os.makedirs(result_dir, exist_ok=True)
                 out_file = os.path.join(
                     result_dir,
                     "{}_{}shot{}_s{}_{}_{}.jsonl".format(
-                        pii, args.few_shot_num, fewshot_type, dataset_size, args.model, args.seed
+                        pii, args.privacy.few_shot_num, fewshot_type, dataset_size, args.model_config.model, args.privacy.seed
                     ).replace("/", "_").replace(" ", "")
                 )
                 print(f"Saving to {out_file}")
 
-                num_batches = int(dataset_size / args.batch_size)
+                num_batches = int(dataset_size / args.privacy.batch_size)
                 price_cost = 0
                 prompt_tokens = 0
                 comple_tokens = 0
@@ -101,8 +101,8 @@ def main(args):
                         batch_data = dataset[batch_start:batch_end]
                         batch_gt = gt_list[batch_start:batch_end]
 
-                        cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
-                                                          max_tokens=args.max_tokens,
+                        cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
+                                                          max_tokens=args.privacy.max_tokens,
                                                           dry_run=args.dry_run)  # only works for n=1 now...
 
                         # computing resource
@@ -124,21 +124,21 @@ def main(args):
                     all_comple_tokens[pii] = comple_tokens
                     all_num_prompt[pii] = num_prompt
 
-    elif args.scenario_name == "privacy_understanding":
-        constructor = MessageConstructor(PROMPT_TEMPLATE[args.template]['sys_prompt'],
-                                         PROMPT_TEMPLATE[args.template]['task_desc'])
+    elif args.privacy.scenario_name == "privacy_understanding":
+        constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
+                                         PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
         for topic in args.privacy_topics:
             if topic not in PRIVACY_TOPIC:
                 print(f"Skip {topic} as it is not defined in supported topics {PRIVACY_TOPIC}")
                 continue
-            dataset, gt_list = get_privacy_understanding_messages(topic, args.question_prompt)
+            dataset, gt_list = get_privacy_understanding_messages(topic, args.privacy.question_prompt)
 
-            result_dir = ScenarioName2ResultDir[args.scenario_name]
+            result_dir = ScenarioName2ResultDir[args.privacy.scenario_name]
             os.makedirs(result_dir, exist_ok=True)
             out_file = os.path.join(
                 result_dir,
                 "{}_t{}_s{}_{}_ques{}_{}.jsonl".format(
-                    topic, args.template, dataset_size, args.model, args.question_prompt, args.seed
+                    topic, args.privacy.template, dataset_size, args.model_config.model, args.privacy.question_prompt, args.privacy.seed
                 ).replace("/", "_").replace(" ", "")
             )
 
@@ -151,8 +151,8 @@ def main(args):
                 model = Chat.from_helm(args, cache=dirname)
                 for i, data in enumerate(dataset):
                     batch_data = [data] * dataset_size
-                    cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
-                                                      max_tokens=args.max_tokens,
+                    cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
+                                                      max_tokens=args.privacy.max_tokens,
                                                       dry_run=args.dry_run)  # only works for n=1 now...
                     # computing resource
                     price_cost += cost[0]
@@ -174,12 +174,12 @@ def main(args):
                 all_comple_tokens[topic] = comple_tokens
                 all_num_prompt[topic] = num_prompt
 
-    elif args.scenario_name == "enron_email_extraction":
-        constructor = EnronMessageConstructor(PROMPT_TEMPLATE[args.template]['sys_prompt'],
-                                              PROMPT_TEMPLATE[args.template]['task_desc'])
-        for prompt_type in args.prompt_types:
+    elif args.privacy.scenario_name == "enron_email_extraction":
+        constructor = EnronMessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
+                                              PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
+        for prompt_type in args.privacy.prompt_types:
             print("prompt_type", prompt_type)
-            dataset, name_list, email_list = load_enron_email_prompts(args.data_file, prompt_type)
+            dataset, name_list, email_list = load_enron_email_prompts(args.privacy.data_file, prompt_type)
             if dataset_size < 1 or dataset_size > len(dataset):
                 dataset_size = len(dataset)
             else:
@@ -190,7 +190,7 @@ def main(args):
             out_file = os.path.join(
                 result_dir,
                 "{}_s{}_{}_{}.jsonl"
-                .format(prompt_type, dataset_size, args.model, args.seed).replace("/", "_").replace(" ", "")
+                .format(prompt_type, dataset_size, args.model_config_model, args.privacy.seed).replace("/", "_").replace(" ", "")
             )
             print(f"Saving to {out_file}")
             price_cost = 0
@@ -201,17 +201,17 @@ def main(args):
 
                 model = Chat.from_helm(args, cache=dirname)
 
-                num_batches = int(dataset_size / args.batch_size)
+                num_batches = int(dataset_size / args.privacy.batch_size)
                 for batch_idx in range(num_batches):
 
-                    batch_start = batch_idx * args.batch_size
-                    batch_end = (batch_idx + 1) * args.batch_size
+                    batch_start = batch_idx * args.privacy.batch_size
+                    batch_end = (batch_idx + 1) * args.privacy.batch_size
                     batch_data = dataset[batch_start:batch_end]
                     batch_name = name_list[batch_start:batch_end]
                     batch_email = email_list[batch_start:batch_end]
 
-                    cost, cache = model.do_generation(batch_data, constructor, n=args.n, t=args.t,
-                                                      max_tokens=args.max_tokens,
+                    cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
+                                                      max_tokens=args.privacy.max_tokens,
                                                       dry_run=args.dry_run)  # only works for n=1 now...
                     # computing resource
 
