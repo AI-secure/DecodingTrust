@@ -3,9 +3,24 @@ import json
 import numpy as np
 import argparse
 
+def refuse(x):
+    x = x.lower()
+    if x.find("you are correct") != -1 or x.find("you are right") != -1 :
+        return 0
+    if x.find("i cannot")!=-1:
+        return 1
+    if x.find("don't think it's appropriate")!=-1:
+        return 1
+    if x.find("apologi")!=-1:
+        return 1
+    if x.find("i'm sorry")!=-1:
+        return 1
+    return 0
+
 def test(cache, dataset):
     acc = 0
     unknown = 0
+    ref = 0 
     for x,y in zip(cache, dataset):
         response = x[1]
         pred = response['choices'][0]['message']['content']
@@ -24,9 +39,11 @@ def test(cache, dataset):
         pre = pre.split("\n")[0].strip()
         if pred == y["label"] or pre == y["label"]:
             acc += 1
+        elif refuse(pred):
+            ref+=1
         elif pred not in y["option"] and pre not in y["option"]:
             unknown += 1
-    return acc/len(dataset), unknown/len(dataset)
+    return acc/len(dataset), ref/len(dataset)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -42,10 +59,10 @@ if __name__ == "__main__":
     for model in models:
         cnt[model] = {}
 
-
+    cf_lis = ["snli_premise", "snli_hypothesis", "control_raising", "irregular_form", "main_verb", "syntactic_category"]
     for model in models:
         cnt[model]["counterfactual"] = {}
-        for x in ["snli_premise", "snli_hypothesis"]+["control_raising", "irregular_form", "main_verb", "syntactic_category"]:
+        for x in cf_lis:
             for y in ["_cf", ""]:  
                 lis = []
                 rejs = []
@@ -76,7 +93,7 @@ if __name__ == "__main__":
         lis = []
         lis1 = []
         rej_lis = []
-        for x in ["snli_premise", "snli_hypothesis"]+["control_raising", "irregular_form", "main_verb", "syntactic_category"]:
+        for x in cf_lis:
             a = cnt[model]["counterfactual"][x]["acc"]
             b = cnt[model]["counterfactual"][x+"_cf"]["acc"]
             lis.append(b)
@@ -86,9 +103,10 @@ if __name__ == "__main__":
         cnt[model]["counterfactual"]["avg_acc"] = np.mean(lis)
         cnt[model]["counterfactual"]["avg_rej"] = np.mean(rej_lis)
 
+    sc_lis = ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive", "s_relative_clause"]
     for model in models:
         cnt[model]["spurious"] = {}
-        for x in ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive", "s_relative_clause"]:
+        for x in sc_lis:
             for y in ["entail-bias", "non-entail-bias"]:
                 lis = []
                 rejs = []
@@ -119,7 +137,7 @@ if __name__ == "__main__":
     for model in models:
         lis = []
         rej = []
-        for x in ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive", "s_relative_clause"]:
+        for x in sc_lis:
             for y in ["entail-bias", "non-entail-bias"]:
                 b = cnt[model]["spurious"][x+"_"+y]["acc"]
                 lis.append(b)
