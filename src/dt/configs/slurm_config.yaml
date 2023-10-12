@@ -1,5 +1,4 @@
 model_config:
-  _target_: dt.configs.configs.ModelConfig
   model: "hf/lmsys/vicuna-7b-v1.3"
   type: CHAT
   conv_template: "vicuna_v1.1"

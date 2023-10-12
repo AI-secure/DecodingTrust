@@ -1,6 +1,4 @@
 model_config:
-  _target_: dt.configs.configs.ModelConfig
-
   model: "openai/gpt-3.5-turbo-0301"
   type: CHAT
   conv_template: null
