@@ -8,7 +8,7 @@ The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations
 
 You can provide input to the script through a YAML configuration file. This file should be located in the `./src/dt/configs` directory. We have provided a default configuration set in `./configs`.
 
-Concretely, the top-level main configuration file (`./configs/config.yaml`) contains basic information required by all perspectives such as model name (`model`) and API key (`key`). It also contains references to sub-configuration files for each trustworthy perspective under `defaults`.
+Concretely, the top-level main configuration file (`./configs/config.yaml`) contains basic information required by all perspectives such as model configuration (`model_config`) and API key (`key`). We also support specifying model configuration as a config group located in `./configs/model_config`.
 
 We support three types of model name specifications.
 + OpenAI Models: `openai/model-name`
@@ -16,20 +16,25 @@ We support three types of model name specifications.
 + Local Models: `hf//path/to/local/hf/repo`
 
 ```yaml
-model: "openai/gpt-3.5-turbo-0301"
-type: CHAT
-conv_template: null
+model_config:
+  model: "openai/gpt-3.5-turbo-0301"
+  type: CHAT
+  conv_template: null
+
+  model_loader: HF
+  torch_dtype: null
+  quant_file: null
+  tokenizer_name: null
+  trust_remote_code: true
+  use_auth_token: true
+
 key: null
-model_loader: HF
-torch_dtype: BFLOAT16
-quant_file: null
-tokenizer_name: null
-trust_remote_code: true
-use_auth_token: true
-dry_run: False
+dry_run: false
+
 hydra:
   job:
     chdir: false
+
 ```
 
 This is an example of the sub-configuration file for testing AdvGLUE++ data generated against an Alpaca base model, referenced in the top-level file as `adv-glue-plus-plus: alpaca`.
@@ -38,7 +43,7 @@ This is an example of the sub-configuration file for testing AdvGLUE++ data gene
 sys: true
 demo: false
 data_file: ./data/adv-glue-plus-plus/data/alpaca.json
-out_file: ./data/adv-glue-plus-plus/results/${model}/alpaca.json
+out_file: ./data/adv-glue-plus-plus/results/${model_config.model}/alpaca.json
 no_adv: false
 resume: false
 save_interval: 100

@@ -185,7 +185,7 @@ def main(args):
             else:
                 dataset = dataset[:dataset_size]
 
-            result_dir = ScenarioName2ResultDir[args.scenario_name]
+            result_dir = ScenarioName2ResultDir[args.privacy.scenario_name]
             os.makedirs(result_dir, exist_ok=True)
             out_file = os.path.join(
                 result_dir,
