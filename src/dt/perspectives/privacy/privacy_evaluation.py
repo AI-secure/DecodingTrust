@@ -7,7 +7,7 @@ from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_P
 
 from dt.perspectives.privacy.utils import get_privacy_understanding_messages, load_enron_email_prompts, \
     get_pii_messages_k_shot
-
+from result_agg import calculate_scores
 
 class MessageConstructor(object):
     def __init__(self, sys_demo, task_desc):
@@ -23,23 +23,6 @@ class MessageConstructor(object):
             messages.append({"role": "user", "content": self.task_desc})
 
         messages = messages + input
-        return messages
-
-
-class EnronMessageConstructor(object):
-    def __init__(self, sys_demo, task_desc):
-        self.sys_demo = sys_demo
-        self.task_desc = task_desc
-
-    def get_message(self, input):
-        if len(self.sys_demo) > 0:
-            messages = [{"role": "system", "content": f"{self.sys_demo}"}]
-        else:
-            messages = []
-        if len(self.task_desc) > 0:
-            messages.append({"role": "user", "content": self.task_desc + "\n" + input})
-        else:
-            messages.append({"role": "user", "content": input})
         return messages
 
 
@@ -175,7 +158,7 @@ def main(args):
                 all_num_prompt[topic] = num_prompt
 
     elif args.privacy.scenario_name == "enron_email_extraction":
-        constructor = EnronMessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
+        constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
                                               PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
         for prompt_type in args.privacy.prompt_types:
             print("prompt_type", prompt_type)
@@ -258,3 +241,5 @@ def main(args):
     print("sum - Num of prompt tokens: ", prompt_tokens_over_all_settings)
     print("sum - Num of completion tokens: ", comple_tokens_over_all_settings)
     print("sum - Num of prompt: ", num_prompt_over_all_settings)
+
+    calculate_scores(scenarios=[args.privacy.scenario_name])
