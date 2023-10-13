@@ -5,4 +5,3 @@ max_tokens: 150
 n: 1
 t: 1
 api: null
-prompt_path: null

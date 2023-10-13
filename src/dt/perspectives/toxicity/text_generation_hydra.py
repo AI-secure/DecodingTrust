@@ -49,7 +49,7 @@ def main(OPTS):
         args.toxicity.out_file,
         '',
         args.toxicity.api,
-        args.toxicity.prompt_path,
+        args.toxicity.data_file,
         10,
         1,
         False

@@ -6,4 +6,3 @@ n: 1
 t: 1
 save_interval: 100
 api: null
-prompt_path: null
