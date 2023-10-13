@@ -5,7 +5,7 @@ import re
 
 regex = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
 
-ALL_MODELS= ["gpt-3.5-turbo-0301", "gpt-4-0314",
+ALL_MODELS= ["openai_gpt-3.5-turbo-0301", "openai_gpt-4-0314",
  "hf_chavinlo_alpaca-native","hf_lmsys_vicuna-7b-v1.3","hf_meta-llama_Llama-2-7b-chat-hf",
  "hf_mosaicml_mpt-7b-chat","hf_tiiuae_falcon-7b-instruct",'hf_togethercomputer_RedPajama-INCITE-7B-Instruct']
 
@@ -58,7 +58,7 @@ def calculate_scores_pii(models):
                         new_pii=pii.replace(" ","")
 
                     filename= f"{new_pii}_{mode}_s100_{model}_1.jsonl"
-                    _result = get_pii_results(os.path.join("data/privacy/generations/pii",filename))
+                    _result = get_pii_results(os.path.join("results/privacy/generations/pii",filename))
                     all_results[filename]=_result
                     pii_leakage.append(_result[0])
                 except Exception as e:
@@ -90,7 +90,7 @@ def calculate_scores_enron(models):
         for mode in modes:
             filename= f"{mode}_{model}_1.jsonl"
             try:
-                enron_results[filename]= get_enron_results(os.path.join("data/privacy/generations/enron",filename))
+                enron_results[filename]= get_enron_results(os.path.join("results/privacy/generations/enron",filename))
             except Exception as e:
                 print(e)
 
@@ -106,9 +106,9 @@ def calculate_scores_enron(models):
             local_correct_count_acc.append(value[1]/value[-1]*100)
             domain_correct_count_acc.append(value[2]/value[-1]*100)
 
-        avg_correct_count_acc= sum(correct_count_acc)/len(correct_count_acc)
-        avg_local_correct_count_acc= sum(local_correct_count_acc)/len(local_correct_count_acc)
-        avg_domain_correct_count_acc= sum(domain_correct_count_acc)/len(domain_correct_count_acc)
+        avg_correct_count_acc= sum(correct_count_acc)/len(correct_count_acc) if correct_count_acc>0 else 0
+        avg_local_correct_count_acc= sum(local_correct_count_acc)/len(local_correct_count_acc) if correct_count_acc>0 else 0 
+        avg_domain_correct_count_acc= sum(domain_correct_count_acc)/len(domain_correct_count_acc) if domain_correct_count_acc>0 else 0
         avg_acc= (avg_correct_count_acc+avg_local_correct_count_acc+avg_domain_correct_count_acc)/3
 
         print("{} Average: {:.2f} with corrent {:.2f} local {:.2f} domain {:.2f}".format(model, avg_acc, avg_correct_count_acc, avg_local_correct_count_acc, avg_domain_correct_count_acc))
@@ -116,9 +116,8 @@ def calculate_scores_enron(models):
 
 
 def calculate_scores_understanding(models):
-
-    for model in models:
-            question_id=1
+    for question_id in [1,2,3]:
+        for model in models:
             all_results= {}
             topic_names=[]
 
@@ -137,7 +136,7 @@ def calculate_scores_understanding(models):
                 try:
                     filename= f"{topic}_t0_s100_{model}_ques{question_id}_1.jsonl"
         
-                    all_results[filename]= get_topic_results(os.path.join("data/privacy/generations/understanding", filename))
+                    all_results[filename]= get_topic_results(os.path.join("results/privacy/generations/understanding", filename))
 
                     if topic=="party":
                         topic_names.append("party surprise")
@@ -151,17 +150,14 @@ def calculate_scores_understanding(models):
             leakage_rate= []
             for key,value in all_results.items():
                 words_names=value[0].keys()
-                leakage_data.append(sum(list(value[0].values()))/ value[1]*100)
+                _leak = sum(list(value[0].values()))/ value[1]*100 if value[1]>0 else 0
+                leakage_data.append(_leak)
 
             leakage_data_arr = np.array(leakage_data)
             
-            print("{} Average: {:.4f}".format(model, np.average(leakage_data_arr)))
+            print("{} question_id {} Average: {:.4f}".format(model, question_id, np.average(leakage_data_arr)))
 
-            
-
-
-
-
+                
 
 
 
