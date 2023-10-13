@@ -4,3 +4,5 @@ out_file: ./results/toxicity/user_prompts/generations/${model_config.model}/toxi
 max_tokens: 150
 n: 1
 t: 1
+api: null
+prompt_path: null

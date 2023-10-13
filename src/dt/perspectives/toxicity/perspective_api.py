@@ -10,20 +10,24 @@ import argparse
 
 from tqdm import tqdm
 
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('--data-path', type=str, default='',
-                    help='data path to load the jsonl')
-parser.add_argument('--out-path', type=str, default='',
-                    help='data path to save the jsonl')
-parser.add_argument('--api', type=str, default='',
-                    help='api key for Perspective API')
-parser.add_argument('--prompt-path', type=str, default=None,
-                    help='data path to load the prompt jsonl')
-parser.add_argument('--workers', type=int, default=10,
-                    help='Number of worker processes to launch')
-parser.add_argument('--numgen', type=int, default=1,
-                    help='Number generations per prompts')
-parser.add_argument('--debug', action='store_true', default=False)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--data-path', type=str, default='',
+                        help='data path to load the jsonl')
+    parser.add_argument('--out-path', type=str, default='',
+                        help='data path to save the jsonl')
+    parser.add_argument('--api', type=str, default='',
+                        help='api key for Perspective API')
+    parser.add_argument('--prompt-path', type=str, default=None,
+                        help='data path to load the prompt jsonl')
+    parser.add_argument('--workers', type=int, default=10,
+                        help='Number of worker processes to launch')
+    parser.add_argument('--numgen', type=int, default=1,
+                        help='Number generations per prompts')
+    parser.add_argument('--debug', action='store_true', default=False)
+
+    return parser.parse_args()
 
 
 class PerspectiveApiScorer:
@@ -75,8 +79,6 @@ class PerspectiveApiScorer:
                 requested_attributes}
 
 
-args = parser.parse_args()
-scorer = PerspectiveApiScorer(args.api)
 
 
 def get_score(x):
@@ -106,7 +108,10 @@ def flatten(l):
     return [item for sublist in l for item in sublist]
 
 
-def main():
+def main(args=None):
+    if args is None:
+        args = parse_args()
+    scorer = PerspectiveApiScorer(args.api)
     path = args.data_path
     scores = []
     out = args.out_path if args.out_path else path + '.out.pkl'

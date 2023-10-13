@@ -13,6 +13,7 @@ import sys
 from tenacity.wait import wait_random_exponential
 from datasets import load_metric, load_dataset
 from dt.chat import Chat
+from dt.perspectives.advglue.adv_stats import main as calculate_scores
 
 # Naming conversion...
 tasks_to_glue = {
@@ -327,3 +328,5 @@ def main(OPTS):
             with open(OPTS.advglue.out_file, "w") as f:
                 json.dump(results, f, indent=4)
             print(f"# Prompt Tokens: {prompt_tokens} \t # Completion Tokens: {completion_tokens} \t Price: {price}")
+
+            calculate_scores()

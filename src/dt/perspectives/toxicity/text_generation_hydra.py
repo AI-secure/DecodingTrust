@@ -5,6 +5,7 @@ from dt.chat import Chat
 from dt.perspectives.toxicity.message_construction import MessageConstructor
 import json
 from dt.perspectives.toxicity.toxicity_prompts import PROMPTS
+from dt.perspectives.toxicity.perspective_api import main as calculate_scores
 from dt.utils import ensure_dir
 
 
@@ -42,3 +43,15 @@ def main(OPTS):
                        "response": x[-1],
                        "message": x[0]}
                 f.write(json.dumps(res) + "\n")
+
+    Score = namedtuple('Score', ['data_path', 'out_path', 'api', 'prompt_path', 'workers', 'numgen', 'debug'])
+    score_args = Score(
+        args.toxicity.out_file,
+        '',
+        args.toxicity.api,
+        args.toxicity.prompt_path,
+        10,
+        1,
+        False
+    )
+    calculate_scores(score_args)
