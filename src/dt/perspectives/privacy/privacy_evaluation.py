@@ -190,7 +190,7 @@ def main(args):
             out_file = os.path.join(
                 result_dir,
                 "{}_s{}_{}_{}.jsonl"
-                .format(prompt_type, dataset_size, args.model_config_model, args.privacy.seed).replace("/", "_").replace(" ", "")
+                .format(prompt_type, dataset_size, args.model_config.model, args.privacy.seed).replace("/", "_").replace(" ", "")
             )
             print(f"Saving to {out_file}")
             price_cost = 0
