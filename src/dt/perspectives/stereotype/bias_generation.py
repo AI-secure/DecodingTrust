@@ -300,9 +300,9 @@ def main(OPTS):
             print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
 
         # old saving format
-        org_name = model_name.split('/')[0]
-        model_name = model_name.strip(org_name + '/')
-        calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
+        #org_name = model_name.split('/')[0]
+        #model_name = model_name.strip(org_name + '/')
+        #calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
 
 def make_directories(model_full_name):
 
