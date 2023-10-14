@@ -7,13 +7,13 @@ from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_P
 
 from dt.perspectives.privacy.utils import get_privacy_understanding_messages, load_enron_email_prompts, \
     get_pii_messages_k_shot
-from result_agg import calculate_scores
+from dt.perspectives.privacy.result_agg import calculate_scores
 
 class MessageConstructor(object):
-    def __init__(self, sys_demo, task_desc):
+    def __init__(self, sys_demo, task_desc,is_raw_input=False):
         self.sys_demo = sys_demo
         self.task_desc = task_desc
-
+        self.is_raw_input=is_raw_input
     def get_message(self, input):
         messages = []
         if len(self.sys_demo) > 0:
@@ -21,10 +21,12 @@ class MessageConstructor(object):
 
         if len(self.task_desc) > 0:
             messages.append({"role": "user", "content": self.task_desc})
-
-        messages = messages + input
+        if self.is_raw_input:
+            messages.append({"role": "user", "content": input})   
+        else:    
+            messages = messages + input
+            
         return messages
-
 
 ScenarioName2ResultDir = {
     "pii": "./results/privacy/generations/pii",
@@ -32,6 +34,50 @@ ScenarioName2ResultDir = {
     "enron_email_extraction": "./results/privacy/generations/enron",
 }
 
+def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt']):
+    dataset_size= len(dataset)
+    num_batches = int(dataset_size / batch_size)
+    price_cost = 0
+    prompt_tokens = 0
+    comple_tokens = 0
+    num_prompt = 0
+    print("gt_list", len(gt_list))
+    with TemporaryDirectory(dir="./.cache") as dirname:
+        model = Chat.from_helm(args, cache=dirname)
+
+        for batch_idx in range(num_batches):
+            batch_start = batch_idx * batch_size
+            batch_end = (batch_idx + 1) * batch_size
+            batch_data = dataset[batch_start:batch_end]
+            # batch_gt = gt_list[batch_start:batch_end]
+
+            cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
+                                                max_tokens=args.privacy.max_tokens,
+                                                dry_run=args.dry_run)  # only works for n=1 now...
+
+            # computing resource
+            price_cost += cost[0]
+            prompt_tokens += cost[1]
+            comple_tokens += cost[2]
+            num_prompt += len(cache)
+
+
+            with open(out_file, "a") as f:
+                for idx, x in enumerate(cache):
+      
+                    res={}
+                    for i, key in enumerate(keynames):
+                      
+                        batch_gt = gt_list[i][batch_start:batch_end] 
+                        res[key] = batch_gt[idx]
+
+                    res_gen = { "continuation": x[1], "isbanned": x[2], "prompt": x[3], "response": x[-1]}
+                    res.update(res_gen)
+                    f.write(json.dumps(res) + "\n")
+    print("Cost: ", price_cost)
+    print("Num of prompt tokens: ", prompt_tokens)
+    print("Num of completion tokens: ", comple_tokens)
+    return price_cost, prompt_tokens, comple_tokens, num_prompt
 
 def main(args):
     print(args)
@@ -70,47 +116,24 @@ def main(args):
                 )
                 print(f"Saving to {out_file}")
 
-                num_batches = int(dataset_size / args.privacy.batch_size)
-                price_cost = 0
-                prompt_tokens = 0
-                comple_tokens = 0
-                num_prompt = 0
-                with TemporaryDirectory(dir="./.cache") as dirname:
-                    model = Chat.from_helm(args, cache=dirname)
+                price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
+                                                                                         dataset= dataset, 
+                                                                                         gt_list=[gt_list],
+                                                                                         constructor=constructor, 
+                                                                                         out_file=out_file, 
+                                                                                         batch_size= args.privacy.batch_size,
+                                                                                         keynames=['gt']
+                                                                                         )
 
-                    for batch_idx in range(num_batches):
-                        batch_start = batch_idx * args.batch_size
-                        batch_end = (batch_idx + 1) * args.batch_size
-                        batch_data = dataset[batch_start:batch_end]
-                        batch_gt = gt_list[batch_start:batch_end]
-
-                        cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
-                                                          max_tokens=args.privacy.max_tokens,
-                                                          dry_run=args.dry_run)  # only works for n=1 now...
-
-                        # computing resource
-                        price_cost += cost[0]
-                        prompt_tokens += cost[1]
-                        comple_tokens += cost[2]
-                        num_prompt += len(cache)
-
-                        with open(out_file, "a") as f:
-                            for idx, x in enumerate(cache):
-                                res = {"gt": batch_gt[idx], "continuation": x[1], "isbanned": x[2], "prompt": x[3],
-                                       "response": x[-1]}
-                                f.write(json.dumps(res) + "\n")
-                    print("Cost: ", price_cost)
-                    print("Num of prompt tokens: ", prompt_tokens)
-                    print("Num of completion tokens: ", comple_tokens)
-                    all_cost[pii] = price_cost
-                    all_prompt_tokens[pii] = prompt_tokens
-                    all_comple_tokens[pii] = comple_tokens
-                    all_num_prompt[pii] = num_prompt
+                all_cost[pii] = price_cost
+                all_prompt_tokens[pii] = prompt_tokens
+                all_comple_tokens[pii] = comple_tokens
+                all_num_prompt[pii] = num_prompt
 
     elif args.privacy.scenario_name == "privacy_understanding":
         constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
                                          PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
-        for topic in args.privacy_topics:
+        for topic in args.privacy.privacy_topics:
             if topic not in PRIVACY_TOPIC:
                 print(f"Skip {topic} as it is not defined in supported topics {PRIVACY_TOPIC}")
                 continue
@@ -125,41 +148,30 @@ def main(args):
                 ).replace("/", "_").replace(" ", "")
             )
 
+            expanded_dataset=[]
+            expanded_gt_list=[]
+            for i, data in enumerate(dataset):
+                expanded_dataset.extend([data] * dataset_size)
+                expanded_gt_list.extend([gt_list[i]] * dataset_size)
+    
             print(f"Saving to {out_file}")
-            price_cost = 0
-            prompt_tokens = 0
-            comple_tokens = 0
-            num_prompt = 0
-            with TemporaryDirectory(dir="./.cache") as dirname:
-                model = Chat.from_helm(args, cache=dirname)
-                for i, data in enumerate(dataset):
-                    batch_data = [data] * dataset_size
-                    cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
-                                                      max_tokens=args.privacy.max_tokens,
-                                                      dry_run=args.dry_run)  # only works for n=1 now...
-                    # computing resource
-                    price_cost += cost[0]
-                    prompt_tokens += cost[1]
-                    comple_tokens += cost[2]
-                    num_prompt += len(cache)
-
-                    with open(out_file, "a") as f:
-                        for idx, x in enumerate(cache):
-                            res = {"word": gt_list[i], "continuation": x[1], "isbanned": x[2], "prompt": x[3],
-                                   "response": x[-1]}
-                            f.write(json.dumps(res) + "\n")
-
-                print("Cost: ", price_cost)
-                print("Num of prompt tokens: ", prompt_tokens)
-                print("Num of completion tokens: ", comple_tokens)
-                all_cost[topic] = price_cost
-                all_prompt_tokens[topic] = prompt_tokens
-                all_comple_tokens[topic] = comple_tokens
-                all_num_prompt[topic] = num_prompt
+            price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
+                                                                                         dataset= expanded_dataset, 
+                                                                                         gt_list=[expanded_gt_list], 
+                                                                                         constructor=constructor, 
+                                                                                         out_file=out_file, 
+                                                                                         batch_size= dataset_size,
+                                                                                         keynames=['word']
+                                                                                         )
+        
+            all_cost[topic] = price_cost
+            all_prompt_tokens[topic] = prompt_tokens
+            all_comple_tokens[topic] = comple_tokens
+            all_num_prompt[topic] = num_prompt
 
     elif args.privacy.scenario_name == "enron_email_extraction":
         constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
-                                              PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
+                                              PROMPT_TEMPLATE[args.privacy.template]['task_desc'], is_raw_input=True)
         for prompt_type in args.privacy.prompt_types:
             print("prompt_type", prompt_type)
             dataset, name_list, email_list = load_enron_email_prompts(args.privacy.data_file, prompt_type)
@@ -176,49 +188,18 @@ def main(args):
                 .format(prompt_type, dataset_size, args.model_config.model, args.privacy.seed).replace("/", "_").replace(" ", "")
             )
             print(f"Saving to {out_file}")
-            price_cost = 0
-            prompt_tokens = 0
-            comple_tokens = 0
-            num_prompt = 0
-            with TemporaryDirectory(dir="./.cache") as dirname:
-
-                model = Chat.from_helm(args, cache=dirname)
-
-                num_batches = int(dataset_size / args.privacy.batch_size)
-                for batch_idx in range(num_batches):
-
-                    batch_start = batch_idx * args.privacy.batch_size
-                    batch_end = (batch_idx + 1) * args.privacy.batch_size
-                    batch_data = dataset[batch_start:batch_end]
-                    batch_name = name_list[batch_start:batch_end]
-                    batch_email = email_list[batch_start:batch_end]
-
-                    cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
-                                                      max_tokens=args.privacy.max_tokens,
-                                                      dry_run=args.dry_run)  # only works for n=1 now...
-                    # computing resource
-
-                    price_cost += cost[0]
-                    prompt_tokens += cost[1]
-                    comple_tokens += cost[2]
-                    num_prompt += len(cache)
-
-                    if not os.path.exists(os.path.dirname(out_file)):
-                        os.makedirs(os.path.dirname(out_file))
-                    with open(out_file, "a") as f:
-                        for idx, x in enumerate(cache):
-                            res = {"gt-email": batch_email[idx], "gt-name": batch_name[idx], "continuation": x[1],
-                                   "isbanned": x[2], "prompt": x[3], "response": x[-1]}
-                            f.write(json.dumps(res) + "\n")
-
-                print("dataset size: ", dataset_size)
-                print("Cost: ", price_cost)
-                print("Num of prompt tokens: ", prompt_tokens)
-                print("Num of completion tokens: ", comple_tokens)
-                all_cost[prompt_type] = price_cost
-                all_prompt_tokens[prompt_type] = prompt_tokens
-                all_comple_tokens[prompt_type] = comple_tokens
-                all_num_prompt[prompt_type] = num_prompt
+            price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
+                                                                                         dataset= dataset, 
+                                                                                         gt_list=[name_list, email_list],
+                                                                                         constructor=constructor, 
+                                                                                         out_file=out_file, 
+                                                                                         batch_size= args.privacy.batch_size,
+                                                                                         keynames=['gt-email', 'gt-name']
+                                                                                         )
+            all_cost[prompt_type] = price_cost
+            all_prompt_tokens[prompt_type] = prompt_tokens
+            all_comple_tokens[prompt_type] = comple_tokens
+            all_num_prompt[prompt_type] = num_prompt
 
     print("*********final results summary******")
 
@@ -242,4 +223,4 @@ def main(args):
     print("sum - Num of completion tokens: ", comple_tokens_over_all_settings)
     print("sum - Num of prompt: ", num_prompt_over_all_settings)
 
-    calculate_scores(scenarios=[args.privacy.scenario_name])
+    calculate_scores( scenarios=[args.privacy.scenario_name])
