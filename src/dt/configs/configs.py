@@ -97,6 +97,7 @@ class StereotypeConfig:
 class OODConfig:
     data_file: str
     out_file: str
+    result_file: str
     few_shot_num: int
     task: str
     idk: Optional[bool]

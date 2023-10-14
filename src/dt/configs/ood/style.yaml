@@ -1,5 +1,6 @@
 data_file: ./data/ood/style.json
 out_file: ./results/ood/results/${model_config.model}/style.json
+result_file: ./results/ood/results/${model_config.model}/final_scores.json
 few_shot_num: 0
 task: style
 idk: null
