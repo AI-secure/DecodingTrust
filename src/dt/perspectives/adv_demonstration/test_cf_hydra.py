@@ -4,7 +4,7 @@ import json
 from dt.utils import make_sure_path_exists, init_logger
 from dt.chat import Chat
 from .task_description import task_dic
-
+import numpy as np
 
 def test(args, path, seed):
     model = args.model_config.model
@@ -38,7 +38,7 @@ def test(args, path, seed):
     make_sure_path_exists(cache_path)
     labels = [x["label"] for x in dataset]
     out = {"requests": [x[0] for x in cache], "responses": [x[1] for x in cache], "labels":labels}
-    out["scores"] = {acc: acc}
+    out["scores"] = {"acc": acc}
     print(out["scores"])
     with open(os.path.join(cache_path, cache_file), "w") as f:
         json.dump(out, f)
@@ -48,11 +48,16 @@ def test(args, path, seed):
 def main(args):
     seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     tot, tp, tc = 0, 0, 0 
+    score_lis = []
     for seed in seeds:
         res = test(args, args.adv_demonstration.path, seed)
+        score_lis.append(res[0])
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
         if args.adv_demonstration.zero or args.adv_demonstration.only:
             break
-    print(tot, tp, tc)
+    avg = np.mean(score_lis)
+    print(f"average acc: {avg}")
+    print(f"total cost: {tot} ({tp}, {tc})")
+    return avg

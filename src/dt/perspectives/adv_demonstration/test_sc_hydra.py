@@ -4,7 +4,7 @@ from dt.utils import make_sure_path_exists, init_logger
 from dt.chat import Chat
 from .task_description import task_dic
 from tempfile import TemporaryDirectory
-
+import numpy as np
 
 def test(args, path, seed):
     model = args.model_config.model
@@ -49,18 +49,23 @@ def test(args, path, seed):
     print(out["scores"])
     with open(os.path.join(cache_path, cache_file), "w") as f:
         json.dump(out, f)
-    return acc, unknown, (cost[0]+cost0[0], cost[1]+cost0[1], cost[2]+cost0[2])
+    return overall, unknown, (cost[0]+cost0[0], cost[1]+cost0[1], cost[2]+cost0[2])
 
 
 def main(args):
     seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     print(args)
     tot, tp, tc = 0, 0, 0 
+    score_lis = []
     for seed in seeds:
         res = test(args, args.adv_demonstration.path, seed)
+        score_lis.append(res[0])
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
         if args.zero:
             break
-    print(tot, tp, tc)
+    avg = np.mean(score_lis)
+    print(f"average acc: {avg}")
+    print(f"total cost: {tot} ({tp}, {tc})")
+    return avg
