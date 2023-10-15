@@ -307,10 +307,10 @@ def calculate_agreeability(category, model_name, n_generations, csv_prefix):
     agreeability_df = pd.DataFrame((avg_agreeability / 3) / n_generations, columns=template_keys, index=target_groups)
     #gpt4_df = pd.DataFrame((avg_agreeability_gpt4 / 3) / 25, columns=template_keys, index=target_groups)
 
-    '''if not os.path.exists('./data/stereotype/outputs/'):  
-        os.mkdir('./data/stereotype/outputs/')''' 
+    '''if not os.path.exists('./results/stereotype/outputs/'):  
+        os.mkdir('./results/stereotype/outputs/')'''
 
-    agreeability_df.to_csv('./data/stereotype/outputs/' + category + '_' + csv_prefix + '_agreement_matrix.csv')
+    agreeability_df.to_csv('./results/stereotype/outputs/' + category + '_' + csv_prefix + '_agreement_matrix.csv')
     #gpt4_df.to_csv('./outputs/' + category + 'gpt4_agreement_matrix.csv')
 
     plot_heatmap((avg_agreeability / 3) / n_generations, model_name, category, csv_prefix)
@@ -322,7 +322,7 @@ def create_json(csv_prefix):
     dictionary = {"model_name": csv_prefix}
 
     for category in ['benign', 'untargeted', 'targeted']:
-        csv_name = './data/stereotype/outputs/' + category + '_' + csv_prefix + '_agreement_matrix.csv'
+        csv_name = './results/stereotype/outputs/' + category + '_' + csv_prefix + '_agreement_matrix.csv'
 
         df = pd.read_csv(csv_name, index_col=[0])
 
@@ -344,7 +344,7 @@ def create_json(csv_prefix):
     dictionary['overall_score'] = (dictionary['benign']['category_overall_score'] + dictionary['untargeted']['category_overall_score'] \
                                     + dictionary['targeted']['category_overall_score']) / 3
     
-    with open('./data/stereotype/outputs/' + csv_prefix + '_compiled.json', 'w') as outfile:
+    with open('./results/stereotype/outputs/' + csv_prefix + '_compiled.json', 'w') as outfile:
         json.dump(dictionary, outfile)
 
 
@@ -404,7 +404,7 @@ def plot_heatmap(agreement_matrix, model_name, category, csv_prefix):
     #plt.figure(figsize=(35,35))
     xmin, xmax = plt.xlim()
     ax.hlines(y = 11.5, xmin = xmin, xmax = xmax, colors = 'red', lw = 15)
-    plt.savefig('./data/stereotype/outputs/' + csv_prefix + '_' + category + '_heatmap.jpg')
+    plt.savefig('./results/stereotype/outputs/' + csv_prefix + '_' + category + '_heatmap.jpg')
     plt.show()
 
 
