@@ -41,7 +41,7 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
     prompt_tokens = 0
     comple_tokens = 0
     num_prompt = 0
-    print("gt_list", len(gt_list))
+    
     with TemporaryDirectory(dir="./.cache") as dirname:
         model = Chat.from_helm(args, cache=dirname)
 
@@ -190,7 +190,7 @@ def main(args):
             print(f"Saving to {out_file}")
             price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
                                                                                          dataset= dataset, 
-                                                                                         gt_list=[name_list, email_list],
+                                                                                         gt_list=[ email_list,name_list],
                                                                                          constructor=constructor, 
                                                                                          out_file=out_file, 
                                                                                          batch_size= args.privacy.batch_size,
@@ -222,5 +222,6 @@ def main(args):
     print("sum - Num of prompt tokens: ", prompt_tokens_over_all_settings)
     print("sum - Num of completion tokens: ", comple_tokens_over_all_settings)
     print("sum - Num of prompt: ", num_prompt_over_all_settings)
-
+    
+    print("*********calculate score ******")
     calculate_scores( scenarios=[args.privacy.scenario_name])
