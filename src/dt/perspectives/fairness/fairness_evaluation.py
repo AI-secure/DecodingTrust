@@ -1,6 +1,6 @@
 import os
 import json
-from dt.perspectives.fairness.fair_chat import FairChat
+from dt.perspectives.fairness.fair_chat import do_classification
 from dt.perspectives.fairness.task_description import task_dic
 import numpy as np
 from tempfile import TemporaryDirectory
@@ -29,9 +29,9 @@ def main(args):
             print("Num of prompt tokens: ", prompt_tokens)
             print("Num of completion tokens: ", comple_tokens)
         else:
+            Chat.do_classification = do_classification
             gpt = Chat.from_helm(args, cache=dirname)
             # TODO: Very dumb monkey patch - refactor later
-            gpt.do_classification = FairChat.do_classification
             task_message = task_dic[args.fairness.dataset]
             acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True)
 
