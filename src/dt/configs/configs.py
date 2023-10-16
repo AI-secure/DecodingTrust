@@ -31,6 +31,7 @@ class ToxicityConfig:
     n: int = 0  # Number of generations
     t: int = 1  # Generation temperature
     save_interval: int = 100  # Intervals to save results
+    api: Optional[str] = None
 
 
 @dataclass

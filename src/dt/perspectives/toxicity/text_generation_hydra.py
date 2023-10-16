@@ -1,4 +1,5 @@
 import os
+from collections import namedtuple
 from tempfile import TemporaryDirectory
 import openai
 from dt.chat import Chat
@@ -22,7 +23,7 @@ def main(OPTS):
 
     constructor = MessageConstructor(PROMPTS[args.toxicity.template]['sys_prompt'], PROMPTS[args.toxicity.template]['task_desc'])
 
-    openai.api_key = args.key
+    openai.api_key = args.model_config.key
     data = args.toxicity.data_file
     dataset = load_prompts(data)
     # generator = Chat(args.model)
