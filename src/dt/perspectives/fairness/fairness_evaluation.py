@@ -29,9 +29,9 @@ def main(args):
             print("Num of prompt tokens: ", prompt_tokens)
             print("Num of completion tokens: ", comple_tokens)
         else:
-            gpt = FairChat(
-                model_name=args.model_config.model.replace("hf/", ""), conv_template=args.model_config.conv_template, cache=dirname,
-            )
+            gpt = Chat.from_helm(args, cache=dirname)
+            # TODO: Very dumb monkey patch - refactor later
+            gpt.do_classification = FairChat.do_classification
             task_message = task_dic[args.fairness.dataset]
             acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True)
 
