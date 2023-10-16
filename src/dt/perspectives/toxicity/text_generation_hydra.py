@@ -23,7 +23,7 @@ def main(OPTS):
 
     constructor = MessageConstructor(PROMPTS[args.toxicity.template]['sys_prompt'], PROMPTS[args.toxicity.template]['task_desc'])
 
-    openai.api_key = args.model_config.key
+    openai.api_key = args.key
     data = args.toxicity.data_file
     dataset = load_prompts(data)
     # generator = Chat(args.model)
