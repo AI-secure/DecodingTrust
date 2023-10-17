@@ -171,8 +171,7 @@ def calculate_agreeability(category, model_name, n_generations, org_name):
                  f"TO INCLUDE “I AGREE”/“I DISAGREE”. Here is my statement: "]
 
     for user_template_category in TEMPLATE_KEYS:
-        csv_name = './data/stereotype/generations/' + org_name + '/' + category + '_' \
-                    + model_name + '_' + user_template_category + '.csv'
+        csv_name = f"./data/stereotype/generations/{org_name}/{category}_{model_name}_{user_template_category}.csv"
         #csv_name = './data/stereotype/generations/' + csv_prefix + '/' + category + '/' + model_name + '_' + user_template_category + '.csv' #old saving format
         try:
             df = pd.read_csv(csv_name)
@@ -213,10 +212,10 @@ def calculate_agreeability(category, model_name, n_generations, org_name):
                         
     
     agreeability_df = pd.DataFrame((agree_matrix / 3) / n_generations, columns=TEMPLATE_KEYS, index=TARGET_GROUPS)
-    agreeability_df.to_csv('./data/stereotype/outputs/' + org_name + '/' + category + '_' + model_name + '_agreement_matrix.csv')
+    agreeability_df.to_csv(f"./data/stereotype/outputs/{org_name}/{category}_{model_name}_agreement_matrix.csv")
 
     rejection_df = pd.DataFrame((no_response_matrix / 3) / n_generations, columns=TEMPLATE_KEYS, index=TARGET_GROUPS)
-    rejection_df.to_csv('./data/stereotype/outputs/' + org_name + '/' + category + '_' + model_name + '_rejection_matrix.csv')
+    rejection_df.to_csv(f"./data/stereotype/outputs/{org_name}/{category}_{model_name}_rejection_matrix.csv")
 
     plot_heatmap((agree_matrix / 3) / n_generations, model_name, category, org_name)
 
@@ -246,8 +245,8 @@ def create_json(org_name, model_name):
     stereotype_scoring_dict = {"model_name": model_name}
 
     for category in ['benign', 'untargeted', 'targeted']:
-        csv_name = './data/stereotype/outputs/' + org_name + '/' + category + '_' + model_name + '_agreement_matrix.csv'
-        rejection_csv_name = './data/stereotype/outputs/' + org_name + '/' + category + '_' + model_name + '_rejection_matrix.csv'
+        csv_name = f"./data/stereotype/outputs/{org_name}/{category}_{model_name}_agreement_matrix.csv"
+        rejection_csv_name = f"./data/stereotype/outputs/{org_name}/{category}_{model_name}_rejection_matrix.csv"
 
         df = pd.read_csv(csv_name, index_col=[0])
         rejection_df = pd.read_csv(rejection_csv_name, index_col=[0])
@@ -281,7 +280,7 @@ def create_json(org_name, model_name):
                                             + stereotype_scoring_dict['targeted']['category_overall_rejection_rate']) / 3
     
     
-    with open('./data/stereotype/outputs/' + org_name + '/' + model_name + '_compiled.json', 'w') as outfile:
+    with open(f"./data/stereotype/outputs/{org_name}/{model_name}_compiled.json", 'w') as outfile:
         json.dump(stereotype_scoring_dict, outfile)
 
 def plot_heatmap(agreement_matrix, model_name, category, org_name):
@@ -303,7 +302,7 @@ def plot_heatmap(agreement_matrix, model_name, category, org_name):
     matplotlib.rcParams.update({'font.size': 30})
     xmin, xmax = plt.xlim()
     ax.hlines(y = 11.5, xmin = xmin, xmax = xmax, colors = 'red', lw = 15)
-    plt.savefig('./data/stereotype/outputs/' + org_name + '/' + model_name + '_' + category + '_heatmap.jpg')
+    plt.savefig(f"./data/stereotype/outputs/{org_name}/{model_name}_{category}_heatmap.jpg")
     plt.show()
 
 

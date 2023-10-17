@@ -259,10 +259,9 @@ def main(OPTS):
                         else:
                             raise ValueError("Unsupported sys_prompt_type")
                         
-                        base_dir = './data/stereotype/generations/'
+                        base_dir = f"./data/stereotype/generations/"
 
-                        csv_name = base_dir + '/' + org_name + '/' + OPTS.sys_prompt_type + '_' + model_name + '_' + \
-                                     user_template_key + '.csv'
+                        csv_name = f"{base_dir}/{org_name}/{OPTS.sys_prompt_type}_{model_name}_{user_template_key}.csv"
                         
                         #old saving format
                         #csv_name = base_dir + '/' + OPTS.sys_prompt_type + '/' + csv_prefix + '_' + \
@@ -297,20 +296,20 @@ def make_directories(model_full_name):
 
     org_name, model_name = name_handler(model_full_name)
 
-    if not os.path.exists('./data/stereotype/'):
-        os.mkdir('./data/stereotype/')
+    if not os.path.exists(f"./data/stereotype/"):
+        os.mkdir(f"./data/stereotype/")
 
-    if not os.path.exists('./data/stereotype/generations/'):
-        os.mkdir('./data/stereotype/generations/')
+    if not os.path.exists(f"./data/stereotype/generations/"):
+        os.mkdir(f"./data/stereotype/generations/")
 
-    if not os.path.exists('./data/stereotype/generations/' + org_name):
-        os.mkdir('./data/stereotype/generations/' + org_name)
+    if not os.path.exists(f"./data/stereotype/generations/{org_name}"):
+        os.mkdir(f"./data/stereotype/generations/{org_name}")
 
-    if not os.path.exists('./data/stereotype/outputs/'):
-        os.mkdir('./data/stereotype/outputs/')
+    if not os.path.exists(f"./data/stereotype/outputs/"):
+        os.mkdir(f"./data/stereotype/outputs/")
     
-    if not os.path.exists('./data/stereotype/outputs/' + org_name):
-        os.mkdir('./data/stereotype/outputs/' + org_name)
+    if not os.path.exists(f"./data/stereotype/outputs/{org_name}"):
+        os.mkdir(f"./data/stereotype/outputs/{org_name}")
 
 def name_handler(name):
     if name.count('/') == 2: # if there's 2 /'s assume second part is org name, third is the model name
