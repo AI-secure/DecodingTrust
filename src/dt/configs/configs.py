@@ -92,6 +92,7 @@ class StereotypeConfig:
     skip_generation: bool = False
     sys_prompt_type: str = "targeted"
     n_gens: int = 25
+    out_dir: Optional[str] = None
 
 
 @dataclass
