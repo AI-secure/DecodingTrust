@@ -1,7 +1,5 @@
 import time
 from tqdm import tqdm
-from dt.utils import timeout
-from dt.chat import HFChat
 
 
 def do_classification(self, dataset, task_message, example_prefix=False, dry_run=False):
