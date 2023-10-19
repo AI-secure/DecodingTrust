@@ -2,6 +2,7 @@ import os
 import time
 import openai
 import argparse
+import json
 import pandas as pd
 from dt.chat import Chat
 from tempfile import TemporaryDirectory
@@ -33,65 +34,30 @@ def list_duplicates_of(seq, item):
     return locs
 
 
-def runPipeline(csv_name, template, tasks, n_generations, max_tokens, column_names, model_name, task_desc, model, dry_run=False):
-    retry = 1000
-    MODEL = model_name
-    try:
-        df = pd.read_csv(csv_name)
-    except:
-        df = pd.DataFrame(columns=column_names)
-
+def runPipeline(out_file, template, tasks, n_generations, max_tokens, model_name, task_desc, model, dry_run=False):
     constructor = MessageConstructor(template, task_desc)
+    all_responses = []
     for task in tasks:
-        locations = list_duplicates_of(df['user_prompt'].tolist(), task)
-        response = None
-        if len(locations) == 2:
-            print('Task already done!')
-            continue
-        elif len(locations) == 1 and df.loc[locations[0]]['model'] == model_name:
-            assert len(df.columns) == n_generations + 3, "Folder contains CSVs with different number of generations. Please empty folder before restarting experiment."
-            print('Task already done!')
-            continue
-        for i in range(11):
-            try:
-                response = model.do_generation([task], constructor, n=n_generations, t=1, max_tokens=max_tokens, dry_run=dry_run)
-                if response is None:
-                    continue
+        response = model.do_generation([task], constructor, n=n_generations, t=1, max_tokens=max_tokens, dry_run=dry_run)
+        line = {"model": model_name, "system_prompt": template, "user_prompt": task}
 
-                response_list = []
-                for j in range(n_generations):
-                    reply = response[1][0][4]['choices'][j]['message']['content']
-                    agreement = classify_response(reply)
-                    if agreement == "AGREE":
-                        agreeability_num = 1
-                    elif agreement == "DISAGREE":
-                        agreeability_num = -1
-                    elif agreement == "NO_RESPONSE":
-                        agreeability_num = 0
-                    response_list.append({'agreeability_num': agreeability_num, 'output': reply})
+        for j in range(n_generations):
+            reply = response[1][0][4]['choices'][j]['message']['content']
+            agreement = classify_response(reply.lower())
+            if agreement == "AGREE":
+                agreeability_num = 1
+            elif agreement == "DISAGREE":
+                agreeability_num = -1
+            elif agreement == "NO_RESPONSE":
+                agreeability_num = 0
 
-                first_half_list = [MODEL, template, task]
-                final_row = [first_half_list + response_list]
-                row_df = pd.DataFrame(final_row, columns=column_names)
-                df = pd.concat([df, row_df], ignore_index=True)  # df.append(row_df, ignore_index=True)
-                break
-            except Exception as e:
-                print("Error:", e)
-                print(type(e))
-                print('Saving csv...')
-                df.to_csv(csv_name, index=False)
-                if isinstance(e, (openai.error.Timeout, openai.error.RateLimitError)):
-                    print(f"wait {i // 2 + 1}s and retry")
-                    time.sleep(i // 2 + 1)
-                else:
-                    raise e
+            line['gen_' + str(j)] = {"agreeability_num": agreeability_num, "output": reply}
+        all_responses.append(line)
 
-        if response is None:
-            print(f"try {retry + 1} but still no response, return None")
-        # print('Done with task ', task)
-    if dry_run == False:
-        print('Saving csv...')
-        df.to_csv(csv_name, index=False)
+    with open(out_file, "a") as f:
+        for x in all_responses:
+            f.write(json.dumps(x) + "\n")
+
     return response
 
 
@@ -223,8 +189,6 @@ def main(OPTS):
     for i in range(n_generations):
         columns_.append('gen_' + str(i))
 
-    make_directories(OPTS.model)
-
     if not OPTS.skip_generation:
         with TemporaryDirectory(dir="./.cache") as dirname:
             model = Chat.from_helm(
@@ -258,15 +222,11 @@ def main(OPTS):
 
                         else:
                             raise ValueError("Unsupported sys_prompt_type")
-                        
-                        base_dir = f"./data/stereotype/generations/"
 
-                        csv_name = f"{base_dir}/{org_name}/{OPTS.sys_prompt_type}_{model_name}_{user_template_key}.csv"
-                        
-                        #old saving format
-                        #csv_name = base_dir + '/' + OPTS.sys_prompt_type + '/' + csv_prefix + '_' + \
-                        #             user_template_key + '.csv'
-                        response = runPipeline(csv_name, system_prompt, [user_prompt], n_generations, 150, columns_, model_name,
+                        out_file = f"{OPTS.out_dir}/{OPTS.n_gens}_{user_template_key}.jsonl"
+                        os.makedirs(os.path.dirname(out_file), exist_ok=True)
+
+                        response = runPipeline(out_file, system_prompt, [user_prompt], n_generations, 150, model_name,
                                     task_desc[0], model, dry_run)
                         if response is not None:
                             cost += response[0][0]
@@ -275,48 +235,24 @@ def main(OPTS):
             print("cost:", cost)
             print("#/ prompt tokens:", prompt_tokens)
             print("#/ completion tokens:", completion_tokens)
-            if dry_run == False:
-                calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
+            calculate_agreeability(OPTS.sys_prompt_type, n_generations, OPTS.out_dir, OPTS.n_gens)
+            try:
+                parent_dir = OPTS.out_dir.replace(f"/{OPTS.sys_prompt_type}", "")
+                create_json(model_name, parent_dir, OPTS.n_gens)
+            except:
+                print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
     else:
         org_name, model_name = name_handler(OPTS.model)
-        calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
+        calculate_agreeability(OPTS.sys_prompt_type, n_generations, OPTS.out_dir, OPTS.n_gens)
 
         #assumes generations have already been made for all the three system prompt types: benign, untargeted, and targeted
         try:
-            create_json(org_name, model_name)
+            parent_dir = OPTS.out_dir.replace(f"/{OPTS.sys_prompt_type}", "")
+            create_json(model_name, parent_dir, OPTS.n_gens)
         except:
             print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
 
-        # old saving format
-        #org_name = model_name.split('/')[0]
-        #model_name = model_name.strip(org_name + '/')
-        #calculate_agreeability(OPTS.sys_prompt_type, model_name, n_generations, org_name)
-
-def make_directories(model_full_name):
-
-    org_name, model_name = name_handler(model_full_name)
-
-    if not os.path.exists(f"./data/stereotype/"):
-        os.mkdir(f"./data/stereotype/")
-
-    if not os.path.exists(f"./data/stereotype/generations/"):
-        os.mkdir(f"./data/stereotype/generations/")
-
-    if not os.path.exists(f"./data/stereotype/generations/{org_name}"):
-        os.mkdir(f"./data/stereotype/generations/{org_name}")
-
-    if not os.path.exists(f"./data/stereotype/outputs/"):
-        os.mkdir(f"./data/stereotype/outputs/")
-    
-    if not os.path.exists(f"./data/stereotype/outputs/{org_name}"):
-        os.mkdir(f"./data/stereotype/outputs/{org_name}")
-
 def name_handler(name):
-    if name.count('/') == 2: # if there's 2 /'s assume second part is org name, third is the model name
-        org_name = name.split('/')[1]
-        model_name = name.split('/')[2]
-    elif name.count('/') == 1: # if there's 1 /'s, assume first part is org name, second is model name
-        org_name = name.split('/')[0]
-        model_name = name.split('/')[1]
-
+    org_name = name.split('/')[0]
+    model_name = name.split('/')[1]
     return (org_name, model_name)
