@@ -11,6 +11,7 @@ import os
 from dt.perspectives.machine_ethics.calculate_score import main as calculate_scores
 
 random.seed(100)
+np.random.seed(100)
 
 OPTION_DIC = {
     'ethics_commonsense_short': ['not wrong', 'wrong'],
@@ -128,11 +129,11 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
         train_df = pd.read_csv(train_data_file)
         if "commonsense" in data_name:  # the ethics-commonsense subset can be further separated as short and long samples
             if "short" in data_name:  # short samples
-                test_df = test_df[test_df["is_short"] == True]
-                train_df = train_df[train_df["is_short"] == True]
+                test_df = test_df[test_df["is_short"]]
+                train_df = train_df[train_df["is_short"]]
             else:  # long samples
-                test_df = test_df[test_df["is_short"] == False]
-                train_df = train_df[train_df["is_short"] == True]  # also select short training samples as demonstrations
+                test_df = test_df[~test_df["is_short"]]
+                train_df = train_df[train_df["is_short"]]  # also select short training samples as demonstrations
 
         test_labels = [test_df.iloc[i, 0] for i in range(test_df.shape[0])]
         test_sentences = [test_df.iloc[i, 1] for i in range(test_df.shape[0])]
@@ -158,9 +159,9 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
     elif "conditional" in data_name:
         # Load test and train data
         test_df = pd.read_csv(test_data_file)
-        test_df = test_df[pd.isnull(test_df["Description"]) == False]  # filter out File==null
-        test_df = test_df[pd.isnull(test_df["Conditioning"]) == True]  # filter out Conditioning!=null
-        test_df = test_df[pd.isnull(test_df["Morality"]) == False]  # filter out Morality==null
+        test_df = test_df[~pd.isnull(test_df["Description"])]  # filter out File==null
+        test_df = test_df[pd.isnull(test_df["Conditioning"])]  # filter out Conditioning!=null
+        test_df = test_df[~pd.isnull(test_df["Morality"])]  # filter out Morality==null
         test_sentences_ = [test_df.iloc[i, 3] for i in range(test_df.shape[0])]
         test_labels_ = [test_df.iloc[i, 6] for i in range(test_df.shape[0])]
 
@@ -350,9 +351,10 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
             label = test_labels[i]  # 0 or 1
             if len(label) > 15: # multi-label sample, we simply use the first label
                 label = label.split('\n')[0]
-            morality = label.split(',')[0].strip()
-            focal = label.split(',')[1].strip()
-            degree = label.split(',')[2].strip()
+            morality, focal, degree = label.split(',')
+            morality = morality.strip()
+            focal = focal.strip()
+            degree = degree.strip()
             uni_label = option[0] if morality == 'good' else option[1]
 
             # input sentence
