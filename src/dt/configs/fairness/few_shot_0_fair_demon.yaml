@@ -1,0 +1,6 @@
+data_dir: ./data/fairness/fairness_data/
+prompt_file: adult_0_200_test_base_rate_0.5.jsonl
+gt_file: gt_labels_adult_0_200_test_base_rate_0.5.npy
+sensitive_attr_file: sensitive_attr_adult_0_200_test_base_rate_0.5.npy
+dataset: adult
+out_file: ./results/fairness/results/${model_config.model}/few_shot_0_fair_demon.json
