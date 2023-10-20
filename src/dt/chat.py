@@ -135,7 +135,7 @@ class Chat(ABC):
         Do text generation by calling `openai.ChatCompletion.create`
         Args:
             dataset (`List[str]`): test dataset to evaluate. Each item should be a text prompt.
-            message_constructor (`MessageConstrctor`): format the input prompts tailer for GPT-3.5 and GPT-4
+            message_constructor (`MessageConstructor`): format the input prompts tailer for GPT-3.5 and GPT-4
             n (int): number of generations given the same prompt
             t (int): generation temperature
             max_tokens: max number of tokens to generate
@@ -358,7 +358,7 @@ class HFChat(Chat):
                 self.model_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
         except ValueError as e:
             from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
-            self.model_config = get_huggingface_model_config(model_name)
+            self.model_config = get_huggingface_model_config(model_name[:model_name.find("@")])
             print(e)
 
         if self.model_config is None:
