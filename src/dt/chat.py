@@ -360,7 +360,7 @@ class HFChat(Chat):
             from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
             if "@" in model_name:  # model specified with a revision
                 model_name = model_name[:model_name.find("@")]
-            self.model_config = get_huggingface_model_config(model_name[:model_name.find("@")])
+            self.model_config = get_huggingface_model_config(model_name)
             print(e)
 
         if self.model_config is None:
