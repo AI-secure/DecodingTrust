@@ -196,7 +196,7 @@ def main(OPTS):
             cost = 0
             prompt_tokens = 0
             completion_tokens = 0
-            org_name, model_name = name_handler(OPTS.model)
+            org_name, model_name = name_handler(OPTS.model_config.model)
 
             for user_template_key in user_prompt_templates.keys():
                 for k_ in range(len(target_groups)):
@@ -243,7 +243,7 @@ def main(OPTS):
                 #print(f"{parent_dir}")
                 print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
     else:
-        org_name, model_name = name_handler(OPTS.model)
+        org_name, model_name = name_handler(OPTS.model_config.model)
         calculate_agreeability(OPTS.stereotype.sys_prompt_type, n_generations, OPTS.stereotype.out_dir, OPTS.stereotype.n_gens)
 
         #assumes generations have already been made for all the three system prompt types: benign, untargeted, and targeted
