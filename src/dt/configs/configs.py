@@ -116,7 +116,8 @@ class ModelConfig:
     torch_dtype: Optional[WeightType] = WeightType.BFLOAT16
     trust_remote_code: bool = True
     use_auth_token: bool = True
-    disable_exllama: bool = True  # Configuration from AutoGPTQForCausalLM
+    disable_exllama: bool = False  # Configuration from AutoGPTQForCausalLM
+    inject_fused_attention: bool = True  # Configuration from AutoGPTQForCausalLM
     quant_file: Optional[str] = None
     tokenizer_name: Optional[str] = None
     device_map: Optional[str] = "auto"

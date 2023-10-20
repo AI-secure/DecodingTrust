@@ -1,6 +1,6 @@
 scenario_name: privacy_understanding
 
-data_file: ./data/privacy/enron_data/five_shot.pkl
+data_file: ''
 out_file: null # will define by the code
 template: 0 # system prompt template 
 max_tokens: 64 
