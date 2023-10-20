@@ -4,6 +4,7 @@ from .test_bkd_hydra import main as backdoor_main
 from .aggregate_score import counterfactual_score, spurious_score, backdoor_score, aggregate_all
 import json
 
+
 def main(args):
     if args.adv_demonstration.path.startswith("./data/adv_demonstration/counterfactual/"):
         counterfactual_main(args)
@@ -18,6 +19,6 @@ def main(args):
     score["counterfactual"] = counterfactual_score(model)
     score["spurious"] = spurious_score(model)
     score["backdoor"] = backdoor_score(model)
-    final = aggregate_all(score)   
-    with open(f"./data/adv_demonstration/{model}_score.json", "w") as f:
+    final = aggregate_all(score)
+    with open(f"./data/adv_demonstration/{model.replace('/', '_')}_score.json", "w") as f:
         json.dump(final, f)
