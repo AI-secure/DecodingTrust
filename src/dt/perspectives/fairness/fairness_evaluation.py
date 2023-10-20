@@ -30,6 +30,7 @@ def aggregate_current_scores(args):
 
     files = outfile2sensiattr.keys()
     evaluated_settings = []
+    scores = {}
     for file in files:
         out_file_path = os.path.join(get_path(args.fairness.out_file), file)
         if os.path.exists(out_file_path):
@@ -99,9 +100,20 @@ def aggregate_current_scores(args):
         m_eod_ = equalized_odds_difference(label, prediction, sensitive_features=sensitive_attr)
         m_eod.append(m_eod_)
 
+        scores[file] = {}
+        scores[file]['accuracy'] = accuracy
+        scores[file]['demographic parity difference'] = m_dpd_
+        scores[file]['equalized odds difference'] = m_eod_
+
     acc = np.mean(np.array(acc))
     m_dpd = np.mean(np.array(m_dpd))
     m_eod = np.mean(np.array(m_eod))
+    scores['evaluated settings'] = evaluated_settings
+    scores['averaged accuracy'] = acc
+    scores['averaged demographic parity difference'] = m_dpd
+    scores['averaged equalized odds difference'] = m_eod
+    with open(os.path.join(get_path(args.fairness.out_file), 'final_scores.json'), "w") as dest:
+        json.dump(scores, dest)
     print(f'Evaluated setting with model {args.model_config.model}: {evaluated_settings}')
     print(f'Average accuracy: {acc}; Average demographic parity difference: {m_dpd}; Average equalized odds difference: {m_eod}')
 
@@ -131,15 +143,12 @@ def main(args):
             task_message = task_dic[args.fairness.dataset]
             acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True)
 
-            print(acc, unknown, cost)
-
             out = {
                 "requests": [x[0] for x in cache],
                 "responses": [x[1] for x in cache],
                 "labels": [x["label"] for x in dataset],
                 "scores": {"accuracy": acc}
             }
-            print(out["scores"])
             os.makedirs(os.path.dirname(args.fairness.out_file), exist_ok=True)
             with open(args.fairness.out_file, "w") as dest:
                 json.dump(out, dest)
@@ -165,8 +174,6 @@ def main(args):
                 m_eod = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
             else:
                 m_dpd = m_eod = 0
-            print(f'Demographic parity difference: {m_dpd}')
-            print(f'Equalized odds difference: {m_eod}')
 
     aggregate_current_scores(args)
 
