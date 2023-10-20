@@ -69,3 +69,11 @@ def init_logger(root_dir):
     logger.addHandler(console_handler)
     logger.setLevel(logging.INFO)
     return logger
+
+def get_path(s):
+    list = s.split('/')[:-1]
+    res = list[0]
+    for i in range(1, len(list)):
+        res += '/'
+        res += list[i]
+    return res
