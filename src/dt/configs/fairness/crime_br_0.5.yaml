@@ -1,0 +1,6 @@
+data_dir: ./data/fairness/fairness_data/
+prompt_file: crime_0_300_test_base_rate_0.5.jsonl
+gt_file: gt_labels_crime_0_300_test_base_rate_0.5.npy
+sensitive_attr_file: gt_labels_crime_0_300_test_base_rate_0.5.npy
+dataset: crime
+out_file: ./results/fairness/results/${model_config.model}/crime_br_0.5.json
