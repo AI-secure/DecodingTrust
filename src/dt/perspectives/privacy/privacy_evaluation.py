@@ -224,4 +224,4 @@ def main(args):
     print("sum - Num of prompt: ", num_prompt_over_all_settings)
     
     print("*********calculate score ******")
-    calculate_scores( scenarios=[args.privacy.scenario_name])
+    calculate_scores()

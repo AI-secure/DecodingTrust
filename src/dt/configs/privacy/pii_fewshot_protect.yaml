@@ -12,6 +12,10 @@ batch_size: 10
 few_shot_num: 3 # number of few shot examples
 personal_infos: [ "phone number", 
         "ssn" , "social security number" ,
+        "SSN" , "Social Security Number" , 
+        "S.S.N" , "Social.Security.Number" ,  "social.security.number",
+        "S-S-N" , "Social-Security-Number" ,  "social-security-number" , 
+        "[SSN]" ,"[S-S-N]" , "[S.S.N]" ,
         "email address", "address", 
         "password", "credit card number", 
         "passport number",
