@@ -61,13 +61,18 @@ def read(data_path, cache_path):
         return None, None
     return test(cache, dataset)
     
+def read_tmp(tmp_path):
+    try:
+        cnt = json.load(open(tmp_path))
+        assert isinstance(cnt, dict)
+        return cnt
+    except:
+        return {}
+
 def counterfactual_score(model, root_data_path="./data/adv_demonstration", root_cache_path="./cache/adv_demonstration"):
     cf_lis = ["snli_premise", "snli_hypothesis", "control_raising", "irregular_form", "main_verb", "syntactic_category"]
     tmp_path = os.path.join(root_cache_path, f"{model}_counterfactual.json")
-    if os.path.exists(tmp_path):
-        cnt = json.load(open(tmp_path))
-    else:
-        cnt = {}
+    cnt = read_tmp(tmp_path)
     for x in cf_lis:
         for y in ["_cf"]:  
             lis = []
@@ -88,12 +93,12 @@ def counterfactual_score(model, root_data_path="./data/adv_demonstration", root_
             if len(lis) == 0:
                 print(f"Warning: lacking the results of {x}{y} could make the score of Counterfactual become NaN")
                 with open(tmp_path, "w") as f:
-                    f.write(json.dump(cnt))
+                    json.dump(cnt, f)
                 return None
             cnt[f"{x}{y}"] = {"acc": np.mean(lis), "rej": np.mean(rejs)}
 
     with open(tmp_path, "w") as f:
-        f.write(json.dump(cnt))
+        json.dump(cnt, f)
     # "counterfactual" perspective 
     lis = []
     rej_lis = []
@@ -108,10 +113,7 @@ def counterfactual_score(model, root_data_path="./data/adv_demonstration", root_
 def spurious_score(model, root_data_path="./data/adv_demonstration", root_cache_path="./cache/adv_demonstration"):
     sc_lis = ["PP", "adverb", "embedded_under_verb", "l_relative_clause", "passive", "s_relative_clause"]
     tmp_path = os.path.join(root_cache_path, f"{model}_spurious.json")
-    if os.path.exists(tmp_path):
-        cnt = json.load(open(tmp_path))
-    else:
-        cnt = {}
+    cnt = read_tmp(tmp_path)
     for x in sc_lis:
         for y in ["entail-bias", "non-entail-bias"]:
             lis = []
@@ -131,13 +133,13 @@ def spurious_score(model, root_data_path="./data/adv_demonstration", root_cache_
             if len(lis) == 0:
                 print(f"Warning: lacking the results of {x}_{y} could make the score of Spurious become NaN")
                 with open(tmp_path, "w") as f:
-                    f.write(json.dump(cnt))
+                    json.dump(cnt, f)
                 return None
             cnt[f"{x}_{y}"] = {"acc": np.mean(lis), "rej": np.mean(rejs)}
 
     # "spurious" perspective 
     with open(tmp_path, "w") as f:
-        f.write(json.dump(cnt))
+        json.dump(cnt, f)
     lis = []
     rej = []
     for x in sc_lis:
@@ -152,10 +154,7 @@ def spurious_score(model, root_data_path="./data/adv_demonstration", root_cache_
 
 def backdoor_score(model, root_data_path="./data/adv_demonstration", root_cache_path="./cache/adv_demonstration"):
     tmp_path = os.path.join(root_cache_path, f"{model}_backdoor.json")
-    if os.path.exists(tmp_path):
-        cnt = json.load(open(tmp_path))
-    else:
-        cnt = {}
+    cnt = read_tmp(tmp_path)
     cnt = {}
     for x in ["badword", "addsent", "synbkd", "stylebkd"]:
         for y in ["setup1", "setup2", "setup3"]:
@@ -163,26 +162,26 @@ def backdoor_score(model, root_data_path="./data/adv_demonstration", root_cache_
                 lis = []
                 rejs = []
                 for z in [42,2333,10007]:
-                    if f"{x}_{y}_{k}/{z}" not in cnt:
-                        acc, rej = cnt[f"{x}_{y}_{k}"/{z}]  
+                    if f"{x}_{y}_{k}/{z}" in cnt:
+                        acc, rej = cnt[f"{x}_{y}_{k}/{z}"]  
                     else:
                         cache_path = os.path.join(root_cache_path, f"backdoor/experiment1/sst-2_{y}_{x}_{k}/{model}_{z}.jsonl")
                         data_path = os.path.join(root_data_path, f"backdoor/experiment1/sst-2_{y}_{x}_{k}/{z}.jsonl")
                         acc, rej = read(data_path, cache_path)
                         if acc is None:
                             continue
-                        cnt[f"{x}_{y}_{k}"/{z}] = (acc, rej)
+                        cnt[f"{x}_{y}_{k}/{z}"] = (acc, rej)
                     lis.append(acc)
                     rejs.append(rej)
                 if len(lis) == 0:
                     print(f"Warning: lacking the results of sst-2_{y}_{x}_{k} could make the score of Backdoor become NaN")
                     with open(tmp_path, "w") as f:
-                        f.write(json.dump(cnt))
+                        json.dump(cnt, f)
                     return None
                 cnt[f"{x}_{y}_{k}"] = {"score":np.mean(lis), "rej": np.mean(rejs)}
 
     with open(tmp_path, "w") as f:
-        f.write(json.dump(cnt))
+        json.dump(cnt, f)
     # "backdoor" perspective 
     cur = {}
     lis = []
@@ -247,8 +246,4 @@ if __name__ == "__main__":
         cnt[model]["counterfactual"] = counterfactual_score(model, root_data_path, root_cache_path)
         cnt[model]["spurious"] = spurious_score(model, root_data_path, root_cache_path)
         cnt[model]["backdoor"] = backdoor_score(model, root_data_path, root_cache_path)
-        aggregate_all(cnt[model])   
-
-
-
-
+        aggregate_all(cnt[model])
