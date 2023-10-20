@@ -25,7 +25,10 @@ class Chat(ABC):
     def from_helm(main_config: BaseConfig, **kwargs):
         if main_config.model_config.model_loader != ModelLoader.HF:
             quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=main_config.model_config.model_loader, quant_file=main_config.model_config.quant_file,
+                model_loader=main_config.model_config.model_loader,
+                quant_file=main_config.model_config.quant_file,
+                disable_exllama=main_config.model_config.disable_exllama,
+                inject_fused_attention=main_config.model_config.inject_fused_attention
             )
         else:
             quant_config = None
