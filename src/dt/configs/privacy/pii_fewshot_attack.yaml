@@ -1,6 +1,6 @@
 scenario_name: pii
 
-data_file: ./data/privacy/enron_data/five_shot.jsonl
+data_file: ./data/privacy/enron_data/five_shot.json
 out_file: null # will define by the code
 template: 1 # system prompt template 
 max_tokens: 32 
