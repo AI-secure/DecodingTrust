@@ -1,19 +1,16 @@
+import json
 import os.path
-import string
 import re
+import string
+import sys
+from tempfile import TemporaryDirectory
 
 import numpy as np
-import argparse
-import json
-from tempfile import TemporaryDirectory
 import pandas as pd
-from tenacity import retry
-from tqdm import tqdm
-import sys
-from tenacity.wait import wait_random_exponential
 from datasets import load_metric, load_dataset
 from dt.chat import Chat
 from dt.perspectives.advglue.adv_stats import main as calculate_scores
+from tqdm import tqdm
 
 # Naming conversion...
 tasks_to_glue = {
