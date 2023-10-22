@@ -236,9 +236,11 @@ def main(OPTS):
             print("#/ completion tokens:", completion_tokens)
             calculate_agreeability(OPTS.stereotype.sys_prompt_type, n_generations, OPTS.stereotype.out_dir, OPTS.stereotype.n_gens)
             try:
-                parent_dir = OPTS.out_dir.replace(f"/{OPTS.sys_prompt_type}", "")
+                parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
                 create_json(model_name, parent_dir, OPTS.stereotype.n_gens)
             except:
+                parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
+                #print(f"{parent_dir}")
                 print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
     else:
         org_name, model_name = name_handler(OPTS.model_config.model)
@@ -246,9 +248,10 @@ def main(OPTS):
 
         #assumes generations have already been made for all the three system prompt types: benign, untargeted, and targeted
         try:
-            parent_dir = OPTS.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
+            parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
             create_json(model_name, parent_dir, OPTS.stereotype.n_gens)
         except:
+            #print(f"{parent_dir}")
             print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
 
 def name_handler(name):

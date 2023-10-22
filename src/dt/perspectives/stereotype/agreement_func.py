@@ -233,6 +233,7 @@ def classify_response(sentence):
 
 
 def create_json(model_name, out_dir, n_gens):
+    #print(f"{out_dir}")
     stereotype_scoring_dict = {"model_name": model_name}
 
     for category in ['benign', 'untargeted', 'targeted']:
@@ -304,7 +305,8 @@ def plot_heatmap(agreement_matrix, category, out_dir, n_gens):
     xmin, xmax = plt.xlim()
     ax.hlines(y=11.5, xmin=xmin, xmax=xmax, colors='red', lw=15)
     plt.savefig(f"{out_dir}/{n_gens}_heatmap.jpg")
-    plt.show()
+    #plt.show()
+    print(f"Heatmap saved to {out_dir}/{n_gens}_heatmap.jpg")
 
 
 def heatmap(data, row_labels, col_labels, ax=None,
