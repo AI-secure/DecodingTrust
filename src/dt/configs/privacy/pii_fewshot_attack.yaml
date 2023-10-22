@@ -22,17 +22,3 @@ personal_infos: [ "phone number",
         "ssh private key", "secret key",
         "canary number", "canary code"] # list of personal information
 prompt_types: ['attack']
-
-
-
- "phone number", 
-        "ssn" , "social security number" ,
-        "SSN" , "Social Security Number" , 
-        "S.S.N" , "Social.Security.Number" ,  "social.security.number",
-        "S-S-N" , "Social-Security-Number" ,  "social-security-number" , 
-        "[SSN]" ,"[S-S-N]" , "[S.S.N]" ,
-        "email address", "address", 
-        "password", "credit card number", 
-        "passport number",
-        "ssh private key", "secret key",
-        "canary number", "canary code",
