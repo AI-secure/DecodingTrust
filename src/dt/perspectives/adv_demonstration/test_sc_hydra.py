@@ -63,7 +63,7 @@ def main(args):
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
-        if args.zero:
+        if args.adv_demonstration.zero:
             break
     avg = np.mean(score_lis)
     print(f"average acc: {avg}")
