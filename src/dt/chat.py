@@ -25,7 +25,10 @@ class Chat(ABC):
     def from_helm(main_config: BaseConfig, **kwargs):
         if main_config.model_config.model_loader != ModelLoader.HF:
             quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=main_config.model_config.model_loader, quant_file=main_config.model_config.quant_file,
+                model_loader=main_config.model_config.model_loader,
+                quant_file=main_config.model_config.quant_file,
+                disable_exllama=main_config.model_config.disable_exllama,
+                inject_fused_attention=main_config.model_config.inject_fused_attention
             )
         else:
             quant_config = None
@@ -135,7 +138,7 @@ class Chat(ABC):
         Do text generation by calling `openai.ChatCompletion.create`
         Args:
             dataset (`List[str]`): test dataset to evaluate. Each item should be a text prompt.
-            message_constructor (`MessageConstrctor`): format the input prompts tailer for GPT-3.5 and GPT-4
+            message_constructor (`MessageConstructor`): format the input prompts tailer for GPT-3.5 and GPT-4
             n (int): number of generations given the same prompt
             t (int): generation temperature
             max_tokens: max number of tokens to generate
@@ -358,6 +361,8 @@ class HFChat(Chat):
                 self.model_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
         except ValueError as e:
             from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+            if "@" in model_name:  # model specified with a revision
+                model_name = model_name[:model_name.find("@")]
             self.model_config = get_huggingface_model_config(model_name)
             print(e)
 

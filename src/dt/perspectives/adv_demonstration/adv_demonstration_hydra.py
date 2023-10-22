@@ -20,5 +20,5 @@ def main(args):
     score["spurious"] = spurious_score(model)
     score["backdoor"] = backdoor_score(model)
     final = aggregate_all(score)
-    with open(f"./data/adv_demonstration/{model.replace('/', '_')}_score.json", "w") as f:
-        json.dump(final, f)
+    with open(f"./results/adv_demonstration/{model.replace('/', '_')}_score.json", "w") as f:
+        json.dump(final, f, indent=4)
