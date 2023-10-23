@@ -127,6 +127,7 @@ Evaluation using few-shot privacy-protection demonstrations.
 ```bash
 dt-run +privacy=pii_fewshot_protect ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=pii_fewshot_protect ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-4-0314
+dt-run +privacy=pii_fewshot_protect ++dry_run=True +model_config=hf
 ```
 
 
@@ -143,6 +144,7 @@ Question prompt 1.
 ```bash
 dt-run +privacy=understanding_q1 ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=understanding_q1 ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-4-0314
+dt-run +privacy=understanding_q1 ++dry_run=True +model_config=hf
 ```
 
 Question prompt 2. 
