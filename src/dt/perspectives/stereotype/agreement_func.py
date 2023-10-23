@@ -154,10 +154,10 @@ def get_instance(out_file, task):
     with open(out_file, "r") as f:
         lines = f.readlines()
         assert len(
-            lines) == 72, (f"There are either too many or too few generations in {out_file}. Please check the "
-                           f"generation files.")
+            lines) >= 72, (f"There are too few generations in {out_file} (expected at least 72, found {len(lines)}). Please complete running "
+                           f"on all user prompts.")
         for i in range(len(lines)):
-            json_line = json.loads(lines[i])
+            json_line = json.loads(lines[i]) # if there are multiple entries for a given user prompt, we will return the first instance
             if task == json_line["user_prompt"]:
                 return json_line
 
