@@ -48,6 +48,11 @@ class Chat(ABC):
             return HFChat(model_name.removeprefix("hf/").rstrip("/"), **kwargs)
         elif model_name.startswith("together/"):
             return TogetherChat(model_name, **kwargs)
+        elif model_name.startswith("anthropic/"):
+            if main_config.model_config.conv_template != "claude":
+                kwargs["conv_template"] = "claude"
+                warnings.warn(f"Prompt template is changed from {main_config.model_config.conv_template} to claude")
+            return ClaudeChat(model_name, **kwargs)
         else:
             raise ValueError("Unsupported model organization")
 
@@ -486,6 +491,76 @@ class TogetherChat(Chat):
 
         kwargs = {
             "stop_sequences": ["</s>", "[/INST]", "[INST]"], "echo_prompt": False, "top_p": 0.7, "top_k_per_token": 50
+        }
+        # kwargs["repetition_penalty"] = 1
+        request = Request(
+            model=self.model_name, prompt=prompt, num_completions=n, max_tokens=max_tokens, temperature=t, **kwargs
+        )
+        response = self.client.make_request(request)
+
+        if not response.success:
+            raise RuntimeError(f"Call to together model {self.model_name} failed!")
+
+        # TODO: Refactor with pydantic
+        response = Response.from_dict({
+            "id": f"chatcmpl-{shortuuid.random()}",
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": self.model_name,
+            "choices": [
+                {
+                    "index": i,
+                    "message": {
+                        "role": "assistant",
+                        "content": msg.text
+                    },
+                    "finish_reason": msg.finish_reason
+                }
+                for i, msg in enumerate(response.completions)
+            ],
+            "usage": {  # Not implemented for now
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0
+            }
+        })
+        return response.to_dict()
+
+
+class ClaudeChat(Chat):
+    def __init__(self, model_name: str, conv_template: str, cache: str, api_key: str, **kwargs):
+        super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
+
+        self.client = AutoClient(credentials={"anthropicApiKey": api_key}, cache_path=cache)
+        self.conv_template = get_conv_template(conv_template)
+
+    # TODO: Refactor to remove duplications
+    def messages_to_prompt(self, messages: Union[List[Dict], str]):
+        if isinstance(messages, str):
+            return messages  # Override prompt templates / simply use as the prompt for completion model
+
+        conv = self.conv_template.copy()
+        for message in messages:
+            if "name" in message:
+                warnings.warn("'name' argument is not supported.")
+            msg_role = message["role"]
+            if msg_role == "system":
+                warnings.warn("Claude does not have support for system prompts.")
+            elif msg_role == "user":
+                conv.append_message(conv.roles[0], message["content"])
+            elif msg_role == "assistant":
+                conv.append_message(conv.roles[1], message["content"])
+            else:
+                raise ValueError(f"Unknown role: {msg_role}")
+        conv.append_message(conv.roles[1], None)
+        return conv.get_prompt()  # Prompt generated from the selected template
+
+    @timeout(600)
+    def _call(self, messages, t=0, max_tokens=20, n=1):
+        prompt = "\n\n" + self.messages_to_prompt(messages)
+
+        kwargs = {
+            "stop_sequences": ["\n\nHuman:"], "echo_prompt": False,
         }
         # kwargs["repetition_penalty"] = 1
         request = Request(
