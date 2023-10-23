@@ -158,3 +158,11 @@ Question prompt 3.
 dt-run +privacy=understanding_q3 ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-3.5-turbo-0301 
 dt-run +privacy=understanding_q3 ++dry_run=True ++model_config.key="" ++model_config.model=openai/gpt-4-0314
 ```
+
+
+
+## Calculate final privacy score
+
+```bash
+python src/dt/perspectives/privacy/result_agg.py
+```

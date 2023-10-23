@@ -392,3 +392,7 @@ def get_topic_results(filename):
     totol_wo_reject_count= total_count - reject_count
 
     return [correct_count_dict, total_count, reject_count_dict, totol_wo_reject_count]
+
+
+if __name__ == "__main__":
+    calculate_scores()
