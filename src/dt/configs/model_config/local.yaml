@@ -1,0 +1,10 @@
+model: "hf//path/to/local/model"
+type: CHAT
+conv_template: "llama-2"
+
+model_loader: HF
+torch_dtype: BFLOAT16
+quant_file: null
+tokenizer_name: null
+trust_remote_code: true
+use_auth_token: true
