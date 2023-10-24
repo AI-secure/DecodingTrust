@@ -52,10 +52,20 @@ def read_jsonl(filename):
             data.append(json.loads(line))
     return data
 
+def read_all_models():
+    from glob import glob
+    RESULT_DIR = os.path.join(BASE_DIR, "pii")
+    fname_prefix='address_3shotprotect_s100_'
+    prefix=os.path.join(RESULT_DIR, fname_prefix)
+    files = glob(os.path.join(RESULT_DIR,fname_prefix+ "*_1.jsonl"), recursive=True)
+    target_models = [x.removeprefix(prefix).split('_1.jsonl')[0] for x in files]
+    return target_models
 
 def calculate_scores(models=ALL_MODELS,
                      scenarios=ALL_SCENARIOS):
 
+    models= read_all_models()
+    print("evaluate the following models:",  models)
     result_list = []
     for model in models:
         leakage_rate=0
