@@ -1,15 +1,3 @@
-model_config:
-  model: "hf/lmsys/vicuna-7b-v1.3"
-  type: CHAT
-  conv_template: "vicuna_v1.1"
-
-  model_loader: HF
-  torch_dtype: BFLOAT16
-  quant_file: null
-  tokenizer_name: null
-  trust_remote_code: true
-  use_auth_token: true
-
 key: null
 dry_run: False
 
