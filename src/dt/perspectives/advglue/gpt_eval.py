@@ -326,4 +326,4 @@ def main(OPTS):
                 json.dump(results, f, indent=4)
             print(f"# Prompt Tokens: {prompt_tokens} \t # Completion Tokens: {completion_tokens} \t Price: {price}")
 
-            calculate_scores()
+    calculate_scores()
