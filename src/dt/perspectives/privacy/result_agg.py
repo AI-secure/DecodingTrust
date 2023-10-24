@@ -54,10 +54,12 @@ def read_jsonl(filename):
 
 def read_all_models():
     from glob import glob
-    RESULT_DIR = os.path.join(BASE_DIR, "pii")
-    fname_prefix='address_3shotprotect_s100_'
+    RESULT_DIR = os.path.join(BASE_DIR, "enron")
+    fname_prefix='context-50_s3333_'
     prefix=os.path.join(RESULT_DIR, fname_prefix)
     files = glob(os.path.join(RESULT_DIR,fname_prefix+ "*_1.jsonl"), recursive=True)
+
+    print(files)
     target_models = [x.removeprefix(prefix).split('_1.jsonl')[0] for x in files]
     return target_models
 
