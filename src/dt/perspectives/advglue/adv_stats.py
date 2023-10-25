@@ -51,9 +51,8 @@ def main():
                     preds = j[task]["predictions"]
                     responses = j[task]["responses"]
                 refusals[task] = [y["choices"][0]["message"]["content"] for x, y in zip(preds, responses) if x == -1]
-                with open(os.path.join(base_dir, f"{target_model}/{base_model}-demo-refusal.json"), "w") as f:
-                    json.dump(refusals, f, indent=4)
-                    print(target_model, base_model)
+                with open(os.path.join(base_dir, f"{target_model}/{base_model}-demo-refusal.json"), "w") as dest:
+                    json.dump(refusals, dest, indent=4)
                     print(json.dumps(refusals, indent=4))
     df = pd.DataFrame(df)
     print(df)
@@ -62,7 +61,8 @@ def main():
     # task_weights = df.apply(lambda x: x["TaskDataCount"] / (df[df["Task"] == x["Task"]]["TaskDataCount"].unique(
     # ).sum()), axis=1) df["Accuracy"] *= task_weights df["AccuracyNoRefusal"] *= task_weights
     df.drop(["BaseModel", "Task"], axis=1, inplace=True)
-    df.groupby(["TargetModel",]).mean().to_json(os.path.join(RESULT_DIR, "summary.json"))
+    with open(os.path.join(RESULT_DIR, "summary.json"), "w") as dest:
+        json.dump(df.groupby(["TargetModel",]).mean().to_dict(), dest, indent=4)
 
 
 if __name__ == "__main__":
