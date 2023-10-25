@@ -28,7 +28,7 @@ def main():
         cur_dir = os.path.join(base_dir, dataset_name)
         while glob.glob(f'{cur_dir}/*.json') == []:
             cur_dir = os.path.join(cur_dir, '**')
-        model_list = glob.glob(f'{cur_dir}/*.json')
+        model_list = glob.glob(f'{cur_dir}/*.json', recursive=False)
         MODEL_NAMES = [m_name[:m_name.rfind('/')].replace(f"{base_dir}/{dataset_name}/", '') for m_name in model_list]
 
         for model_name in MODEL_NAMES:
