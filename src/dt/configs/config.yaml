@@ -1,10 +1,6 @@
 key: null
 dry_run: false
 
-defaults:
-  - _self_
-  - override model_config: hf
-
 hydra:
   job:
     chdir: false
