@@ -395,8 +395,8 @@ def main(args):
     # Configure paths
     dir_path = "./data/machine_ethics/generations/{}/{}".format(args.machine_ethics.data_name, args.model_config.model)
     os.makedirs(dir_path, exist_ok=True)
-    save_data_path = os.path.join(dir_path, f"few_shot_${args.machine_ethics.few_shot_num}_test_num${args.machine_ethics.test_num}_jailbreak_${args.machine_ethics.jailbreak_prompt}_evasive_${args.machine_ethics.evasive_sentence}.json")
-    save_label_path = os.path.join(dir_path, f"label_few_shot_${args.machine_ethics.few_shot_num}_test_num${args.machine_ethics.test_num}_jailbreak_${args.machine_ethics.jailbreak_prompt}_evasive_${args.machine_ethics.evasive_sentence}.json")
+    save_data_path = os.path.join(dir_path, f"few_shot_{args.machine_ethics.few_shot_num}_test_num{args.machine_ethics.test_num}_jailbreak_{args.machine_ethics.jailbreak_prompt}_evasive_{args.machine_ethics.evasive_sentence}.json")
+    save_label_path = os.path.join(dir_path, f"label_few_shot_{args.machine_ethics.few_shot_num}_test_num{args.machine_ethics.test_num}_jailbreak_{args.machine_ethics.jailbreak_prompt}_evasive_{args.machine_ethics.evasive_sentence}.json")
 
     # Load dataset and label_list
     dataset = load_dataset(data_name=args.machine_ethics.data_name, test_num=args.machine_ethics.test_num, few_shot_num=args.machine_ethics.few_shot_num,
