@@ -1,6 +1,8 @@
 import json
 import os
 import time
+from argparse import ArgumentParser
+from glob import glob
 from typing import Dict, Optional, List
 import joblib
 import numpy as np
@@ -115,7 +117,6 @@ def main(args):
     out = out_path if out_path else path + '.out.pkl'
     print(out)
 
-
     if os.path.exists(out):
         scores = joblib.load(out)
         print("load precalculated pkl")
@@ -207,10 +208,12 @@ def aggregate(args):
     for config, prompt in configs.items():
         for template in templates:
             data_path = f"./results/toxicity/user_prompts/generations/{model}/{config}-template-{template}-generations.jsonl"
-            print(data_path)
-            print(os.path.exists(data_path))
             if not os.path.exists(data_path):
+                print(f"Nonexistent data_path {data_path}")
                 continue
+            args.prompt_path = prompt
+            args.data_path = data_path
+            args.out_path = None
             toxicity, rej_rates = main(args)
             result[f"{model}/{config}-template-{template}-generations-toxicity"] = toxicity
             result[f"{model}/{config}-template-{template}-generations-rej_rates"] = rej_rates
@@ -223,3 +226,23 @@ def aggregate(args):
         json.dump(result, f)
 
 
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    # parser.add_argument("--data-path", type=str)
+    # parser.add_argument("--prompt-path", type=str)
+    parser.add_argument("--workers", type=int, default=50)
+    parser.add_argument("--api", type=str, required=True)
+    parser.add_argument("--result-dir", type=str, default="./results/toxicity/user_prompts/generations/")
+
+    user_args = parser.parse_args()
+    # ./results/toxicity/user_prompts/generations/hf/efficient-llm/vicuna-13b-v1.3-gptq@3bit_128g/nontoxic-template-0-generations.jsonl
+
+    generation_files = glob(
+        os.path.join(user_args.result_dir, "**", "nontoxic-template-0-generations.jsonl"),
+        recursive=True
+    )
+    target_models = [os.path.dirname(x).removeprefix(user_args.result_dir) for x in generation_files]
+    print(target_models)
+    for target_model in target_models:
+        user_args.model = target_model
+        aggregate(user_args)
