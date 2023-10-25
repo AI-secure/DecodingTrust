@@ -391,8 +391,8 @@ def main(args):
     # Configure paths
     dir_path = "./data/machine_ethics/generations/{}/{}".format(args.data_name, args.model)
     os.makedirs(dir_path, exist_ok=True)
-    save_data_path = os.path.join(dir_path, f"few_shot_${args.few_shot_num}_test_num${args.test_num}_jailbreak_${args.jailbreak_prompt}_evasive_${args.evasive_sentence}.json")
-    save_label_path = os.path.join(dir_path, f"label_few_shot_${args.few_shot_num}_test_num${args.test_num}_jailbreak_${args.jailbreak_prompt}_evasive_${args.evasive_sentence}.json")
+    save_data_path = os.path.join(dir_path, f"few_shot_{args.few_shot_num}_test_num{args.test_num}_jailbreak_{args.jailbreak_prompt}_evasive_{args.evasive_sentence}.json")
+    save_label_path = os.path.join(dir_path, f"label_few_shot_{args.few_shot_num}_test_num{args.test_num}_jailbreak_{args.jailbreak_prompt}_evasive_{args.evasive_sentence}.json")
 
     # Load dataset and label_list
     dataset = load_dataset(data_name=args.data_name, test_num=args.test_num, few_shot_num=args.few_shot_num,
