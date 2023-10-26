@@ -62,8 +62,9 @@ class FairnessConfig:
     prompt_file: Optional[str] = None  # PATH of the file of prompts
     gt_file: Optional[str] = None  # PATH of the file of ground truth labels
     sensitive_attr_file: Optional[str] = None  # PATH of the file of sensitive attributes
-    dataset: str = 'adult'  # dataset
-    out_file: str = ''
+    dataset: Optional[str] = 'adult'  # dataset
+    out_file: Optional[str] = ''
+    score_calculation_only: Optional[bool] = False
 
 
 @dataclass
