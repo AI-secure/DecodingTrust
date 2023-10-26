@@ -1,11 +1,10 @@
 import os
 from glob import glob
-
-import dt.main
-from hydra.core.utils import JobStatus, JobReturn
-from joblib import load
 import submitit
+import dt.main
+from joblib import load
 from termcolor import cprint
+from hydra.core.utils import JobStatus, JobReturn
 
 
 def load_result(file_path):
@@ -93,9 +92,9 @@ def main(base_dir):
         cprint(str([job.job_id for job in jobs if job.state not in ('DONE', 'COMPLETED')]), color="red")
 
 
-
 if __name__ == "__main__":
     from argparse import ArgumentParser
+
     parser = ArgumentParser()
     parser.add_argument("--base-dir", type=str)
 
