@@ -261,4 +261,5 @@ if __name__ == "__main__":
         cnt[model]["counterfactual"] = counterfactual_score(model, root_data_path, root_cache_path)
         cnt[model]["spurious"] = spurious_score(model, root_data_path, root_cache_path)
         cnt[model]["backdoor"] = backdoor_score(model, root_data_path, root_cache_path)
-        aggregate_all(cnt[model])
+        if not aggregate_all(cnt[model]):
+            print(f"{model} is not finished!!!")
