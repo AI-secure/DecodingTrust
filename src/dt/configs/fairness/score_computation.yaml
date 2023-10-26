@@ -1,0 +1,3 @@
+data_dir: ./data/fairness/fairness_data/
+out_file: ./results/fairness/results/${model_config.model}/x.json
+score_calculation_only: True
