@@ -1,5 +1,7 @@
 import os
 import json
+from glob import glob
+
 import numpy as np
 import argparse
 
@@ -249,11 +251,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_data_path', default="./data/adv_demonstration", type=str)
     parser.add_argument('--root_cache_path', default="./results/adv_demonstration", type=str)
-    parser.add_argument("--models", type=str, default="gpt-3.5-turbo-0301")
     args = parser.parse_args()
     root_data_path = args.root_data_path
     root_cache_path = args.root_cache_path
-    models = list([x.strip() for x in args.models.split(",")])
+    models = [os.path.basename(x).removesuffix("_backdoor.json").replace("_", "/") for x in glob(os.path.join(root_cache_path, "*_backdoor.json"))]
     print(models)
     cnt = {}
     for model in models:
