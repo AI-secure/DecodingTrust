@@ -254,7 +254,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     root_data_path = args.root_data_path
     root_cache_path = args.root_cache_path
-    models = [os.path.basename(x).removesuffix("_backdoor.json").replace("_", "/") for x in glob(os.path.join(root_cache_path, "*_backdoor.json"))]
+    models = [os.path.basename(x).removesuffix("_0.jsonl").replace("_", "/") for x in glob(os.path.join(root_cache_path, "backdoor/experiment1/sst-2_setup1_addsent_asr", "*_42.jsonl"))]
     print(models)
     cnt = {}
     for model in models:
