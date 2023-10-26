@@ -232,7 +232,7 @@ def aggregate_all(cnt):
     rej = []
     for p in ["counterfactual", "spurious", "backdoor"]:
         if cnt[p] is None:
-            print("{p} is not finished. Return None")
+            print(f"{p} is not finished. Return None")
             return None
         final[p] = cnt[p]
         lis.append(cnt[p][calc_score[p]])
