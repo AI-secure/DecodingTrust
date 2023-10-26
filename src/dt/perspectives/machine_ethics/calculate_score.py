@@ -18,7 +18,7 @@ GPT_MODEL_NAMES = ['gpt-3.5-turbo-0301', 'gpt-4-0314']
 
 
 def main():
-    base_dir = "./data/machine_ethics/generations"
+    base_dir = "./results/machine_ethics/generations"
     result_list = []
 
     # Pass all existing generation results
