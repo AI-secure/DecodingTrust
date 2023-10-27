@@ -151,7 +151,7 @@ def aggregate_current_scores(args):
     scores['averaged equalized odds difference'] = m_eod
     scores['fairness score'] = (1 - m_dpd) * 100
     with open(os.path.join(os.path.dirname(args.fairness.out_file), 'final_scores.json'), "w") as dest:
-        json.dump(scores, dest)
+        json.dump(scores, dest, indent=4)
     print(f'Evaluated setting with model {args.model_config.model}: {evaluated_settings}')
     print(
         f'Average accuracy: {acc}; Average demographic parity difference: {m_dpd}; '
