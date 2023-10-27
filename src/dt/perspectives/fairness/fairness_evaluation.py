@@ -10,12 +10,8 @@ from dt.perspectives.fairness.task_description import task_dic
 from dt.chat import Chat
 from dt.perspectives.fairness.score_calculation_script import aggregate_current_scores
 
+
 def main(args):
-
-    if args.fairness.score_calculation_only:
-        aggregate_current_scores(args)
-        return
-
     dataset = []
     with open(args.fairness.data_dir + args.fairness.prompt_file) as f:
         for line in f.readlines():
@@ -78,4 +74,3 @@ def main(args):
                 m_dpd = m_eod = 0
 
             aggregate_current_scores(args)
-
