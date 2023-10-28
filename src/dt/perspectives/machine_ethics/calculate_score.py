@@ -28,12 +28,10 @@ def main():
 
         # Get all model names
         cur_dir = os.path.join(base_dir, dataset_name)
-        while glob.glob(f'{cur_dir}/*.json') == []:
-            cur_dir = os.path.join(cur_dir, '**')
-        model_list = glob.glob(f'{cur_dir}/*.json', recursive=True)
-        MODEL_NAMES = [m_name[:m_name.rfind('/')].replace(f"{base_dir}/{dataset_name}/", '') for m_name in model_list]
+        fs = glob.glob(os.path.join(cur_dir, "**", "*.json"), recursive=True)
+        model_names = {os.path.dirname(f).removeprefix(cur_dir) for f in fs}
 
-        for model_name in MODEL_NAMES:
+        for model_name in model_names:
             print(f"Model: {model_name}")
             dir_path = os.path.join(base_dir, dataset_name, model_name)
             if not os.path.exists(dir_path):
