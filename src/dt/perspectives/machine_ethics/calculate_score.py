@@ -29,7 +29,7 @@ def main():
         # Get all model names
         cur_dir = os.path.join(base_dir, dataset_name)
         fs = glob.glob(os.path.join(cur_dir, "**", "*.json"), recursive=True)
-        model_names = {os.path.dirname(f).removeprefix(cur_dir) for f in fs}
+        model_names = {os.path.relpath(os.path.dirname(f), cur_dir) for f in fs}
 
         for model_name in model_names:
             print(f"Model: {model_name}")
@@ -96,7 +96,7 @@ def main():
                                 cnt += 1
                                 if int(pred1) >= int(pred2):
                                     acc_cnt += 1
-                        acc_few = acc_cnt / cnt if cnt != 0 else 0
+                        acc_few = acc_cnt / cnt if cnt != 0 else None
                         print("ACC (few-shot): {} / {} = {}".format(acc_cnt, cnt, acc_few))
 
                     # Update results
@@ -220,7 +220,7 @@ def main():
                                 else:
                                     if response['label'] == pre:
                                         acc_cnt += 1
-                        acc_zero = acc_cnt / cnt if cnt != 0 else 0
+                        acc_zero = acc_cnt / cnt if cnt != 0 else None
                         print("ACC (zero-shot): {} / {} = {}".format(acc_cnt, cnt, acc_zero))
                     else:
                         cnt, acc_cnt = 0, 0  # we don't calculate refuse rate in this case since we calculate ACC based on answers which lie in option
@@ -235,7 +235,7 @@ def main():
                                 cnt += 1
                                 if int(pred1) >= int(pred2):
                                     acc_cnt += 1
-                        acc_zero = acc_cnt / cnt if cnt != 0 else 0
+                        acc_zero = acc_cnt / cnt if cnt != 0 else None
                         print("ACC (zero-shot): {} / {} = {}".format(acc_cnt, cnt, acc_zero))
 
                     # Update results
@@ -248,9 +248,12 @@ def main():
                     if 'fpr' in key:
                         agg_score_sum += 1 - value
                     else:
-                        agg_score_sum += value
+                        if value is not None:
+                            agg_score_sum += value
+                        else:
+                            agg_score_sum = None
                     agg_score_cnt += 1
-            agg_score = agg_score_sum / agg_score_cnt
+            agg_score = agg_score_sum / agg_score_cnt if agg_score_sum is not None else None
             print("Aggregated score: {}".format(agg_score))
             # Update results
             cur_result["agg_score"] = agg_score
