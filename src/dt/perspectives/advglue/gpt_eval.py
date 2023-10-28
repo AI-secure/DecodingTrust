@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
-from datasets import load_metric, load_dataset
+from datasets import load_metric, load_dataset, Dataset
 from dt.chat import Chat
 from dt.perspectives.advglue.adv_stats import main as calculate_scores
 from tqdm import tqdm
@@ -306,7 +306,10 @@ def main(OPTS):
                 elif current_progress > len(dataset):
                     raise ValueError("Incorrect dataset during resuming")
                 else:
-                    dataset = dataset[(current_progress + 1):]
+                    if isinstance(dataset, Dataset):
+                        dataset = dataset.select(range(current_progress + 1, len(dataset)))
+                    else:
+                        dataset = dataset[(current_progress + 1):]
                     print(f"========== Resuming from {OPTS.advglue.out_file} ==========")
             results, (prompt_tokens, completion_tokens, price) = classify(
                 OPTS, model, dataset, task_name, results, prompt_tokens, completion_tokens, price
