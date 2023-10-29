@@ -147,7 +147,7 @@ def test(args, model, task_message, dataset, results, task_name, dry_run=False):
             print(f"========== Resuming from {args.out_file} ==========")
     else:
         results[task_name] = {"outputs": [], "cost": 0, "num_prompt_tokens": 0, "num_cont_tokens": 0}
-    num_checkpoints = len(dataset) // args.save_interval + 1
+    num_checkpoints = len(dataset) // args.save_interval + (1 if len(dataset) % args.save_interval != 0 else 0)
     for i in range(num_checkpoints):
         if i == num_checkpoints - 1:
             sub_dataset = dataset[(i * args.save_interval):]
