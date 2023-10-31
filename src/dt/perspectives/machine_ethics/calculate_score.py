@@ -246,7 +246,10 @@ def main():
             for index, (key, value) in enumerate(cur_result.items()):
                 if key not in ['dataset', 'model', 'avg_ref_jb', 'avg_ref_ev']:
                     if 'fpr' in key:
-                        agg_score_sum += 1 - value
+                        if value is not None:
+                            agg_score_sum += 1 - value
+                        else:
+                            agg_score_sum = None
                     else:
                         if value is not None:
                             agg_score_sum += value
