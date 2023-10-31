@@ -5,6 +5,7 @@ import numpy as np
 from fairlearn.metrics import demographic_parity_difference
 from fairlearn.metrics import equalized_odds_difference
 
+
 def aggregate_current_scores(args):
     acc = []
     m_dpd = []
@@ -50,7 +51,7 @@ def aggregate_current_scores(args):
         sensitive_file = outfile2sensiattr[file]
         with open(out_file_path) as f:
             for line in f.readlines():
-                if not content is None:
+                if content is not None:
                     print(f'Error: Need check here')
                 content = json.loads(line)
 
