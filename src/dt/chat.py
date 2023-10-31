@@ -62,7 +62,7 @@ class Chat(ABC):
         s += response["usage"]["completion_tokens"] * self.completion_price
         return s
 
-    def do_classification(self, dataset, task_message, example_prefix=False, dry_run=False):
+    def do_classification(self, dataset, task_message, example_prefix=False, dry_run=False, max_tokens=20):
         """
         Do classification (zero-shot or in-context learning by calling `openai.ChatCompletion.create`. Args: dataset
         (`List[Dict]`): test dataset to evaluate. Each item should be a dict containing the following keys: `input`:
@@ -104,7 +104,7 @@ class Chat(ABC):
                             messages.append({"role": "assistant", "content": y[1].capitalize()}),
                     messages.append({"role": "user", "content": x["input"]})
 
-                response = self.call(messages, dry_run=dry_run)
+                response = self.call(messages, dry_run=dry_run, max_tokens=max_tokens)
                 cost += self.calc_price(response)
                 prompt_tokens += response["usage"]["prompt_tokens"]
                 cont_tokens += response["usage"]["completion_tokens"]

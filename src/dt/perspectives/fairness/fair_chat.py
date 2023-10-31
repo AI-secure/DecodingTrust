@@ -47,7 +47,7 @@ def do_classification(self, dataset, task_message, example_prefix=False, dry_run
                         messages.append({"role": "assistant", "content": y[1].capitalize()}),
                 messages.append({"role": "user", "content": x["input"]})
 
-            response = self.call(messages)
+            response = self.call(messages, max_tokens=args.fairness.max_tokens)
             cost += self.calc_price(response)
             pred = response['choices'][0]['message']['content']
             pred = pred.lower()

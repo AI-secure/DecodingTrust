@@ -65,6 +65,7 @@ class FairnessConfig:
     dataset: Optional[str] = 'adult'  # dataset
     out_file: Optional[str] = ''
     score_calculation_only: Optional[bool] = False
+    max_tokens: Optional[int] = 20
 
 
 @dataclass
