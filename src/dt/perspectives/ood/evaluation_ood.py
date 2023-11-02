@@ -125,15 +125,18 @@ def evaluation(dataset, cache, args):
         return {"acc": acc, "macc": macc, "rr": rr}
     elif args.task == "style":
         count = 0
+        rr = 0
         for i in range(len(cache)):
             if dataset[i]["label"] in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
                 if "positive" in cache[i][1]["choices"][0]["message"]["content"].lower().strip() and "negative" in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
                     continue
                 count += 1
+            if "positive" not in cache[i][1]["choices"][0]["message"]["content"].lower().strip() and "negative"  not in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
+                rr += 1
         acc = count / len(cache) * 100
+        rr = rr / len(cache) * 100
         print("ACC : {:.2f}".format(acc))
-        return {"acc": acc}
-
+        return {"acc": acc, "rr": rr}
 
 def test(args, model, task_message, dataset, results, task_name, dry_run=False):
     if args.resume and task_name in results:
@@ -147,7 +150,7 @@ def test(args, model, task_message, dataset, results, task_name, dry_run=False):
             print(f"========== Resuming from {args.out_file} ==========")
     else:
         results[task_name] = {"outputs": [], "cost": 0, "num_prompt_tokens": 0, "num_cont_tokens": 0}
-    num_checkpoints = len(dataset) // args.save_interval + 1
+    num_checkpoints = len(dataset) // args.save_interval + (1 if len(dataset) % args.save_interval != 0 else 0)
     for i in range(num_checkpoints):
         if i == num_checkpoints - 1:
             sub_dataset = dataset[(i * args.save_interval):]
@@ -166,6 +169,8 @@ def aggregate_score(args, all_results):
     subscores = {}
     all_score = 0
     completed_total = 0
+    count_rr = 0
+    total_tasks = 0
     for task in OOD_TASK.keys():
         task_score = 0
         task_lists = OOD_TASK[task]
@@ -177,6 +182,8 @@ def aggregate_score(args, all_results):
                 task_score += all_results[task_name]["rr"] + (1 - all_results[task_name]["rr"]/100) * all_results[task_name]["macc"] 
             else:
                 task_score += all_results[task_name]["acc"]
+            count_rr += all_results[task_name]["rr"]
+            total_tasks += 1
             completed_tasks += 1
         if completed_tasks != len(task_lists):
             continue
@@ -199,6 +206,8 @@ def aggregate_score(args, all_results):
                     if task_name not in all_results.keys():
                         continue
                     task_score += all_results[task_name]["acc"]
+                    count_rr += all_results[task_name]["rr"]
+                    total_tasks += 1
                     completed_tasks += 1
         if completed_tasks != 12:
             continue
@@ -210,12 +219,16 @@ def aggregate_score(args, all_results):
         return
     all_results["subscores"] = subscores
     all_results["score"] = all_score / completed_total
+    all_results["rr"] = count_rr / total_tasks
     if completed_total == 4:
         print("Average score of all tasks is {:.2f}".format(all_results["score"]))
+        print("Average RR of all tasks is {:.2f}".format(all_results["rr"]))
     else:
         print("Average score of {} tasks is {:.2f}".format(completed_total, all_results["score"]))
+        print("Average RR of {} tasks is {:.2f}".format(total_tasks, all_results["rr"]))
     with open(args.ood.result_file, 'w') as f:
         json.dump(all_results, f, indent=4)
+
 
 
 def main(OPTS):
