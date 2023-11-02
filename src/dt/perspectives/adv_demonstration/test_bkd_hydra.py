@@ -1,7 +1,7 @@
 import json
 import os
 from tempfile import TemporaryDirectory
-
+import numpy as np
 from dt.utils import make_sure_path_exists
 from dt.chat import Chat
 from .task_description import task_dic
@@ -42,10 +42,17 @@ def main(args):
     seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     print(args)
     tot, tp, tc = 0, 0, 0 
+    score_lis = {"_asr": [], "_cacc": []}
     for seed in seeds:
         for suffix in ["_asr", "_cacc"]:
             res = test(args, args.adv_demonstration.path + suffix, seed)
+            score_lis[suffix].append(res[0])
             tot += res[-1][0]
             tp += res[-1][1]
             tc += res[-1][2]
-    print(tot, tp, tc)
+    asr = np.mean(score_lis["_asr"])
+    cacc = np.mean(score_lis["_cacc"])
+    print(f"average asr: {asr}")
+    print(f"average cacc: {cacc}")
+    print(f"total cost: {tot} ({tp}, {tc})")
+    return asr

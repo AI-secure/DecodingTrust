@@ -25,7 +25,10 @@ class Chat(ABC):
     def from_helm(main_config: BaseConfig, **kwargs):
         if main_config.model_config.model_loader != ModelLoader.HF:
             quant_config = HuggingfaceModelQuantizationConfig(
-                model_loader=main_config.model_config.model_loader, quant_file=main_config.model_config.quant_file,
+                model_loader=main_config.model_config.model_loader,
+                quant_file=main_config.model_config.quant_file,
+                disable_exllama=main_config.model_config.disable_exllama,
+                inject_fused_attention=main_config.model_config.inject_fused_attention
             )
         else:
             quant_config = None
@@ -45,6 +48,11 @@ class Chat(ABC):
             return HFChat(model_name.removeprefix("hf/").rstrip("/"), **kwargs)
         elif model_name.startswith("together/"):
             return TogetherChat(model_name, **kwargs)
+        elif model_name.startswith("anthropic/"):
+            if main_config.model_config.conv_template != "claude":
+                kwargs["conv_template"] = "claude"
+                warnings.warn(f"Prompt template is changed from {main_config.model_config.conv_template} to claude")
+            return ClaudeChat(model_name, **kwargs)
         else:
             raise ValueError("Unsupported model organization")
 
@@ -54,7 +62,7 @@ class Chat(ABC):
         s += response["usage"]["completion_tokens"] * self.completion_price
         return s
 
-    def do_classification(self, dataset, task_message, example_prefix=False, dry_run=False):
+    def do_classification(self, dataset, task_message, example_prefix=False, dry_run=False, max_tokens=20):
         """
         Do classification (zero-shot or in-context learning by calling `openai.ChatCompletion.create`. Args: dataset
         (`List[Dict]`): test dataset to evaluate. Each item should be a dict containing the following keys: `input`:
@@ -96,7 +104,7 @@ class Chat(ABC):
                             messages.append({"role": "assistant", "content": y[1].capitalize()}),
                     messages.append({"role": "user", "content": x["input"]})
 
-                response = self.call(messages, dry_run=dry_run)
+                response = self.call(messages, dry_run=dry_run, max_tokens=max_tokens)
                 cost += self.calc_price(response)
                 prompt_tokens += response["usage"]["prompt_tokens"]
                 cont_tokens += response["usage"]["completion_tokens"]
@@ -135,7 +143,7 @@ class Chat(ABC):
         Do text generation by calling `openai.ChatCompletion.create`
         Args:
             dataset (`List[str]`): test dataset to evaluate. Each item should be a text prompt.
-            message_constructor (`MessageConstrctor`): format the input prompts tailer for GPT-3.5 and GPT-4
+            message_constructor (`MessageConstructor`): format the input prompts tailer for GPT-3.5 and GPT-4
             n (int): number of generations given the same prompt
             t (int): generation temperature
             max_tokens: max number of tokens to generate
@@ -358,6 +366,8 @@ class HFChat(Chat):
                 self.model_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
         except ValueError as e:
             from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+            if "@" in model_name:  # model specified with a revision
+                model_name = model_name[:model_name.find("@")]
             self.model_config = get_huggingface_model_config(model_name)
             print(e)
 
@@ -481,6 +491,76 @@ class TogetherChat(Chat):
 
         kwargs = {
             "stop_sequences": ["</s>", "[/INST]", "[INST]"], "echo_prompt": False, "top_p": 0.7, "top_k_per_token": 50
+        }
+        # kwargs["repetition_penalty"] = 1
+        request = Request(
+            model=self.model_name, prompt=prompt, num_completions=n, max_tokens=max_tokens, temperature=t, **kwargs
+        )
+        response = self.client.make_request(request)
+
+        if not response.success:
+            raise RuntimeError(f"Call to together model {self.model_name} failed!")
+
+        # TODO: Refactor with pydantic
+        response = Response.from_dict({
+            "id": f"chatcmpl-{shortuuid.random()}",
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": self.model_name,
+            "choices": [
+                {
+                    "index": i,
+                    "message": {
+                        "role": "assistant",
+                        "content": msg.text
+                    },
+                    "finish_reason": msg.finish_reason
+                }
+                for i, msg in enumerate(response.completions)
+            ],
+            "usage": {  # Not implemented for now
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0
+            }
+        })
+        return response.to_dict()
+
+
+class ClaudeChat(Chat):
+    def __init__(self, model_name: str, conv_template: str, cache: str, api_key: str, **kwargs):
+        super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
+
+        self.client = AutoClient(credentials={"anthropicApiKey": api_key}, cache_path=cache)
+        self.conv_template = get_conv_template(conv_template)
+
+    # TODO: Refactor to remove duplications
+    def messages_to_prompt(self, messages: Union[List[Dict], str]):
+        if isinstance(messages, str):
+            return messages  # Override prompt templates / simply use as the prompt for completion model
+
+        conv = self.conv_template.copy()
+        for message in messages:
+            if "name" in message:
+                warnings.warn("'name' argument is not supported.")
+            msg_role = message["role"]
+            if msg_role == "system":
+                warnings.warn("Claude does not have support for system prompts.")
+            elif msg_role == "user":
+                conv.append_message(conv.roles[0], message["content"])
+            elif msg_role == "assistant":
+                conv.append_message(conv.roles[1], message["content"])
+            else:
+                raise ValueError(f"Unknown role: {msg_role}")
+        conv.append_message(conv.roles[1], None)
+        return conv.get_prompt()  # Prompt generated from the selected template
+
+    @timeout(600)
+    def _call(self, messages, t=0, max_tokens=20, n=1):
+        prompt = "\n\n" + self.messages_to_prompt(messages)
+
+        kwargs = {
+            "stop_sequences": ["\n\nHuman:"], "echo_prompt": False,
         }
         # kwargs["repetition_penalty"] = 1
         request = Request(

@@ -31,6 +31,7 @@ class ToxicityConfig:
     n: int = 0  # Number of generations
     t: int = 1  # Generation temperature
     save_interval: int = 100  # Intervals to save results
+    api: Optional[str] = None
 
 
 @dataclass
@@ -61,8 +62,10 @@ class FairnessConfig:
     prompt_file: Optional[str] = None  # PATH of the file of prompts
     gt_file: Optional[str] = None  # PATH of the file of ground truth labels
     sensitive_attr_file: Optional[str] = None  # PATH of the file of sensitive attributes
-    dataset: str = 'adult'  # dataset
-    out_file: str = ''
+    dataset: Optional[str] = 'adult'  # dataset
+    out_file: Optional[str] = ''
+    score_calculation_only: Optional[bool] = False
+    max_tokens: Optional[int] = 20
 
 
 @dataclass
@@ -91,6 +94,7 @@ class StereotypeConfig:
     skip_generation: bool = False
     sys_prompt_type: str = "targeted"
     n_gens: int = 25
+    out_dir: Optional[str] = None
 
 
 @dataclass
@@ -114,7 +118,8 @@ class ModelConfig:
     torch_dtype: Optional[WeightType] = WeightType.BFLOAT16
     trust_remote_code: bool = True
     use_auth_token: bool = True
-    disable_exllama: bool = True  # Configuration from AutoGPTQForCausalLM
+    disable_exllama: bool = False  # Configuration from AutoGPTQForCausalLM
+    inject_fused_attention: bool = True  # Configuration from AutoGPTQForCausalLM
     quant_file: Optional[str] = None
     tokenizer_name: Optional[str] = None
     device_map: Optional[str] = "auto"

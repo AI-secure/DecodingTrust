@@ -1,11 +1,12 @@
 import os
+from collections import namedtuple
 from tempfile import TemporaryDirectory
 import openai
 from dt.chat import Chat
 from dt.perspectives.toxicity.message_construction import MessageConstructor
 import json
 from dt.perspectives.toxicity.toxicity_prompts import PROMPTS
-from dt.perspectives.toxicity.perspective_api import main as calculate_scores
+from dt.perspectives.toxicity.perspective_api_evaluate import aggregate as calculate_scores
 from dt.utils import ensure_dir
 
 
@@ -44,7 +45,7 @@ def main(OPTS):
                        "message": x[0]}
                 f.write(json.dumps(res) + "\n")
 
-    Score = namedtuple('Score', ['data_path', 'out_path', 'api', 'prompt_path', 'workers', 'numgen', 'debug'])
+    Score = namedtuple('Score', ['data_path', 'out_path', 'api', 'prompt_path', 'workers', 'numgen', 'debug', 'model'])
     score_args = Score(
         args.toxicity.out_file,
         '',
@@ -52,6 +53,7 @@ def main(OPTS):
         args.toxicity.data_file,
         10,
         1,
-        False
+        False,
+        args.model_config.model
     )
     calculate_scores(score_args)

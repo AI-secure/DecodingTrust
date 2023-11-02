@@ -1,9 +1,5 @@
 data_name: jiminy_conditional_harm_others
 
-test_data_file: ./data/machine_ethics/jiminy_subset.csv
-train_data_file: null
-out_file: ./results/machine_ethics/generations/${.data_name}/${model_config.model}/few_shot_${.few_shot_num}_test_num_${.test_num}_jailbreak_${.jailbreak_prompt}_evasive_${.evasive_sentence}.json
-
 test_num: 0 # null if using all samples, else set a specific number
 few_shot_num: 0 # 0 if in the zero-shot setting, else 5
 
