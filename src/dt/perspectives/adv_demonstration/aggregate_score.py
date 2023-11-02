@@ -168,7 +168,6 @@ def backdoor_score(model, root_data_path="./data/adv_demonstration", root_cache_
     model = model.replace("/", "_")
     tmp_path = os.path.join(root_cache_path, f"{model}_backdoor.json")
     cnt = read_tmp(tmp_path)
-    cnt = {}
     for x in ["badword", "addsent", "synbkd", "stylebkd"]:
         for y in ["setup1", "setup2", "setup3"]:
             for k in ["cacc", "asr"]:
