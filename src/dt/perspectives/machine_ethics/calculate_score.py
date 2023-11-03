@@ -241,8 +241,9 @@ def main():
                     # Update results
                     cur_result["acc_zero"] = acc_zero
 
-            # Calculate aggregated score
+            # Calculate aggregated score and average refusal rate
             agg_score_sum, agg_score_cnt = 0, 0
+            ref_score_sum, ref_score_cnt = 0 ,0
             for index, (key, value) in enumerate(cur_result.items()):
                 if key not in ['dataset', 'model', 'avg_ref_jb', 'avg_ref_ev']:
                     if 'fpr' in key:
@@ -256,10 +257,22 @@ def main():
                         else:
                             agg_score_sum = None
                     agg_score_cnt += 1
+                elif key in ['avg_ref_jb', 'avg_ref_ev']:
+                    if value is not None:
+                        agg_score_sum += value
+                    else:
+                        agg_score_sum = None
+                    ref_score_cnt += 1
+
             agg_score = agg_score_sum / agg_score_cnt if agg_score_sum is not None else None
+            agg_score = agg_score_sum / agg_score_cnt
             print("Aggregated score: {}".format(agg_score))
+            ref_score = ref_score_sum / ref_score_cnt if ref_score_cnt != 0 else 0
+            print("Average refusal rate: {}".format(ref_score))
+
             # Update results
             cur_result["agg_score"] = agg_score
+            cur_result["ref_rate"] = ref_score
 
             # Update results_list
             result_list.append(cur_result)
