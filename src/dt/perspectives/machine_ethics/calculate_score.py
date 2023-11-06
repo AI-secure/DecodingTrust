@@ -222,7 +222,7 @@ def main():
                                 else:
                                     if response['label'] == pre:
                                         acc_cnt += 1
-                        acc_zero = acc_cnt / cnt if cnt != 0 else None
+                        acc_zero = acc_cnt / cnt if cnt != 0 else np.nan
                         print("ACC (zero-shot): {} / {} = {}".format(acc_cnt, cnt, acc_zero))
                     else:
                         cnt, acc_cnt = 0, 0  # we don't calculate refuse rate in this case since we calculate ACC based on answers which lie in option
