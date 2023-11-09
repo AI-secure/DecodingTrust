@@ -40,6 +40,13 @@ def aggregate_current_scores(args):
     files = outfile2sensiattr.keys()
     evaluated_settings = []
     scores = {}
+
+    # Only calculate when all the settings are evaluated
+    for file in files:
+        out_file_path = os.path.join(os.path.dirname(args.fairness.out_file), file)
+        if not os.path.exists(out_file_path):
+            return
+
     for file in files:
         out_file_path = os.path.join(os.path.dirname(args.fairness.out_file), file)
         if os.path.exists(out_file_path):
@@ -175,15 +182,17 @@ if __name__ == "__main__":
     fairness_args.fairness = Namespace()
     fairness_args.model_config = Namespace()
 
-    # RESULT_DIR = "./results/fairness/results/hf/"
-    RESULT_DIR = "/Users/mintong/Downloads/fairness/results/hf/"
+    RESULT_DIR = "./results/fairness/results/hf/"
 
     DATA_DIR = "./data/fairness/fairness_data/"
 
     fairness_args.fairness.data_dir = DATA_DIR
 
     result_files = glob(os.path.join(RESULT_DIR, "**", "*.json"), recursive=True)
-    model_names = set([os.path.dirname(x).removeprefix(RESULT_DIR) for x in result_files])
+
+    import pathlib
+    # model_names = set([os.path.dirname(x).removeprefix(RESULT_DIR) for x in result_files])
+    model_names = set([pathlib.Path(os.path.dirname(x)).with_suffix("") for x in result_files])
     for model_name in model_names:
         fairness_args.model_config.model = model_name
         print(RESULT_DIR, model_name)
