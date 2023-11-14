@@ -1,11 +1,9 @@
 import hydra
-from omegaconf import OmegaConf, DictConfig
-from collections import namedtuple
 from importlib import import_module
-from dataclasses import asdict
-
+from dt.configs.configs import BaseConfig
+from omegaconf import OmegaConf, DictConfig
 from hydra.core.config_store import ConfigStore
-from dt.configs.configs import BaseConfig, AdvGLUEConfig, EthicsConfig, FairnessConfig, PrivacyConfig, StereotypeConfig, ModelType
+from dt.summarize import summarize_results
 
 PERSPECTIVES = {
     "stereotype": "dt.perspectives.stereotype.bias_generation",
@@ -29,11 +27,14 @@ def main(config: DictConfig) -> None:
     # The 'validator' methods will be called when you run the line below
     config: BaseConfig = OmegaConf.to_object(config)
     assert isinstance(config, BaseConfig)
+    print(config)
 
     for name, module_name in PERSPECTIVES.items():
         if getattr(config, name) is not None:
             perspective_module = import_module(module_name)
             perspective_module.main(config)
+
+    summarize_results()
 
 
 if __name__ == "__main__":

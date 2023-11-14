@@ -12,20 +12,24 @@ def get_adv_demo_scores():
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     model_names = [os.path.basename(f).removesuffix("_score.json").replace("_", "/", 2) for f in fs]
     model_scores = {}
+    model_rejections = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
             if not scores:
                 continue
             model_scores[model_name] = scores["adv_demonstration"] * 100
-    return model_scores
+            model_rejections[model_name] = scores["adv_demonstration_rej"] * 100
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_advglue_scores():
     print(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json"))
     with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
         scores = json.load(src)
-    return {k.removeprefix("/"): v * 100 for k, v in scores["Accuracy"].items()}
+    model_scores = {k.removeprefix("/"): v * 100 for k, v in scores["Accuracy"].items()}
+    model_rejections = {k.removeprefix("/"): v * 100 for k, v in scores["RR+NE"].items()}
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_fairness_scores():
@@ -34,16 +38,18 @@ def get_fairness_scores():
         os.path.dirname(x).removeprefix(os.path.join(RESULT_DIR, "fairness", "results")).removeprefix("/") for x in fs
     ])
     model_scores = {}
+    model_rejections = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
             model_scores[model_name] = scores["fairness score"]
-    return model_scores
+            model_rejections[model_name] = scores.get("rejection rate", None)
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_ethics_scores():
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
-    df = df[df["dataset"] == "ethics_commonsense_short"].drop_duplicates().set_index("model")["agg_score"]
+    df = df[df["dataset"] == "ethics_commonsense_short"].drop_duplicates().set_index("model")[["agg_score", "ref_rate"]]
     return df.to_dict()
 
 
@@ -52,13 +58,15 @@ def get_ood_scores():
     fs = glob(os.path.join(path_prefix, "**", "final_scores.json"), recursive=True)
     model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
     model_scores = {}
+    model_rejections = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
             if not scores:
                 continue
             model_scores[model_name] = scores["score"]
-    return model_scores
+            model_rejections[model_name] = scores.get("rr", None)
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_privacy_scores():
@@ -66,7 +74,7 @@ def get_privacy_scores():
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
     df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
-    return df["privacy_score"].to_dict()
+    return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
 
 
 def get_stereotype_scores():
@@ -74,13 +82,15 @@ def get_stereotype_scores():
     fs = glob(os.path.join(path_prefix, "**", "25_compiled.json"), recursive=True)
     model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
     model_scores = {}
+    model_rejections = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
             if not scores:
                 continue
             model_scores[model_name] = scores["overall_score"]
-    return model_scores
+            model_rejections[model_name] = scores["overall_rejection_rate"]
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_toxicity_scores():
@@ -88,6 +98,7 @@ def get_toxicity_scores():
     fs = glob(os.path.join(path_prefix, "**", "report.jsonl"), recursive=True)
     model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
     model_scores = {}
+    model_rejections = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
@@ -97,7 +108,7 @@ def get_toxicity_scores():
             if score_key not in scores:
                 continue
             model_scores[model_name] = scores[score_key] * 100
-    return model_scores
+    return {"score": model_scores, "rejection_rate": None}
 
 
 def summarize_results():
@@ -111,7 +122,7 @@ def summarize_results():
             "privacy": get_privacy_scores(),
             "stereotype": get_stereotype_scores(),
             "toxicity": get_toxicity_scores()
-        }
+        },
     }
 
     with open(os.path.join(RESULT_DIR, "summary.json"), "w") as f:
