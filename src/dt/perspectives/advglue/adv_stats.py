@@ -50,7 +50,7 @@ def main():
                 for task in j.keys():
                     preds = j[task]["predictions"]
                     responses = j[task]["responses"]
-                refusals[task] = [y["choices"][0]["message"]["content"] for x, y in zip(preds, responses) if x == -1]
+                    refusals[task] = [y["choices"][0]["message"]["content"] for x, y in zip(preds, responses) if x == -1]
                 with open(os.path.join(base_dir, f"{target_model}/{base_model}-demo-refusal.json"), "w") as dest:
                     json.dump(refusals, dest, indent=4)
                     print(json.dumps(refusals, indent=4))
