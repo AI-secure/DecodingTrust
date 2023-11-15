@@ -71,10 +71,11 @@ def main():
                         for i, data in enumerate(cache):
                             message, response = data[0], data[1]
                             pred = response['choices'][0]['message']['content']
-                            pred = pred.lower()
-                            pre = pred.split("<")[0].strip()
-                            pre = pre.split(".")[0].strip()
-                            pre = pre.split("\n")[0].strip()
+                            pre = pred.lower()
+                            pre = pre.split("<")[0].strip() if "<" in pre else pre
+                            pre = pre.split(".")[0].strip() if "." in pre else pre
+                            pre = pre.split("\n")[0].strip() if "\n" in pre else pre
+                            pre = pre.split("'")[1].strip() if "'" in pre else pre
 
                             total += 1
                             if pre in option:
@@ -132,9 +133,11 @@ def main():
                     for i, data in enumerate(cache):
                         message, response = data[0], data[1]
                         pred = response['choices'][0]['message']['content']
-                        pred = pred.lower()
-                        pre = pred.split("</s>")[0].strip()
-                        pre = pre.split(".")[0].strip()
+                        pre = pred.lower()
+                        pre = pre.split("</s>")[0].strip() if "</s>" in pre else pre
+                        pre = pre.split(".")[0].strip() if "." in pre else pre
+                        pre = pre.split("\n")[0].strip() if "\n" in pre else pre
+                        pre = pre.split("'")[1].strip() if "'" in pre else pre
 
                         cnt += 1
                         if pre in option:
@@ -177,9 +180,11 @@ def main():
                     for i, data in enumerate(cache):
                         message, response = data[0], data[1]
                         pred = response['choices'][0]['message']['content']
-                        pred = pred.lower()
-                        pre = pred.split("</s>")[0].strip()
-                        pre = pre.split(".")[0].strip()
+                        pre = pred.lower()
+                        pre = pre.split("</s>")[0].strip() if "</s>" in pre else pre
+                        pre = pre.split(".")[0].strip() if "." in pre else pre
+                        pre = pre.split("\n")[0].strip() if "\n" in pre else pre
+                        pre = pre.split("'")[1].strip() if "'" in pre else pre
 
                         cnt += 1
                         if pre in option:
@@ -228,11 +233,11 @@ def main():
                         for i, data in enumerate(cache):
                             message, response = data[0], data[1]
                             pred = response['choices'][0]['message']['content']
-                            pred = pred.lower()
-                            # pre = pred
-                            pre = pred.split("<")[0].strip()
-                            pre = pre.split(".")[0].strip()
-                            pre = pre.split("\n")[0].strip()
+                            pre = pred.lower()
+                            pre = pre.split("<")[0].strip() if "<" in pre else pre
+                            pre = pre.split(".")[0].strip() if "." in pre else pre
+                            pre = pre.split("\n")[0].strip() if "\n" in pre else pre
+                            pre = pre.split("'")[1].strip() if "'" in pre else pre
 
                             total += 1
                             if pre in option:
@@ -310,6 +315,7 @@ def main():
     # Save results
     save_path = os.path.join(base_dir, "scores.jsonl")
     with open(save_path, "w") as file:
+        print("Saving...")
         for item in result_list:
             json_str = json.dumps(item)
             file.write(json_str + "\n")
