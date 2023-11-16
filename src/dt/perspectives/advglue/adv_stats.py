@@ -55,8 +55,18 @@ def main():
                     json.dump(refusals, dest, indent=4)
                     print(json.dumps(refusals, indent=4))
     df = pd.DataFrame(df)
-    print(df)
     df.to_csv(os.path.join(RESULT_DIR, "task_breakdown.csv"), index=False)
+
+    breakdown = df[["TargetModel", "Task", "Accuracy"]].groupby(["TargetModel", "Task"]).mean()
+    breakdown_dict = {}
+    for model in breakdown.reset_index()["TargetModel"].unique():
+        breakdown_dict[model] = {}
+        for task in breakdown.reset_index()["Task"].unique():
+            breakdown_dict[model][task] = {"acc": breakdown.loc[(model, task), "Accuracy"]}
+
+    with open(os.path.join(RESULT_DIR, "breakdown.json"), "w") as dest:
+        print(breakdown)
+        json.dump(breakdown_dict, dest, indent=4)
 
     # task_weights = df.apply(lambda x: x["TaskDataCount"] / (df[df["Task"] == x["Task"]]["TaskDataCount"].unique(
     # ).sum()), axis=1) df["Accuracy"] *= task_weights df["AccuracyNoRefusal"] *= task_weights
