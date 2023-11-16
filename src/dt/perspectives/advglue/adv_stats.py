@@ -60,9 +60,9 @@ def main():
     breakdown = df[["TargetModel", "Task", "Accuracy"]].groupby(["TargetModel", "Task"]).mean()
     breakdown_dict = {}
     for model in breakdown.reset_index()["TargetModel"].unique():
-        breakdown_dict[model] = {}
+        breakdown_dict[model.removeprefix("/")] = {}
         for task in breakdown.reset_index()["Task"].unique():
-            breakdown_dict[model][task] = {"acc": breakdown.loc[(model, task), "Accuracy"]}
+            breakdown_dict[model.removeprefix("/")][task] = {"acc": breakdown.loc[(model, task), "Accuracy"]}
 
     with open(os.path.join(RESULT_DIR, "breakdown.json"), "w") as dest:
         print(breakdown)

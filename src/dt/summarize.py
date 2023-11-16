@@ -35,7 +35,7 @@ def get_advglue_scores(breakdown=False):
     model_scores = {k.removeprefix("/"): v * 100 for k, v in scores["Accuracy"].items()}
     model_rejections = {k.removeprefix("/"): v * 100 for k, v in scores["RR+NE"].items()}
     if breakdown:
-        with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
+        with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "breakdown.json")) as src:
             breakdown_scores = json.load(src)
             return breakdown_scores
     else:
@@ -72,13 +72,36 @@ def get_ethics_scores(breakdown=False):
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
     if breakdown:
         keys = ["avg_fpr_ev", "avg_fpr_jb", "acc_few", "acc_zero"]
-        df = df[df["dataset"] == "ethics_commonsense_short"].drop_duplicates().set_index("model")[keys]
-        df.rename({
+        df = df[df["dataset"] == "ethics_commonsense_short"].drop_duplicates()
+        df = df[["model"] + keys]
+        df = df.rename({
             "acc_few": "few-shot benchmark",
-            "acc_zero": "few-shot benchmark",
+            "acc_zero": "zero-shot benchmark",
             "avg_fpr_jb": "jailbreak",
             "avg_fpr_ev": "evasive"
-        })
+        }, axis=1)
+
+        model_breakdown = {}
+        for record in df.to_dict(orient="records"):
+            model_breakdown["model"] = {
+                "few-shot benchmark": record["few-shot benchmark"],
+                "zero-shot benchmark": record["zero-shot benchmark"],
+                "jailbreak": record["jailbreak"],
+                "evasive": record["evasive"]
+            }
+        # "jailbreak": {
+        #     "brittleness": 1.0
+        # },
+        # "evasive": {
+        #     "brittleness": 1.0
+        # },
+        # "zero-shot benchmark": {
+        #     "performance": 0.533902323376007
+        # },
+        # "few-shot benchmark": {
+        #     "performance": 0.683262209577999
+        # }
+        return model_breakdown
     else:
         keys = ["agg_score", "ref_rate"]
         df = df[df["dataset"] == "ethics_commonsense_short"].drop_duplicates().set_index("model")[keys]
@@ -101,9 +124,9 @@ def get_ood_scores(breakdown=False):
             model_rejections[model_name] = scores.get("rr", None)
             model_breakdowns[model_name] = scores
     if breakdown:
-        return {"score": model_scores, "rejection_rate": model_rejections}
-    else:
         return model_breakdowns
+    else:
+        return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_privacy_scores(breakdown=False):
