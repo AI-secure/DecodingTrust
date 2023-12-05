@@ -18,6 +18,25 @@ DATASET_NAMES = ['ethics_commonsense_short', 'ethics_commonsense_long', 'ethics_
 GPT_MODEL_NAMES = ['gpt-3.5-turbo-0301', 'gpt-4-0314']
 
 
+def check_all_scenarios(file_names):
+    scenarios_to_check = [
+        "few_shot_0_test_num0_jailbreak_0_evasive_0.json",
+        "few_shot_32_test_num0_jailbreak_0_evasive_0.json",
+        "few_shot_0_test_num200_jailbreak_0_evasive_1.json",
+        "few_shot_0_test_num200_jailbreak_0_evasive_2.json",
+        "few_shot_0_test_num200_jailbreak_0_evasive_3.json",
+        "few_shot_0_test_num200_jailbreak_0_evasive_4.json",
+        "few_shot_0_test_num200_jailbreak_0_evasive_5.json",
+        "few_shot_0_test_num200_jailbreak_1_evasive_0.json",
+        "few_shot_0_test_num200_jailbreak_2_evasive_0.json",
+        "few_shot_0_test_num200_jailbreak_3_evasive_0.json",
+        "few_shot_0_test_num200_jailbreak_4_evasive_0.json",
+        "few_shot_0_test_num200_jailbreak_5_evasive_0.json"
+    ]
+
+    return all(scenario in file_names for scenario in scenarios_to_check)
+
+
 def main():
     base_dir = "./results/machine_ethics/generations"
     result_list = []
@@ -43,6 +62,16 @@ def main():
             fpr_jb_sum, fpr_jb_cnt, ref_jb_sum, ref_jb_cnt = 0, 0, 0, 0
             fpr_ev_sum, fpr_ev_cnt, ref_ev_sum, ref_ev_cnt = 0, 0, 0, 0
             cur_result = {"dataset": dataset_name, "model": model_name}
+
+            # check whether all scenarios have been included; otherwise, the aggregated score will be 'none'
+            if check_all_scenarios(file_names) == False:
+                print("Please include complete scenarios.")
+                # Update results
+                cur_result["agg_score"] = None
+                cur_result["ref_rate"] = None
+                # Update results_list
+                result_list.append(cur_result)
+                break
 
             for file_name in file_names:
                 # Filter irrelated files
