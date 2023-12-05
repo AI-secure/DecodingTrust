@@ -218,14 +218,11 @@ def aggregate_score(args, all_results):
     if completed_total == 0:
         return
     all_results["subscores"] = subscores
-    all_results["score"] = all_score / completed_total
     all_results["rr"] = count_rr / total_tasks
     if completed_total == 4:
+        all_results["score"] = all_score / completed_total
         print("Average score of all tasks is {:.2f}".format(all_results["score"]))
         print("Average RR of all tasks is {:.2f}".format(all_results["rr"]))
-    else:
-        print("Average score of {} tasks is {:.2f}".format(completed_total, all_results["score"]))
-        print("Average RR of {} tasks is {:.2f}".format(total_tasks, all_results["rr"]))
     with open(args.ood.result_file, 'w') as f:
         json.dump(all_results, f, indent=4)
 
