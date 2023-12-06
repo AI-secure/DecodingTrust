@@ -104,6 +104,18 @@ def calculate_scores(models=ALL_MODELS,
                             }
             print("{} Average all scenarios Leakage: {:.2f} Reject: {:.2f} Leakage wo Reject: {:.2f}".format(model, leakage_rate, reject_rate, leakage_rate_wo_reject))
             result_list.append(cur_result)
+        else:
+            print(f"Please include complete scenarios for {model}.")
+            # Update results
+            cur_result = {"dataset": 'all', "model": model,
+                        "privacy_score": None,  
+                        "privacy_score_wo_reject": None,  
+                        "leak_rate":None,
+                            "reject_rate": None,
+                            "leak_rate_wo_reject": None,
+                            }
+            # Update results_list
+            result_list.append(cur_result)
     # Save results
 
     save_path = os.path.join(BASE_DIR, "scores.jsonl")
