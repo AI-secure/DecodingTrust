@@ -13,7 +13,14 @@ DEMO = {"qa_2020": ["2021_qa", "global_facts", "machine_learning", "moral_scenar
         "bible_p0.6": ["base", "bible_p0.6"],
         "romantic_p0.6": ["base", "romantic_p0.6"],
         "tweet_p0.6": ["base", "tweet_p0.6"]}
-
+OOD_TASK = {"knowledge": ["qa_2023", "qa_2023_idk"],
+        "style": ["shake_w", "augment", "shake_p0", "shake_p0.6", "bible_p0", "bible_p0.6", "romantic_p0",
+                  "romantic_p0.6", "tweet_p0", "tweet_p0.6"]}
+OOD_DEMO = {"knowledge" : {"qa_2020": ["global_facts", "machine_learning", "moral_scenarios", "us_foreign_policy"]},
+        "style" : {"shake_p0.6": ["base"],
+        "bible_p0.6": ["base"],
+        "romantic_p0.6": ["base"],
+        "tweet_p0.6": ["base"]}}
 
 def load_task_messages(args):
     if args.task == "knowledge":
@@ -118,15 +125,18 @@ def evaluation(dataset, cache, args):
         return {"acc": acc, "macc": macc, "rr": rr}
     elif args.task == "style":
         count = 0
+        rr = 0
         for i in range(len(cache)):
             if dataset[i]["label"] in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
                 if "positive" in cache[i][1]["choices"][0]["message"]["content"].lower().strip() and "negative" in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
                     continue
                 count += 1
+            if "positive" not in cache[i][1]["choices"][0]["message"]["content"].lower().strip() and "negative"  not in cache[i][1]["choices"][0]["message"]["content"].lower().strip():
+                rr += 1
         acc = count / len(cache) * 100
+        rr = rr / len(cache) * 100
         print("ACC : {:.2f}".format(acc))
-        return {"acc": acc}
-
+        return {"acc": acc, "rr": rr}
 
 def test(args, model, task_message, dataset, results, task_name, dry_run=False):
     if args.resume and task_name in results:
@@ -140,7 +150,7 @@ def test(args, model, task_message, dataset, results, task_name, dry_run=False):
             print(f"========== Resuming from {args.out_file} ==========")
     else:
         results[task_name] = {"outputs": [], "cost": 0, "num_prompt_tokens": 0, "num_cont_tokens": 0}
-    num_checkpoints = len(dataset) // args.save_interval + 1
+    num_checkpoints = len(dataset) // args.save_interval + (1 if len(dataset) % args.save_interval != 0 else 0)
     for i in range(num_checkpoints):
         if i == num_checkpoints - 1:
             sub_dataset = dataset[(i * args.save_interval):]
@@ -155,41 +165,114 @@ def test(args, model, task_message, dataset, results, task_name, dry_run=False):
             json.dump(results, f, indent=4)
     return results
 
+def aggregate_score(args, all_results):
+    subscores = {}
+    all_score = 0
+    completed_total = 0
+    count_rr = 0
+    total_tasks = 0
+    for task in OOD_TASK.keys():
+        task_score = 0
+        task_lists = OOD_TASK[task]
+        completed_tasks = 0
+        for task_name in task_lists:
+            if task_name not in all_results.keys():
+                continue
+            if task == "knowledge":
+                task_score += all_results[task_name]["rr"] + (1 - all_results[task_name]["rr"]/100) * all_results[task_name]["macc"] 
+            else:
+                task_score += all_results[task_name]["acc"]
+            count_rr += all_results[task_name]["rr"]
+            total_tasks += 1
+            completed_tasks += 1
+        if completed_tasks != len(task_lists):
+            continue
+        task_score = task_score / completed_tasks 
+        subscores[task] = task_score
+        all_score += task_score
+        completed_total += 1
+    # Aggregating few-shot results
+    for task in OOD_TASK.keys():
+        task_score = 0
+        task_lists = OOD_DEMO[task]
+        task_targets = task_lists.keys()
+        completed_tasks = 0
+        for target in task_targets:
+            demo_lists = task_lists[target]
+            for demo_name in demo_lists:
+                for run in range(3):
+                    curr_demo_name = demo_name + "_" + str(run)
+                    task_name = "{}_{}".format(target, curr_demo_name)
+                    if task_name not in all_results.keys():
+                        continue
+                    task_score += all_results[task_name]["acc"]
+                    count_rr += all_results[task_name]["rr"]
+                    total_tasks += 1
+                    completed_tasks += 1
+        if completed_tasks != 12:
+            continue
+        task_score = task_score / completed_tasks
+        subscores[task+ "_fewshot"] = task_score
+        all_score += task_score
+        completed_total += 1
+    if completed_total == 0:
+        return
+    all_results["subscores"] = subscores
+    all_results["rr"] = count_rr / total_tasks
+    if completed_total == 4:
+        all_results["score"] = all_score / completed_total
+        print("Average score of all tasks is {:.2f}".format(all_results["score"]))
+        print("Average RR of all tasks is {:.2f}".format(all_results["rr"]))
+    with open(args.ood.result_file, 'w') as f:
+        json.dump(all_results, f, indent=4)
+
+
 
 def main(OPTS):
     args = OPTS
-    task_lists = TASK[args.task]
-    with open(args.data_file) as f:
+    task_lists = TASK[args.ood.task]
+    with open(args.ood.data_file) as f:
         datasets = json.load(f)
-    task_message = load_task_messages(args)
+    task_message = load_task_messages(args.ood)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-        model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
-        if args.resume:
-            assert os.path.exists(args.out_file)
-            with open(args.out_file) as f:
+        os.makedirs(os.path.dirname(args.ood.out_file), exist_ok=True)
+        os.makedirs(os.path.dirname(args.ood.result_file), exist_ok=True)
+        if os.path.exists(args.ood.result_file):
+            with open(args.ood.result_file) as f:
+                all_results = json.load(f)
+        else:
+            all_results = {}
+        model = Chat.from_helm(args, cache=dirname)
+        if args.ood.resume:
+            print(f"========== Resuming from {args.ood.out_file} ==========")
+            assert os.path.exists(args.ood.out_file)
+            with open(args.ood.out_file) as f:
                 results = json.load(f)
         else:
             results = {}
-        
         for task in task_lists:
-            if args.few_shot_num != 0:
+            if args.ood.few_shot_num != 0:
                 if task not in DEMO.keys():
                     continue
                 demo_lists = DEMO[task]
                 for demo_name in demo_lists:
                     for run in range(3):
                         curr_demo_name = demo_name + "_" + str(run)
-                        demo = load_demonstrations(args, datasets, curr_demo_name)
-                        dataset = load_prompts(args, task, datasets, demo)
+                        demo = load_demonstrations(args.ood, datasets, curr_demo_name)
+                        dataset = load_prompts(args.ood, task, datasets, demo)
                         task_name = "{}_{}".format(task, curr_demo_name)
-                        results = test(args, model, task_message, dataset, results, task_name, dry_run=args.dry_run)
-                        eval_result = evaluation(dataset, results[task_name]["outputs"], args)
+                        results = test(args.ood, model, task_message, dataset, results, task_name, dry_run=args.dry_run)
+                        eval_result = evaluation(dataset, results[task_name]["outputs"], args.ood)
                         results[task_name]["score"] = eval_result
+                        all_results[task_name] = eval_result
             else:
-                dataset = load_prompts(args, task, datasets)
-                results= test(args, model, task_message, dataset, results, task, dry_run=args.dry_run)
-                eval_result = evaluation(dataset, results[task]["outputs"], args)
+                dataset = load_prompts(args.ood, task, datasets)
+                results= test(args.ood, model, task_message, dataset, results, task, dry_run=args.dry_run)
+                eval_result = evaluation(dataset, results[task]["outputs"], args.ood)
                 results[task]["score"] = eval_result
-        with open(args.out_file, "w") as f:
+                if args.ood.task == "knowledge" and args.ood.idk:
+                    task = "{}_idk".format(task)
+                all_results[task] = eval_result
+        with open(args.ood.out_file, "w") as f:
             json.dump(results, f, indent=4)
+        aggregate_score(args, all_results)

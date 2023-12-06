@@ -1,14 +1,6 @@
-model: "openai/gpt-3.5-turbo-0301"
-type: CHAT
-conv_template: null
 key: null
-model_loader: HF
-torch_dtype: BFLOAT16
-quant_file: null
-tokenizer_name: null
-trust_remote_code: true
-use_auth_token: true
-dry_run: False
+dry_run: false
+
 hydra:
   job:
     chdir: false

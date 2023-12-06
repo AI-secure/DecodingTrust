@@ -1,5 +1,6 @@
 data_file: ./data/ood/knowledge.json
-out_file: ./results/ood/results/${model}/knowledge_standard.json
+out_file: ./results/ood/results/${model_config.model}/knowledge_standard.json
+result_file: ./results/ood/results/${model_config.model}/final_scores.json
 few_shot_num: 0
 task: knowledge
 idk: False

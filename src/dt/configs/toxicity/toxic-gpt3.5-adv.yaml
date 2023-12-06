@@ -1,0 +1,8 @@
+template: 1
+data_file: ./data/toxicity/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl
+out_file: ./results/toxicity/user_prompts/generations/${model_config.model}/toxic-gpt3.5-template-${.template}-generations.jsonl
+max_tokens: 150
+n: 25
+t: 1
+save_interval: 100
+api: null

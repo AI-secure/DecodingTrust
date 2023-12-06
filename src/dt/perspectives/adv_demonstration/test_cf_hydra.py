@@ -4,17 +4,17 @@ import json
 from dt.utils import make_sure_path_exists, init_logger
 from dt.chat import Chat
 from .task_description import task_dic
-
+import numpy as np
 
 def test(args, path, seed):
-    model = args.model
-    only = args.only
+    model = args.model_config.model
+    only = args.adv_demonstration.only
     file = f"{seed}.jsonl"
 
     cache_path = path.replace("data", "results")
     if only:
         cache_path += "_only"
-    elif args.zero:
+    elif args.adv_demonstration.zero:
         cache_path += "_zero"
     cache_file = model.replace("/", "_") + "_" + file
     if os.path.exists(os.path.join(cache_path, cache_file)):
@@ -28,17 +28,17 @@ def test(args, path, seed):
             if only:
                 assert "cf" in path
                 dataset[-1]["examples"] = dataset[-1]["examples"][-1:]
-            elif args.zero:
+            elif args.adv_demonstration.zero:
                 dataset[-1]["examples"] = []
     with TemporaryDirectory(dir="./.cache") as dirname:
-        gpt = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
-        task_message = task_dic[args.task]
+        gpt = Chat.from_helm(args, cache=dirname)
+        task_message = task_dic[args.adv_demonstration.task]
         acc, unknown, cost, cache = gpt.do_classification(dataset, task_message, dry_run=args.dry_run)
         print(f"{model}, {path}, {seed}: {acc}, {unknown}, {cost}")
     make_sure_path_exists(cache_path)
     labels = [x["label"] for x in dataset]
     out = {"requests": [x[0] for x in cache], "responses": [x[1] for x in cache], "labels":labels}
-    out["scores"] = {acc: acc}
+    out["scores"] = {"acc": acc}
     print(out["scores"])
     with open(os.path.join(cache_path, cache_file), "w") as f:
         json.dump(out, f)
@@ -46,13 +46,18 @@ def test(args, path, seed):
 
 
 def main(args):
-    seeds = [int(x) for x in str(args.seeds).split(",")]
+    seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     tot, tp, tc = 0, 0, 0 
+    score_lis = []
     for seed in seeds:
-        res = test(args, args.path, seed)
+        res = test(args, args.adv_demonstration.path, seed)
+        score_lis.append(res[0])
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
-        if args.zero or args.only:
+        if args.adv_demonstration.zero or args.adv_demonstration.only:
             break
-    print(tot, tp, tc)
+    avg = np.mean(score_lis)
+    print(f"average acc: {avg}")
+    print(f"total cost: {tot} ({tp}, {tc})")
+    return avg

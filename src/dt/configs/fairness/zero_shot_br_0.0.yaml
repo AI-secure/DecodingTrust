@@ -3,4 +3,4 @@ prompt_file: adult_0_200_test_base_rate_0.0.jsonl
 gt_file: gt_labels_adult_0_200_test_base_rate_0.0.npy
 sensitive_attr_file: sensitive_attr_adult_0_200_test_base_rate_0.0.npy
 dataset: adult
-out_file: ./results/fairness/results/${model}/zero_shot_br_0.0.json
+out_file: ./results/fairness/results/${model_config.model}/zero_shot_br_0.0.json

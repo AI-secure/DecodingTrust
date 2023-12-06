@@ -1,13 +1,4 @@
-model: "hf/lmsys/vicuna-7b-v1.3"
-type: CHAT
-conv_template: "vicuna_v1.1"
 key: null
-model_loader: HF
-torch_dtype: BFLOAT16
-quant_file: null
-tokenizer_name: null
-trust_remote_code: true
-use_auth_token: true
 dry_run: False
 
 defaults:
@@ -15,6 +6,7 @@ defaults:
   - override hydra/launcher: submitit_slurm
 
 hydra:
+  mode: MULTIRUN
   job:
     chdir: false
   launcher:

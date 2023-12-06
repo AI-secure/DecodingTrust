@@ -1,18 +1,16 @@
+import json
 import os.path
-import string
 import re
+import string
+import sys
+from tempfile import TemporaryDirectory
 
 import numpy as np
-import argparse
-import json
-from tempfile import TemporaryDirectory
 import pandas as pd
-from tenacity import retry
-from tqdm import tqdm
-import sys
-from tenacity.wait import wait_random_exponential
-from datasets import load_metric, load_dataset
+from datasets import load_metric, load_dataset, Dataset
 from dt.chat import Chat
+from dt.perspectives.advglue.adv_stats import main as calculate_scores
+from tqdm import tqdm
 
 # Naming conversion...
 tasks_to_glue = {
@@ -214,7 +212,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
     pbar = tqdm(enumerate(dataset), total=len(dataset))
     for i, data in pbar:  # tqdm(dev["sst2"]):
         key1, key2 = task_to_keys[task_name]
-        if OPTS.no_adv and OPTS.data_file:
+        if OPTS.advglue.no_adv and OPTS.advglue.data_file:
             if f"original_{key1}" in data:
                 key1 = f"original_{key1}"
             elif f"original_{key2}" in data:
@@ -225,7 +223,7 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
         label = data["label"]
 
         if data.get("method", None) == "semattack":
-            if OPTS.no_adv:
+            if OPTS.advglue.no_adv:
                 message = data["original_sentence"]
             else:
                 message = data["sentence"]
@@ -234,18 +232,18 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
             if key2:
                 message = f"{message}\n{key2.replace('original_', '')}: {data[key2]}"
         message = f"{message}".replace('sentence1', 'premise').replace('sentence2', 'Hypothesis')
-        if OPTS.remove_newline:
+        if OPTS.advglue.remove_newline:
             message = message.replace("\n", "")
         messages = [
             {"role": "system", "content": "You are a helpful assistant."}
-        ] if OPTS.sys else []
+        ] if OPTS.advglue.sys else []
         messages.extend([
-            *(TASK2DEMO[task_name] if OPTS.demo else []),
+            *(TASK2DEMO[task_name] if OPTS.advglue.demo else []),
             {"role": "user", "content": f"{TASK2SHORTPROMPT[task_name]}\n{message}"},
         ])
 
         request_body = {
-            "model": OPTS.model,
+            "model": OPTS.model_config.model,
             "messages": messages,
             "temperature": 0,
         }
@@ -263,10 +261,10 @@ def classify(OPTS, model, dataset, task_name, current_results=None, prompt_token
         price += model.calc_price(response)
         pbar.set_postfix({"cost": price})
 
-        if (i + 1) % OPTS.save_interval == 0 or (i + 1) == len(dataset):
-            print(f"Saving to {OPTS.out_file}")
-            os.makedirs(os.path.dirname(OPTS.out_file), exist_ok=True)
-            with open(OPTS.out_file, "w") as f:
+        if (i + 1) % OPTS.advglue.save_interval == 0 or (i + 1) == len(dataset):
+            print(f"Saving to {OPTS.advglue.out_file}")
+            os.makedirs(os.path.dirname(OPTS.advglue.out_file), exist_ok=True)
+            with open(OPTS.advglue.out_file, "w") as f:
                 json.dump(results, f, indent=4)
 
     return results, (prompt_tokens, completion_tokens, price)
@@ -277,26 +275,23 @@ def main(OPTS):
     if not os.path.exists("./.cache"):
         os.makedirs("./.cache")
     with TemporaryDirectory(dir="./.cache") as dirname:
-        model = Chat.from_helm(
-            OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key,
-            model_dtype=OPTS.torch_dtype
-        )
+        model = Chat.from_helm(OPTS, cache=dirname)
 
-        if OPTS.data_file:
-            with open(OPTS.data_file) as f:
+        if OPTS.advglue.data_file:
+            with open(OPTS.advglue.data_file) as f:
                 datasets = json.load(f)
         else:
             datasets = None
 
         prompt_tokens, completion_tokens, price = 0, 0, 0
-        if OPTS.resume:
-            assert os.path.exists(OPTS.out_file)
-            with open(OPTS.out_file) as f:
+        if OPTS.advglue.resume:
+            assert os.path.exists(OPTS.advglue.out_file)
+            with open(OPTS.advglue.out_file) as f:
                 results = json.load(f)
         else:
             results = {}
 
-        tasks = [OPTS.task] if isinstance(OPTS.task, str) else OPTS.task
+        tasks = [OPTS.advglue.task] if isinstance(OPTS.advglue.task, str) else OPTS.advglue.task
         for task_name in tasks:  # , dataset in datasets.items():
             print(f"========== Evaluating on {task_name} ==========")
             if datasets:
@@ -304,15 +299,18 @@ def main(OPTS):
             else:
                 dataset = load_dataset("glue", tasks_to_glue[task_name], split="validation")
 
-            if OPTS.resume and task_name in results:
+            if OPTS.advglue.resume and task_name in results:
                 current_progress = len(results[task_name]["predictions"])
                 if current_progress == len(dataset):
                     continue
                 elif current_progress > len(dataset):
                     raise ValueError("Incorrect dataset during resuming")
                 else:
-                    dataset = dataset[(current_progress + 1):]
-                    print(f"========== Resuming from {OPTS.out_file} ==========")
+                    if isinstance(dataset, Dataset):
+                        dataset = dataset.select(range(current_progress + 1, len(dataset)))
+                    else:
+                        dataset = dataset[(current_progress + 1):]
+                    print(f"========== Resuming from {OPTS.advglue.out_file} ==========")
             results, (prompt_tokens, completion_tokens, price) = classify(
                 OPTS, model, dataset, task_name, results, prompt_tokens, completion_tokens, price
             )
@@ -326,7 +324,9 @@ def main(OPTS):
             score = metric.compute(predictions=pred_list, references=label_list)
             results[task_name]["score"] = score
 
-            os.makedirs(os.path.dirname(OPTS.out_file), exist_ok=True)
-            with open(OPTS.out_file, "w") as f:
+            os.makedirs(os.path.dirname(OPTS.advglue.out_file), exist_ok=True)
+            with open(OPTS.advglue.out_file, "w") as f:
                 json.dump(results, f, indent=4)
             print(f"# Prompt Tokens: {prompt_tokens} \t # Completion Tokens: {completion_tokens} \t Price: {price}")
+
+    calculate_scores()
