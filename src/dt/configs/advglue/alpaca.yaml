@@ -1,7 +1,7 @@
 sys: false
 demo: true
 data_file: ./data/adv-glue-plus-plus/data/alpaca.json
-out_file: ./results/adv-glue-plus-plus/${model_config.model}/alpaca.json
+out_file: ./results/adv-glue-plus-plus/${model_config.model}/alpaca-demo.json
 no_adv: false
 resume: false
 save_interval: 100

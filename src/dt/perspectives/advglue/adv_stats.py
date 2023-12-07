@@ -14,16 +14,26 @@ def main():
 
     df = {
         "BaseModel": [], "TargetModel": [], "Transferability": [], "Accuracy": [], "AccuracyNoRefusal": [],
-        "Task": [], "RR+NE": [], "TaskDataCount": []
+        "Task": [], "RR+NE": [], "TaskDataCount": [], "HasDemo": []
     }
 
     base_dir = ""
     for target_model in target_models:
         for base_model in BASE_MODELS:
-            print(os.path.join(base_dir, target_model, f"{base_model}-demo.json"))
-            if not os.path.exists(os.path.join(base_dir, target_model, f"{base_model}-demo.json")):
+            if os.path.exists(os.path.join(base_dir, target_model, f"{base_model}-demo.json")):
+                result_path = os.path.join(base_dir, target_model, f"{base_model}-demo.json")
+                has_demo = True
+            elif os.path.exists(os.path.join(base_dir, target_model, f"{base_model}.json")):
+                result_path = os.path.join(base_dir, target_model, f"{base_model}.json")
+                has_demo = False
+            else:
+                err_message = "Not found: " + os.path.join(base_dir, target_model, f"{base_model}-demo.json")
+                print(err_message)
+                for k, v in df.items():
+                    v.append(np.nan)
                 continue
-            with open(os.path.join(base_dir, target_model, f"{base_model}-demo.json")) as f:
+
+            with open(result_path) as f:
                 j = json.load(f)
                 for task in j.keys():
                     df["BaseModel"].append(base_model)
@@ -46,14 +56,18 @@ def main():
                                 ~refusal_mask]
                         )
                     )
+                    df["HasDemo"].append(has_demo)
                 refusals = {}
                 for task in j.keys():
                     preds = j[task]["predictions"]
                     responses = j[task]["responses"]
                     refusals[task] = [y["choices"][0]["message"]["content"] for x, y in zip(preds, responses) if x == -1]
-                with open(os.path.join(base_dir, f"{target_model}/{base_model}-demo-refusal.json"), "w") as dest:
+                if has_demo:
+                    dest_path = os.path.join(base_dir, f"{target_model}/{base_model}-demo-refusal.json")
+                else:
+                    dest_path = os.path.join(base_dir, f"{target_model}/{base_model}-refusal.json")
+                with open(dest_path, "w") as dest:
                     json.dump(refusals, dest, indent=4)
-                    print(json.dumps(refusals, indent=4))
     df = pd.DataFrame(df)
     df.to_csv(os.path.join(RESULT_DIR, "task_breakdown.csv"), index=False)
 
