@@ -44,9 +44,9 @@ def get_advglue_scores(breakdown=False):
 
 def get_fairness_scores(breakdown=False):
     fs = glob(os.path.join(RESULT_DIR, "fairness", "**", "final_scores.json"), recursive=True)
-    model_names = set([
+    model_names = [
         os.path.dirname(x).removeprefix(os.path.join(RESULT_DIR, "fairness", "results")).removeprefix("/") for x in fs
-    ])
+    ]
     model_scores = {}
     model_rejections = {}
     model_breakdown = {}
@@ -159,8 +159,8 @@ def get_stereotype_scores():
             scores = json.load(src)
             if not scores:
                 continue
-            model_scores[model_name] = scores["overall_score"]
-            model_rejections[model_name] = scores["overall_rejection_rate"]
+            model_scores[model_name] = scores["overall_score"] * 100
+            model_rejections[model_name] = scores["overall_rejection_rate"] * 100
     return {"score": model_scores, "rejection_rate": model_rejections}
 
 
@@ -178,7 +178,7 @@ def get_toxicity_scores():
             score_key = os.path.join(model_name, "aggregated-score")
             if score_key not in scores:
                 continue
-            model_scores[model_name] = scores[score_key] * 100
+            model_scores[model_name] = scores[score_key] * 100 if scores[score_key] is not None else None
     return {"score": model_scores, "rejection_rate": None}
 
 
