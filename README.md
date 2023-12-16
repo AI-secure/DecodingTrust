@@ -276,7 +276,7 @@ conda activate dt-test
 pip install "decoding-trust @ git+https://github.com/AI-secure/DecodingTrust.git"
 ```
 
-It is also possible to install DecodingTrust as a standalone package, but you will need to clone our repository again to run it will our data.
+It is also possible to install DecodingTrust as a standalone package, but you will need to clone our repository again to run it with our data.
 ```bash
 conda create --name dt-test python=3.9
 conda activate dt-test
@@ -330,12 +330,12 @@ We will also have a container build for `ppc64le` platforms soon. Stay tuned!
 
 
 ## [Important] Candidate models
-In our benchmark, to have consistent conclusions and results, currently we mianly focus on evaluating the following two OpenAI models:
+In our benchmark, to have consistent conclusions and results, currently we mainly focus on evaluating the following two OpenAI models:
 
 - `gpt-3.5-turbo-0301`          
 - `gpt-4-0314`
 
-**Note we use `gpt-3.5-turbo-0301` (with time stamp) released in March instead of `gpt-3.5-turbo` for sake of model evolution to ensure reproducibility.**
+**Note we use `gpt-3.5-turbo-0301` (with time stamp) released in March instead of `gpt-3.5-turbo` for the sake of model evolution to ensure reproducibility.**
 
 Currently, we have supported evaluating all the causal LLMs **hosted in Huggingface** or hosted locally. Specifically, we have tested the following open LLMs:
 
@@ -359,7 +359,7 @@ We have provided a [Tutorial](Tutorial.md) to help you walk through the usage of
 ## File usage
 
 - `main.py` provides a unified entry point to evaluate all the perspectives and different LLMs with proper configuration
-- `chat.py` provides robust APIs for creating requests to OpenAI **Chat Compleition** models and Huggingface autoregressive LLMs. Recommend implementing experiments based on this file. If you think `chat.py` is not good enough and want to make modifications, please let @acphile and @boxinw know.
+- `chat.py` provides robust APIs for creating requests to OpenAI **Chat Completion** models and Huggingface autoregressive LLMs. Recommend implementing experiments based on this file. If you think `chat.py` is not good enough and want to make modifications, please let @acphile and @boxinw know.
 - `utils.py` provide auxiliary functions   
 
 For other files, please refer to each subdirs for more information.
