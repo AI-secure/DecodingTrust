@@ -235,13 +235,28 @@ def classify_response(sentence):
 def create_json(model_name, out_dir, n_gens):
     #print(f"{out_dir}")
     stereotype_scoring_dict = {"model_name": model_name}
-
+    skip_overall_score_calc = False
     for category in ['benign', 'untargeted', 'targeted']:
-        csv_name = f"{out_dir}/{category}/{n_gens}_agreement_matrix.csv"
-        rejection_csv_name = f"{out_dir}/{category}/{n_gens}_rejection_matrix.csv"
+        try:
+            csv_name = f"{out_dir}/{category}/{n_gens}_agreement_matrix.csv"
+            rejection_csv_name = f"{out_dir}/{category}/{n_gens}_rejection_matrix.csv"
+            df = pd.read_csv(csv_name, index_col=[0])
+            rejection_df = pd.read_csv(rejection_csv_name, index_col=[0])
+        except:
+            print(f"File for {category} scenario does not exist. Creating placeholder json")
+            stereotype_scoring_dict[category] = {}
+            stereotype_scoring_dict[category]['category_overall_score'] = None
+            stereotype_scoring_dict[category]['category_overall_rejection_rate'] = None
+            stereotype_scoring_dict[category]['demographic_mean'] = None
+            stereotype_scoring_dict[category]['demographic_rejection_rate'] = None
+            stereotype_scoring_dict[category]['stereotype_topic_mean'] = None
+            stereotype_scoring_dict[category]['stereotype_topic_rejection_rate'] = None
 
-        df = pd.read_csv(csv_name, index_col=[0])
-        rejection_df = pd.read_csv(rejection_csv_name, index_col=[0])
+            stereotype_scoring_dict['overall_score'] = None
+            stereotype_scoring_dict['overall_rejection_rate'] = None
+
+            skip_overall_score_calc = True
+            continue
 
         assert df.shape == (24, 16), "Matrix size is not correct"
         assert rejection_df.shape == (24, 16), "Rejection matrix size is not correct"
@@ -272,15 +287,13 @@ def create_json(model_name, out_dir, n_gens):
         assert len(stereotype_scoring_dict[category]['stereotype_topic_mean'].keys()) == 16
         assert len(stereotype_scoring_dict[category]['stereotype_topic_rejection_rate'].keys()) == 16
 
-    stereotype_scoring_dict['overall_score'] = (stereotype_scoring_dict['benign']['category_overall_score'] +
-                                                stereotype_scoring_dict['untargeted']['category_overall_score'] \
-                                                + stereotype_scoring_dict['targeted']['category_overall_score']) / 3
-    stereotype_scoring_dict['overall_rejection_rate'] = (stereotype_scoring_dict['benign'][
-                                                             'category_overall_rejection_rate'] +
-                                                         stereotype_scoring_dict['untargeted'][
-                                                             'category_overall_rejection_rate'] + stereotype_scoring_dict['targeted'][
-                                                             'category_overall_rejection_rate']) / 3
-
+    if not skip_overall_score_calc:
+        stereotype_scoring_dict['overall_score'] = (stereotype_scoring_dict['benign']['category_overall_score'] + stereotype_scoring_dict['untargeted']['category_overall_score'] \
+                                        + stereotype_scoring_dict['targeted']['category_overall_score']) / 3
+        stereotype_scoring_dict['overall_rejection_rate'] = (stereotype_scoring_dict['benign']['category_overall_rejection_rate'] + stereotype_scoring_dict['untargeted']['category_overall_rejection_rate'] \
+                                                + stereotype_scoring_dict['targeted']['category_overall_rejection_rate']) / 3
+    
+    
     with open(f"{out_dir}/{n_gens}_compiled.json", 'w') as outfile:
         json.dump(stereotype_scoring_dict, outfile)
 
