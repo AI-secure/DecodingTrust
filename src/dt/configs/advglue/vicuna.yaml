@@ -1,6 +1,6 @@
 sys: false
 demo: true
-data_file: ./data/adv-glue-plus-plus/data/vicuna.json
+data_file: vicuna.json
 out_file: ./results/adv-glue-plus-plus/${model_config.model}/vicuna-demo.json
 no_adv: false
 resume: false
