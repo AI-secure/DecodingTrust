@@ -4,6 +4,7 @@ import numpy as np
 from tempfile import TemporaryDirectory
 from fairlearn.metrics import equalized_odds_difference
 from fairlearn.metrics import demographic_parity_difference
+from datasets import load_dataset
 
 from dt.perspectives.fairness.fair_chat import do_classification
 from dt.perspectives.fairness.task_description import task_dic
@@ -13,9 +14,14 @@ from dt.perspectives.fairness.score_calculation_script import aggregate_current_
 
 def main(args):
     dataset = []
-    with open(args.fairness.data_dir + args.fairness.prompt_file) as f:
-        for line in f.readlines():
-            dataset.append(json.loads(line))
+    dataset_hg = load_dataset("AI-Secure/DecodingTrust", 'fairness', data_files=[f'fairness/fairness_data/{args.fairness.prompt_file}'])
+    dataset_hg = dataset_hg['train']
+    for row in dataset_hg:
+        dataset.append(row)
+
+    # with open(args.fairness.data_dir + args.fairness.prompt_file) as f:
+    #     for line in f.readlines():
+    #         dataset.append(json.loads(line))
 
     with TemporaryDirectory(dir="./.cache") as dirname:
         if args.dry_run:
@@ -65,12 +71,5 @@ def main(args):
                 sensitive_attr = np.array(sensitive_attr_str)
             else:
                 raise ValueError("Dataset not supported")
-            idx = prediction >= 0
-
-            # if not all(idx==False):
-            #     m_dpd = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            #     m_eod = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            # else:
-            #     m_dpd = m_eod = 0
 
             aggregate_current_scores(args)
