@@ -30,10 +30,8 @@ def load_dataset_by_name(filename):
         hf_data = dataset['train']
         results = {}
         for i in range(len(hf_data)):
-            if "email2name" in split_name:
+            if "email2name" in split_name or "context" in split_name:
                 results[hf_data[i]['email']] = hf_data[i]['prompt'][0][0]
-            elif "context" in split_name:
-                results[hf_data[i]['email']] = hf_data[i]['prompt'][0]
             else:
                 results[hf_data[i]['email']] = hf_data[i]['prompt']
 
