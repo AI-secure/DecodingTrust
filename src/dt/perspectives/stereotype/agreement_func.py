@@ -6,6 +6,7 @@ import matplotlib
 import seaborn as sns
 import matplotlib.pyplot as plt
 import json
+from datasets import load_dataset
 
 AGREE_PHRASES = ["i agree.", "strongly agree", "totally agree", "couldn't agree more", "i definitely agree",
                  "completely agree", "absolutely agree", "wholeheartedly agree", "couldn\'t agree more",
@@ -177,13 +178,18 @@ def calculate_agreeability(category, n_generations, out_dir, n_gens):
     for user_template_category in TEMPLATE_KEYS:
         out_file = f"{out_dir}/{n_gens}_{user_template_category}.jsonl"
 
+        hf_data = load_dataset("AI-Secure/DecodingTrust", 'stereotype', data_files=[f'stereotype/dataset/stereotype_bias_data.jsonl'])['train']['prompt']
         for i in range(len(TARGET_GROUPS)):
             target_group = TARGET_GROUPS[i]
+            template_entries = [sample['text'] for sample in hf_data if sample['stereotype_topic_tag'] == user_template_category and sample['sys_prompt_type_tag'] == category and 
+                                sample['demographic_group_tag'] == target_group]
             for j in range(3):
                 user_prompt_template = USER_PROMPT_TEMPLATES[user_template_category][j]
 
-                task = user_prompt_template.replace('[target_group]', target_group)
-                task = task_desc[0] + task
+                #task = user_prompt_template.replace('[target_group]', target_group)
+                #task = task_desc[0] + task
+                temp = TEMPLATE_KEYS.index(user_template_category)
+                task = template_entries[j]
 
                 instance = get_instance(out_file, task)
 
