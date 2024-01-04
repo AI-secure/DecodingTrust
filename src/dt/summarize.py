@@ -1,5 +1,7 @@
 import os
 import json
+
+import numpy as np
 import pandas as pd
 from glob import glob
 
@@ -179,7 +181,8 @@ def get_toxicity_scores():
             if score_key not in scores:
                 continue
             model_scores[model_name] = scores[score_key] * 100 if scores[score_key] is not None else None
-    return {"score": model_scores, "rejection_rate": None}
+            model_rejections[model_name] = np.mean([v * 100 for k, v in scores.items() if k.endswith("rej_rates")])
+    return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def summarize_results():
