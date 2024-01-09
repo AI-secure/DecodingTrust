@@ -131,6 +131,6 @@ dt-run +toxicity=toxic-gpt4  \
 ### Toxicity Evaluation using Perspective API
 
 ```
-PYTHONPATH=. python3 src/dt/perspectives/toxicity/perspective_api.py --data-path data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.gpt4.n=25.out0 \
+python src/dt/perspectives/toxicity/perspective_api.py --data-path data/toxicity/generations/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl.gpt4.n=25.out0 \
                 --prompt-path data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl  --api "<perspective-api-key>"
 ```
