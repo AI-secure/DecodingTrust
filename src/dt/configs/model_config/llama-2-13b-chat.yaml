@@ -1,0 +1,10 @@
+model: "hf/meta-llama/Llama-2-13b-chat-hf"
+type: CHAT
+conv_template: "llama-2"
+
+model_loader: HF
+torch_dtype: BFLOAT16
+quant_file: null
+tokenizer_name: meta-llama/Llama-2-13b-chat-hf
+trust_remote_code: true
+use_auth_token: true
