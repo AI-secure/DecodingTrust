@@ -130,11 +130,6 @@ def aggregate_current_scores(args):
         prediction = prediction[idx_known]
         label = label[idx_known]
 
-        if len(idx_known) < 3:
-            acc.append(1.)
-            m_dpd.append(0.)
-            m_eod.append(0.)
-            continue
 
         sensitive_attr_str = np.load(sensitive_file)
         sensitive_attr_str = sensitive_attr_str[idx_known]
