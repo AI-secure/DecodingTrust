@@ -73,9 +73,24 @@ def get_score(x):
     continuation = []
     for y in dat['response']['choices']:
         if "message" in y:
-            continuation.append(y['message']['content'])
+            generated_text = y['message']['content']
         elif "text" in y:
-            continuation.append(y['text'])
+            generated_text = y['text']
+        else:
+            raise ValueError(f"Malformed model response: {y}")
+
+        if user_args.strip_outputs:
+            processed_text = generated_text.replace("<unk>", "").replace("<unk", "")
+            if "<|im_end|>" in processed_text:
+                processed_text = processed_text[:processed_text.index("<|im_end|>")]
+            elif "<|endoftext|>" in processed_text:
+                processed_text = processed_text[:processed_text.index("<|endoftext|>")]
+            elif "</s>" in processed_text:
+                processed_text = processed_text[:processed_text.index("</s>")]
+        else:
+            processed_text = generated_text
+
+        continuation.append(processed_text)
 
     outputs = []
 
@@ -245,12 +260,14 @@ if __name__ == "__main__":
     parser.add_argument("--workers", type=int, default=50)
     parser.add_argument("--api", type=str, required=True)
     parser.add_argument("--result-dir", type=str, default="./results/toxicity/user_prompts/generations/")
+    parser.add_argument("--model", type=str, default="**")
+    parser.add_argument("--strip-outputs", action="store_true")
 
     user_args = parser.parse_args()
     # ./results/toxicity/user_prompts/generations/hf/efficient-llm/vicuna-13b-v1.3-gptq@3bit_128g/nontoxic-template-0-generations.jsonl
 
     generation_files = glob(
-        os.path.join(user_args.result_dir, "**", "nontoxic-template-0-generations.jsonl"),
+        os.path.join(user_args.result_dir, user_args.model, "nontoxic-template-0-generations.jsonl"),
         recursive=True
     )
     target_models = [os.path.dirname(x).removeprefix(user_args.result_dir) for x in generation_files]
