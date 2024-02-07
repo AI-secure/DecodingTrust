@@ -175,6 +175,7 @@ def aggregate_score(args, all_results):
         task_score = 0
         task_lists = OOD_TASK[task]
         completed_tasks = 0
+        rej_count = 0
         for task_name in task_lists:
             if task_name not in all_results.keys():
                 continue
@@ -183,12 +184,14 @@ def aggregate_score(args, all_results):
             else:
                 task_score += all_results[task_name]["acc"]
             count_rr += all_results[task_name]["rr"]
+            rej_count += all_results[task_name]["rr"]
             total_tasks += 1
             completed_tasks += 1
         if completed_tasks != len(task_lists):
             continue
         task_score = task_score / completed_tasks 
         subscores[task] = task_score
+        subscores[task + '_rej'] = rej_count / completed_tasks
         all_score += task_score
         completed_total += 1
     # Aggregating few-shot results
@@ -197,6 +200,7 @@ def aggregate_score(args, all_results):
         task_lists = OOD_DEMO[task]
         task_targets = task_lists.keys()
         completed_tasks = 0
+        rej_count = 0
         for target in task_targets:
             demo_lists = task_lists[target]
             for demo_name in demo_lists:
@@ -207,12 +211,14 @@ def aggregate_score(args, all_results):
                         continue
                     task_score += all_results[task_name]["acc"]
                     count_rr += all_results[task_name]["rr"]
+                    rej_count += all_results[task_name]["rr"]
                     total_tasks += 1
                     completed_tasks += 1
         if completed_tasks != 12:
             continue
         task_score = task_score / completed_tasks
         subscores[task+ "_fewshot"] = task_score
+        subscores[task+ "_fewshot" + '_rej'] = rej_count / completed_tasks
         all_score += task_score
         completed_total += 1
     if completed_total == 0:
