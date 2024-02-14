@@ -180,24 +180,23 @@ def main(OPTS):
                                  "Europeans", "Americans", "Caucasians", "Buddhists"]
 
     # user_template_key = args.user_prompt_key
-    model_name = OPTS.model
     dry_run = OPTS.dry_run
-    n_generations = OPTS.n_gens
+    n_generations = OPTS.stereotype.n_gens
 
     columns_ = ["model", "system_prompt", "user_prompt"]
 
     for i in range(n_generations):
         columns_.append('gen_' + str(i))
 
-    if not OPTS.skip_generation:
+    if not OPTS.stereotype.skip_generation:
         with TemporaryDirectory(dir="./.cache") as dirname:
             model = Chat.from_helm(
-                OPTS, conv_template=OPTS.conv_template, cache=dirname, api_key=OPTS.key
+                OPTS, cache=dirname,
             )
             cost = 0
             prompt_tokens = 0
             completion_tokens = 0
-            org_name, model_name = name_handler(OPTS.model)
+            org_name, model_name = name_handler(OPTS.model_config.model)
 
             for user_template_key in user_prompt_templates.keys():
                 for k_ in range(len(target_groups)):
@@ -207,23 +206,23 @@ def main(OPTS):
 
                         user_prompt = task_desc[0] + user_prompt
 
-                        if OPTS.sys_prompt_type == 'untargeted':
+                        if OPTS.stereotype.sys_prompt_type == 'untargeted':
                             system_prompt = untargeted_system_prompt[0]
 
-                        elif OPTS.sys_prompt_type == 'targeted':
+                        elif OPTS.stereotype.sys_prompt_type == 'targeted':
                             if target_groups[k_] in capitalized_target_groups:
                                 system_prompt = targeted_system_prompt[0].replace('[target_group]', target_groups[k_])
                             else:
                                 t = target_groups[k_].lower()
                                 system_prompt = targeted_system_prompt[0].replace('[target_group]', t)
 
-                        elif OPTS.sys_prompt_type == 'benign':
+                        elif OPTS.stereotype.sys_prompt_type == 'benign':
                             system_prompt = benign_system_prompt[0]
 
                         else:
                             raise ValueError("Unsupported sys_prompt_type")
 
-                        out_file = f"{OPTS.out_dir}/{OPTS.n_gens}_{user_template_key}.jsonl"
+                        out_file = f"{OPTS.stereotype.out_dir}/{OPTS.stereotype.n_gens}_{user_template_key}.jsonl"
                         os.makedirs(os.path.dirname(out_file), exist_ok=True)
 
                         response = runPipeline(out_file, system_prompt, [user_prompt], n_generations, 150, model_name,
@@ -235,21 +234,24 @@ def main(OPTS):
             print("cost:", cost)
             print("#/ prompt tokens:", prompt_tokens)
             print("#/ completion tokens:", completion_tokens)
-            calculate_agreeability(OPTS.sys_prompt_type, n_generations, OPTS.out_dir, OPTS.n_gens)
+            calculate_agreeability(OPTS.stereotype.sys_prompt_type, n_generations, OPTS.stereotype.out_dir, OPTS.stereotype.n_gens)
             try:
-                parent_dir = OPTS.out_dir.replace(f"/{OPTS.sys_prompt_type}", "")
-                create_json(model_name, parent_dir, OPTS.n_gens)
+                parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
+                create_json(model_name, parent_dir, OPTS.stereotype.n_gens)
             except:
+                parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
+                #print(f"{parent_dir}")
                 print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
     else:
-        org_name, model_name = name_handler(OPTS.model)
-        calculate_agreeability(OPTS.sys_prompt_type, n_generations, OPTS.out_dir, OPTS.n_gens)
+        org_name, model_name = name_handler(OPTS.model_config.model)
+        calculate_agreeability(OPTS.stereotype.sys_prompt_type, n_generations, OPTS.stereotype.out_dir, OPTS.stereotype.n_gens)
 
         #assumes generations have already been made for all the three system prompt types: benign, untargeted, and targeted
         try:
-            parent_dir = OPTS.out_dir.replace(f"/{OPTS.sys_prompt_type}", "")
-            create_json(model_name, parent_dir, OPTS.n_gens)
+            parent_dir = OPTS.stereotype.out_dir.replace(f"/{OPTS.stereotype.sys_prompt_type}", "")
+            create_json(model_name, parent_dir, OPTS.stereotype.n_gens)
         except:
+            #print(f"{parent_dir}")
             print("Skipping compiled JSON generation. Execute all the perspectives (benign, untargeted, targeted) for the JSON to be generated.")
 
 def name_handler(name):

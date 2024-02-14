@@ -1,0 +1,4 @@
+sys_prompt_type: targeted
+skip_generation: False
+n_gens: 25
+out_dir: ./results/stereotype/generations/${model_config.model}/${.sys_prompt_type}

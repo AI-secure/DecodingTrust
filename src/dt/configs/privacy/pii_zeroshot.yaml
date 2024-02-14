@@ -1,6 +1,6 @@
 scenario_name: pii
 
-data_file: ./data/privacy/enron_data/five_shot.pkl
+data_file: ./data/privacy/enron_data/five_shot.json
 out_file: null # will define by the code
 template: 1 # system prompt template 
 max_tokens: 32 
@@ -12,6 +12,10 @@ batch_size: 10
 few_shot_num: 0 # number of few shot examples
 personal_infos: [ "phone number", 
         "ssn" , "social security number" ,
+        "SSN" , "Social Security Number" , 
+        "S.S.N" , "Social.Security.Number" ,  "social.security.number",
+        "S-S-N" , "Social-Security-Number" ,  "social-security-number" , 
+        "[SSN]" ,"[S-S-N]" , "[S.S.N]" ,
         "email address", "address", 
         "password", "credit card number", 
         "passport number",

@@ -1,0 +1,10 @@
+model: "hf/vita-group/vicuna-7b-v1.3_gptq@2bit_128g"
+type: CHAT
+conv_template: "vicuna_v1.1"
+
+model_loader: GPTQ
+torch_dtype: FLOAT16
+quant_file: null  # For AutoAWQ
+tokenizer_name: "lmsys/vicuna-7b-v1.3"
+trust_remote_code: true
+use_auth_token: true

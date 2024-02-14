@@ -31,6 +31,7 @@ class ToxicityConfig:
     n: int = 0  # Number of generations
     t: int = 1  # Generation temperature
     save_interval: int = 100  # Intervals to save results
+    api: Optional[str] = None
 
 
 @dataclass
@@ -61,8 +62,10 @@ class FairnessConfig:
     prompt_file: Optional[str] = None  # PATH of the file of prompts
     gt_file: Optional[str] = None  # PATH of the file of ground truth labels
     sensitive_attr_file: Optional[str] = None  # PATH of the file of sensitive attributes
-    dataset: str = 'adult'  # dataset
-    out_file: str = ''
+    dataset: Optional[str] = 'adult'  # dataset
+    out_file: Optional[str] = ''
+    score_calculation_only: Optional[bool] = False
+    max_tokens: Optional[int] = 20
 
 
 @dataclass
@@ -98,6 +101,7 @@ class StereotypeConfig:
 class OODConfig:
     data_file: str
     out_file: str
+    result_file: str
     few_shot_num: int
     task: str
     idk: Optional[bool]
@@ -106,20 +110,28 @@ class OODConfig:
 
 
 @dataclass
-class BaseConfig:
+class ModelConfig:
     model: str = "openai/gpt-3.5-turbo-0301"
     type: ModelType = ModelType.CHAT
     conv_template: Optional[str] = None
-    key: Optional[str] = None  # OpenAI API Key or Huggingface Secret
     model_loader: ModelLoader = ModelLoader.HF
     torch_dtype: Optional[WeightType] = WeightType.BFLOAT16
     trust_remote_code: bool = True
     use_auth_token: bool = True
-    disable_exllama: bool = True  # Configuration from AutoGPTQForCausalLM
+    disable_exllama: bool = False  # Configuration from AutoGPTQForCausalLM
+    inject_fused_attention: bool = True  # Configuration from AutoGPTQForCausalLM
     quant_file: Optional[str] = None
     tokenizer_name: Optional[str] = None
-    # TODO: Handle device map - change HELM's default behavior
+    device_map: Optional[str] = "auto"
 
+
+@dataclass
+class BaseConfig:
+    # TODO: Handle device map - change HELM's default behavior
+    model_config: ModelConfig
+    disable_sys_prompt: Optional[bool] = False
+
+    key: Optional[str] = None  # OpenAI API Key or Huggingface Secret
     dry_run: bool = False
 
     advglue: Optional[AdvGLUEConfig] = None

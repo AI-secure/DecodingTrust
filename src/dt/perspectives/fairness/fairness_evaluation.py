@@ -1,42 +1,36 @@
 import os
 import json
-from dt.perspectives.fairness.fair_chat import FairChat
-from dt.perspectives.fairness.task_description import task_dic
 import numpy as np
 from tempfile import TemporaryDirectory
 from fairlearn.metrics import equalized_odds_difference
 from fairlearn.metrics import demographic_parity_difference
+
+from dt.perspectives.fairness.fair_chat import do_classification
+from dt.perspectives.fairness.task_description import task_dic
 from dt.chat import Chat
+from dt.perspectives.fairness.score_calculation_script import aggregate_current_scores
 
 
 def main(args):
     dataset = []
-    with open(args.data_dir + args.prompt_file) as f:
+    with open(args.fairness.data_dir + args.fairness.prompt_file) as f:
         for line in f.readlines():
             dataset.append(json.loads(line))
 
     with TemporaryDirectory(dir="./.cache") as dirname:
         if args.dry_run:
-            model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname,
-                                   api_key=args.key)
+            model = Chat.from_helm(args, cache=dirname)
+            acc, unknown, (cost, prompt_tokens, cont_tokens), cache = model.do_classification(dataset, task_message=task_dic[args.fairness.dataset], example_prefix=True, dry_run=args.dry_run)
 
-            acc, unknown, cost, cache = model.do_classification(dataset, task_message=task_dic[args.dataset],
-                                                                example_prefix=False,
-                                                                dry_run=args.dry_run)
-
-            # computing resource
-            price_cost, prompt_tokens, comple_tokens = cost[0], cost[1], cost[2]
-            print("Cost: ", price_cost)
-            print("Num of prompt tokens: ", prompt_tokens)
-            print("Num of completion tokens: ", comple_tokens)
+            print("cost:", cost)
+            print("#/ prompt tokens:", prompt_tokens)
+            print("#/ completion tokens:", cont_tokens)
         else:
-            gpt = FairChat(
-                model_name=args.model.replace("hf/", ""), conv_template=args.conv_template, cache=dirname, api_key=args.key
-            )
-            task_message = task_dic[args.dataset]
-            acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True)
-
-            print(acc, unknown, cost)
+            Chat.do_classification = do_classification
+            gpt = Chat.from_helm(args, cache=dirname)
+            # TODO: Very dumb monkey patch - refactor later
+            task_message = task_dic[args.fairness.dataset]
+            acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True, args=args)
 
             out = {
                 "requests": [x[0] for x in cache],
@@ -44,16 +38,15 @@ def main(args):
                 "labels": [x["label"] for x in dataset],
                 "scores": {"accuracy": acc}
             }
-            print(out["scores"])
-            os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-            with open(args.out_file, "w") as dest:
+            os.makedirs(os.path.dirname(args.fairness.out_file), exist_ok=True)
+            with open(args.fairness.out_file, "w") as dest:
                 json.dump(out, dest)
 
-            labels = np.load(args.data_dir + args.gt_file)
-            sensitive_attr_str = np.load(args.data_dir + args.sensitive_attr_file)
+            labels = np.load(args.fairness.data_dir + args.fairness.gt_file)
+            sensitive_attr_str = np.load(args.fairness.data_dir + args.fairness.sensitive_attr_file)
 
             prediction = np.array(prediction)
-            if args.dataset == 'adult':
+            if args.fairness.dataset == 'adult':
                 sensitive_attr = []
                 for i in range(len(sensitive_attr_str)):
                     if sensitive_attr_str[i] == 'Male':
@@ -61,15 +54,23 @@ def main(args):
                     else:
                         sensitive_attr.append(0)
                 sensitive_attr = np.array(sensitive_attr)
-            elif args.dataset == 'compas':
-                sensitive_attr = np.array(sensitive_attr_str)
-            elif args.dataset == 'german':
+            elif args.fairness.dataset == 'crime':
+                labels_ = []
+                for i in range(len(labels)):
+                    if labels[i] == 'Low' or labels[i] == 'low':
+                        labels_.append(1)
+                    else:
+                        labels_.append(0)
+                labels = np.array(labels_)
                 sensitive_attr = np.array(sensitive_attr_str)
             else:
                 raise ValueError("Dataset not supported")
             idx = prediction >= 0
 
-            m = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            print(f'Demographic parity difference: {m}')
-            m = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
-            print(f'Equalized odds difference: {m}')
+            # if not all(idx==False):
+            #     m_dpd = demographic_parity_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+            #     m_eod = equalized_odds_difference(labels[idx], prediction[idx], sensitive_features=sensitive_attr[idx])
+            # else:
+            #     m_dpd = m_eod = 0
+
+            aggregate_current_scores(args)

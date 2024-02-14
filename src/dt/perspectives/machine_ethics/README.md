@@ -224,3 +224,38 @@ GPT-4 Evaluation on moderate harm
 dt-run +machine_ethics=jiminy_conditional_moderate_harm ++dry_run=True \
     ++model=openai/gpt-4-0314
 ```
+
+
+## Evaluation in LeaderBoard
+If you want to get the results in LeaderBoard, please use the following setup, and then aggregate the results using `calculate_score.py`.
+```
+for target_model in TARGET_MODEL_NAME
+do
+	for few_shot_num in 0 32
+	do
+		for test_num in 0 200
+		do
+			for jailbreak_prompt in 0 1 2 3 4 5
+			do
+				for evasive_sentence in 0 1 2 3 4 5
+				do
+					if [ $jailbreak_prompt -gt 0 ] && [ $evasive_sentence -gt 0 ]; then
+						continue
+					fi
+					if [ $jailbreak_prompt -eq 0 ] && [ $evasive_sentence -eq 0 ] &&[ $few_shot_num -eq 32 ] && [ $test_num -eq 200 ]; then
+						continue
+					fi
+					if [ $jailbreak_prompt -gt 0 ] || [ $evasive_sentence -gt 0 ]; then
+						if [ $few_shot_num -eq 32 ] || [ $test_num eq 0 ]; then
+							continue
+						fi
+					fi
+					setting=ethics_commonsense_short.yaml
+					PREFIX_TO_REMOVE=configs/machine_ethics/
+					SUFFIX_TO_REMOVE=.yaml
+					setting="${setting//$PREFIX_TO_REMOVE/}"
+					setting="${setting//$SUFFIX TO_REMOVE/}"
+					echo "${setting} jailbreak_prompt ${jailbreak_prompt} evasive_sentence ${evasive_sentence} few_shot_num ${few_shot_num} test_num ${test_num}"
+					cat << EOF | sbatch
+```
+

@@ -1,7 +1,4 @@
-import time
 from tempfile import TemporaryDirectory
-from tqdm import tqdm
-import openai
 from dt.chat import Chat
 import pandas as pd
 import json
@@ -79,6 +76,13 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
     data_dir = "./data/machine_ethics"
     assert os.path.exists(data_dir), f"Please make sure you have downloaded the dataset to '{data_dir}'"
 
+    train_list = []
+    train_labels = []
+    train_sentences = []
+    train_excuses = []
+    test_labels = []
+    test_sentences = []
+    test_excuses = []
     if "commonsense" in data_name:
         test_data_file = os.path.join(data_dir, "ethics/commonsense/cm_test.csv")
         train_data_file = os.path.join(data_dir, "ethics/commonsense/cm_train.csv")
@@ -389,31 +393,31 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
 
 def main(args):
     # Configure paths
-    dir_path = "./data/machine_ethics/generations/{}/{}".format(args.data_name, args.model)
+    dir_path = "./results/machine_ethics/generations/{}/{}".format(args.machine_ethics.data_name, args.model_config.model)
     os.makedirs(dir_path, exist_ok=True)
-    save_data_path = os.path.join(dir_path, f"few_shot_{args.few_shot_num}_test_num{args.test_num}_jailbreak_{args.jailbreak_prompt}_evasive_{args.evasive_sentence}.json")
-    save_label_path = os.path.join(dir_path, f"label_few_shot_{args.few_shot_num}_test_num{args.test_num}_jailbreak_{args.jailbreak_prompt}_evasive_{args.evasive_sentence}.json")
+    save_data_path = os.path.join(dir_path, f"few_shot_{args.machine_ethics.few_shot_num}_test_num{args.machine_ethics.test_num}_jailbreak_{args.machine_ethics.jailbreak_prompt}_evasive_{args.machine_ethics.evasive_sentence}.json")
+    save_label_path = os.path.join(dir_path, f"label_few_shot_{args.machine_ethics.few_shot_num}_test_num{args.machine_ethics.test_num}_jailbreak_{args.machine_ethics.jailbreak_prompt}_evasive_{args.machine_ethics.evasive_sentence}.json")
 
     # Load dataset and label_list
-    dataset = load_dataset(data_name=args.data_name, test_num=args.test_num, few_shot_num=args.few_shot_num,
-                           jailbreak_prompt=args.jailbreak_prompt, evasive_sentence=args.evasive_sentence)
+    dataset = load_dataset(data_name=args.machine_ethics.data_name, test_num=args.machine_ethics.test_num, few_shot_num=args.machine_ethics.few_shot_num,
+                           jailbreak_prompt=args.machine_ethics.jailbreak_prompt, evasive_sentence=args.machine_ethics.evasive_sentence)
     label_list = [data["label"] for data in dataset]
     with open(save_label_path, "w") as f:
         json.dump(label_list, f)
 
     # Configure task descriptions
-    if args.data_name == 'jiminy':
-        task_message = MESSAGE_DIC[args.data_name] if args.jailbreak_prompt == 0 else MESSAGE_DIC[args.data_name] + \
-                                                                                  JIMINY_PROMPT_DIC[args.jailbreak_prompt]
+    if args.machine_ethics.data_name == 'jiminy':
+        task_message = MESSAGE_DIC[args.machine_ethics.data_name] if args.machine_ethics.jailbreak_prompt == 0 else MESSAGE_DIC[args.machine_ethics.data_name] + \
+                                                                                  JIMINY_PROMPT_DIC[args.machine_ethics.jailbreak_prompt]
     else:
-        task_message = MESSAGE_DIC[args.data_name] if args.jailbreak_prompt == 0 else MESSAGE_DIC[args.data_name] + \
-                                                                                  PROMPT_DIC[args.jailbreak_prompt]
+        task_message = MESSAGE_DIC[args.machine_ethics.data_name] if args.machine_ethics.jailbreak_prompt == 0 else MESSAGE_DIC[args.machine_ethics.data_name] + \
+                                                                                  PROMPT_DIC[args.machine_ethics.jailbreak_prompt]
 
     # Assessment on LLMs
     if not os.path.exists('./.cache'):
         os.makedirs('./.cache')
     with TemporaryDirectory(dir="./.cache") as dirname:
-        model = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        model = Chat.from_helm(args, cache=dirname)
         acc, unknown, cost, cache = model.do_classification(dataset, task_message, example_prefix=False, dry_run=args.dry_run)
 
         # Compute resources

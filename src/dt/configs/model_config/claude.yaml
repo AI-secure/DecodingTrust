@@ -1,0 +1,3 @@
+model: "anthropic/claude-2.0"
+type: CHAT
+conv_template: "claude"

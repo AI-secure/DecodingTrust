@@ -4,10 +4,10 @@ from dt.utils import make_sure_path_exists, init_logger
 from dt.chat import Chat
 from .task_description import task_dic
 from tempfile import TemporaryDirectory
-
+import numpy as np
 
 def test(args, path, seed):
-    model = args.model
+    model = args.model_config.model
     file = f"{seed}.jsonl"
     cache_path = path.replace("data", "results")
     cache_file = model.replace("/", "_") + "_" + file
@@ -20,7 +20,7 @@ def test(args, path, seed):
     with open(os.path.join(path, file)) as f:
         for line in f.readlines():
             cur = json.loads(line)
-            if args.zero:
+            if args.adv_demonstration.zero:
                 cur["examples"] = []
             if cur["label"] == "yes":
                 dataset1.append(cur)
@@ -28,7 +28,7 @@ def test(args, path, seed):
                 dataset0.append(cur)
     assert len(dataset0) == len(dataset1)
     with TemporaryDirectory(dir="./.cache") as dirname:
-        gpt = Chat.from_helm(args, conv_template=args.conv_template, cache=dirname, api_key=args.key)
+        gpt = Chat.from_helm(args, cache=dirname)
         task_message = task_dic["nli2"]
 
         acc, unknown, cost, cache = gpt.do_classification(dataset1, task_message, dry_run=args.dry_run)
@@ -49,18 +49,23 @@ def test(args, path, seed):
     print(out["scores"])
     with open(os.path.join(cache_path, cache_file), "w") as f:
         json.dump(out, f)
-    return acc, unknown, (cost[0]+cost0[0], cost[1]+cost0[1], cost[2]+cost0[2])
+    return overall, unknown, (cost[0]+cost0[0], cost[1]+cost0[1], cost[2]+cost0[2])
 
 
 def main(args):
-    seeds = [int(x) for x in str(args.seeds).split(",")]
+    seeds = [int(x) for x in str(args.adv_demonstration.seeds).split(",")]
     print(args)
     tot, tp, tc = 0, 0, 0 
+    score_lis = []
     for seed in seeds:
-        res = test(args, args.path, seed)
+        res = test(args, args.adv_demonstration.path, seed)
+        score_lis.append(res[0])
         tot += res[-1][0]
         tp += res[-1][1]
         tc += res[-1][2]
-        if args.zero:
+        if args.adv_demonstration.zero:
             break
-    print(tot, tp, tc)
+    avg = np.mean(score_lis)
+    print(f"average acc: {avg}")
+    print(f"total cost: {tot} ({tp}, {tc})")
+    return avg
