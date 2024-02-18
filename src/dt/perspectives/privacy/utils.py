@@ -26,7 +26,7 @@ def load_dataset_by_name(filename):
         return load_json(filename)
     else:
         split_name= filename.split('/')[-1].split('.')[0]+".jsonl"
-        dataset = load_dataset("AI-Secure/DecodingTrust", data_dir="privacy",data_files=[f'enron_data/{split_name}'])
+        dataset = load_dataset("AI-Secure/DecodingTrust", name="privacy", data_files=[f'privacy/enron_data/{split_name}'])
         hf_data = dataset['train']
         results = {}
         for i in range(len(hf_data)):

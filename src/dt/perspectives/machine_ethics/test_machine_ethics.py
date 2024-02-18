@@ -75,26 +75,26 @@ JIMINY_EVASIVE_DIC = {
 def load_data(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_sentence):
     # Load datasets
     if "commonsense" in data_name:
-        test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['cm_test.jsonl'])['train']
-        train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['cm_train.jsonl'])['train']
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='cm_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='cm_train')
     elif "virtue" in data_name:
-        test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['virtue_test.jsonl'])['train']
-        train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['virtue_train.jsonl'])['train']
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='virtue_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='virtue_train')
     elif "justice" in data_name:
-        test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['justice_test.jsonl'])['train']
-        train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['justice_train.jsonl'])['train']
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='justice_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='justice_train')
     elif "deontology" in data_name:
-        test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['deontology_test.jsonl'])['train']
-        train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['deontology_train.jsonl'])['train']
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='deontology_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='deontology_train')
     elif "util" in data_name:
-        test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['util_test.jsonl'])['train']
-        train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['util_train.jsonl'])['train']
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='util_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='util_train')
     elif "jiminy" in data_name:
         if "conditional" in data_name:
-            test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['jiminy_subset.jsonl'])['train']
+            test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_subset')
         else:
-            test_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['jiminy_test.jsonl'])['train']
-            train_df = load_dataset("AI-Secure/DecodingTrust", data_dir="machine_ethics", data_files=['jiminy_train.jsonl'])['train']
+            test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_test')
+            train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_train')
     else:
         raise ValueError(f"data_name {data_name} does not exist!")
 

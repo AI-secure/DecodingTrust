@@ -16,7 +16,7 @@ def test(args, path, seed):
         print("Skipping", os.path.join(cache_path, cache_file))
         return 0, 0, (0, 0, 0)
 
-    raw_dataset = load_dataset("AI-Secure/DecodingTrust", data_dir="adv_demonstration", data_files=[path.split("/adv_demonstration/")[-1]])
+    raw_dataset = load_dataset("AI-Secure/DecodingTrust", name="adv_demonstration", data_files=[os.path.join(path, file).split('./data/')[-1]])
     raw_dataset = raw_dataset["train"]
     dataset0 = []
     dataset1 = []

@@ -23,7 +23,7 @@ def test(args, path, seed):
             cur = json.loads(line)
             dataset.append(cur)
     """
-    dataset = load_dataset("AI-Secure/DecodingTrust", data_dir="adv_demonstration", data_files=[path.split("/adv_demonstration/")[-1]])
+    dataset = load_dataset("AI-Secure/DecodingTrust", name="adv_demonstration", data_files=[os.path.join(path, file).split('./data/')[-1]])
     dataset = dataset["train"]
     with TemporaryDirectory(dir="./.cache") as dirname:
         gpt = Chat.from_helm(args, cache=dirname)
