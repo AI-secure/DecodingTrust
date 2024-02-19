@@ -277,9 +277,15 @@ def main(OPTS):
     with TemporaryDirectory(dir="./.cache") as dirname:
         model = Chat.from_helm(OPTS, cache=dirname)
 
-        if OPTS.advglue.data_file:
+        if OPTS.advglue.data_file and os.path.exists(OPTS.advglue.data_file):
+            # Use local dataset
             with open(OPTS.advglue.data_file) as f:
                 datasets = json.load(f)
+        elif OPTS.advglue.data_file:
+            # Use HF dataset
+            assert OPTS.advglue.data_file in ["alpaca", "vicuna", "stable-vicuna"]
+            datasets = load_dataset("AI-Secure/DecodingTrust", name="adv-glue-plus-plus")
+            datasets = datasets.filter(lambda example: example["model"] == OPTS.advglue.data_file)
         else:
             datasets = None
 

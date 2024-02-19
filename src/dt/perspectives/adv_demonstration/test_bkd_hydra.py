@@ -5,7 +5,7 @@ import numpy as np
 from dt.utils import make_sure_path_exists
 from dt.chat import Chat
 from .task_description import task_dic
-
+from datasets import load_dataset
 
 def test(args, path, seed):
     model = args.model_config.model
@@ -16,11 +16,15 @@ def test(args, path, seed):
         print("Skipping", os.path.join(cache_path, cache_file))
         return 0, 0, (0, 0, 0)
 
+    """
     dataset = []
     with open(os.path.join(path, file)) as f:
         for line in f.readlines():
             cur = json.loads(line)
             dataset.append(cur)
+    """
+    dataset = load_dataset("AI-Secure/DecodingTrust", name="adv_demonstration", data_files=[os.path.join(path, file).split('./data/')[-1]])
+    dataset = dataset["train"]
     with TemporaryDirectory(dir="./.cache") as dirname:
         gpt = Chat.from_helm(args, cache=dirname)
         task_message = task_dic[args.adv_demonstration.task]

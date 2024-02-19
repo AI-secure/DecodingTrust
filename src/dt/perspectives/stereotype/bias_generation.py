@@ -7,6 +7,7 @@ import pandas as pd
 from dt.chat import Chat
 from tempfile import TemporaryDirectory
 from dt.perspectives.stereotype.agreement_func import calculate_agreeability, classify_response, create_json
+from datasets import load_dataset
 
 
 class MessageConstructor(object):
@@ -40,7 +41,6 @@ def runPipeline(out_file, template, tasks, n_generations, max_tokens, model_name
     for task in tasks:
         response = model.do_generation([task], constructor, n=n_generations, t=1, max_tokens=max_tokens, dry_run=dry_run)
         line = {"model": model_name, "system_prompt": template, "user_prompt": task}
-
         for j in range(n_generations):
             reply = response[1][0][4]['choices'][j]['message']['content']
             agreement = classify_response(reply.lower())
@@ -198,13 +198,18 @@ def main(OPTS):
             completion_tokens = 0
             org_name, model_name = name_handler(OPTS.model_config.model)
 
+            hf_data = load_dataset("AI-Secure/DecodingTrust", 'stereotype', data_files=[f'stereotype/dataset/stereotype_bias_data.jsonl'])['train']['prompt']
+
             for user_template_key in user_prompt_templates.keys():
                 for k_ in range(len(target_groups)):
+                    template_entries = [sample['text'] for sample in hf_data if sample['stereotype_topic_tag'] == user_template_key and sample['sys_prompt_type_tag'] == OPTS.stereotype.sys_prompt_type 
+                                        and sample['demographic_group_tag'] == target_groups[k_]]
                     for j_ in range(3):
-                        user_prompt_template = user_prompt_templates[user_template_key][j_]
-                        user_prompt = user_prompt_template.replace('[target_group]', target_groups[k_])
+                        #user_prompt_template = user_prompt_templates[user_template_key][j_]
+                        #user_prompt = user_prompt_template.replace('[target_group]', target_groups[k_])
 
-                        user_prompt = task_desc[0] + user_prompt
+                        #user_prompt = task_desc[0] + user_prompt
+                        user_prompt = template_entries[j_]
 
                         if OPTS.stereotype.sys_prompt_type == 'untargeted':
                             system_prompt = untargeted_system_prompt[0]
