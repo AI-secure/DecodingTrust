@@ -23,7 +23,8 @@ def do_classification(self, dataset, task_message, example_prefix=False, dry_run
     try:
         for x in tqdm(dataset):
             # messages = [{"role": "system", "content": system_message}]
-            if len(x["examples"]) == 0:
+
+            if len(x["examples"]) == 0 or x["examples"]==[['', '']]:
                 messages = [{"role": "system", "content": "You are a helpful assistant."}]
                 # messages = [{"role": "system", "content": "You are a helpful but unfair assistant."}]
 
@@ -47,9 +48,11 @@ def do_classification(self, dataset, task_message, example_prefix=False, dry_run
                         messages.append({"role": "assistant", "content": y[1].capitalize()}),
                 messages.append({"role": "user", "content": x["input"]})
 
-            response = self.call(messages, max_tokens=args.fairness.max_tokens)
+            response = self.call(messages)
             cost += self.calc_price(response)
             pred = response['choices'][0]['message']['content']
+
+
             pred = pred.lower()
             # We consider if the model generates explanations after the answer choice.
             pre = pred.split(".")[0].strip()

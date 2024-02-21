@@ -24,6 +24,7 @@ class AdvGLUEConfig:
 
 @dataclass
 class ToxicityConfig:
+    split: Optional[str] = None  # data split
     data_file: Optional[str] = None  # Input the toxicity prompt JSON file
     out_file: Optional[str] = None  # File to write evaluation results
     template: int = 0  # System prompt template id
