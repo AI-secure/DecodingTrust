@@ -12,7 +12,7 @@ from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
 from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
 from dt.response import Response
-
+from openai import OpenAI
 
 class Chat(ABC):
     def __init__(self, model_name, model_type: str, prompt_price: float, completion_price: float):
@@ -53,6 +53,13 @@ class Chat(ABC):
                 kwargs["conv_template"] = "claude"
                 warnings.warn(f"Prompt template is changed from {main_config.model_config.conv_template} to claude")
             return ClaudeChat(model_name, **kwargs)
+        # vllm support
+        elif model_name.startswith("vllm/"):
+            openai_api_key = "EMPTY"
+            openai_api_base = "http://localhost:8000/v1"
+            kwargs["openai_api_key"] = openai_api_key
+            kwargs["openai_api_base"] = openai_api_base
+            return VLLMOpenAIChat(model_name, **kwargs)
         else:
             raise ValueError("Unsupported model organization")
 
@@ -350,6 +357,82 @@ class OpenAIChat(Chat):
 
         response = Response.from_dict(response.raw_response)
         return response.to_dict()
+
+class VLLMOpenAIChat(Chat):
+    def __init__(self, model_name, cache, api_key, **kwargs):
+        # TODO: Too ugly - needs refactoring
+        model_type = "chat"
+        if model_name.find("gpt-4") != -1:
+            print("Suppose it supports 8k context")
+            print("Pricing (prompt): 0.03 / 1k tokens")
+            print("Pricing (completion): 0.06 / 1k tokens")
+            prompt_price = 0.03 / 1000
+            completion_price = 0.06 / 1000
+        elif model_name.find("gpt-3.5") != -1:
+            print("Pricing: 0.002 / 1k tokens")
+            prompt_price = 0.002 / 1000
+            completion_price = 0.002 / 1000
+        elif model_name.find("ada") != -1:
+            print("Pricing: 0.002 / 1k tokens")
+            prompt_price = 0.0004 / 1000
+            completion_price = 0.0004 / 1000
+            model_type = "completion"
+        elif model_name.find("curie") != -1:
+            print("Pricing: 0.002 / 1k tokens")
+            prompt_price = 0.002 / 1000
+            completion_price = 0.002 / 1000
+            model_type = "completion"
+        elif model_name.find("davinci") != -1:
+            print("Pricing: 0.002 / 1k tokens")
+            prompt_price = 0.02 / 1000
+            completion_price = 0.02 / 1000
+            model_type = "completion"
+        else:
+            print("Unknown OpenAI model, use 0.002 / 1k tokens as default pricing")
+            prompt_price = 0.002 / 1000
+            completion_price = 0.002 / 1000
+
+        super().__init__(model_name, model_type, prompt_price, completion_price)
+
+        self.client = OpenAI(
+            api_key=kwargs["openai_api_key"],
+            base_url=kwargs["openai_api_base"],
+        )
+        self.model_name = model_name.split('/', 1)[1]
+
+    @timeout(600)
+    def _call(self, messages, t=0, max_tokens=20, n=1):
+        chat_response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=messages,
+            temperature=t,
+            max_tokens=max_tokens,
+            n=n
+        )
+        response = Response.from_dict({
+            "id": chat_response.id,
+            "object": chat_response.object,
+            "created": chat_response.created,
+            "model": chat_response.model,
+            "choices": [
+                {
+                    "index": i,
+                    "message": {
+                        "role": choice.message.role,
+                        "content": choice.message.content
+                    },
+                    "finish_reason": choice.finish_reason
+                }
+                for i, choice in enumerate(chat_response.choices)
+            ],
+            "usage": {
+                "prompt_tokens": chat_response.usage.prompt_tokens,
+                "completion_tokens": chat_response.usage.completion_tokens,
+                "total_tokens": chat_response.usage.total_tokens
+            }
+        })
+        return response.to_dict()
+
 
 
 class HFChat(Chat):
