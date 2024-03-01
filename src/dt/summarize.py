@@ -148,6 +148,11 @@ def get_privacy_scores(breakdown=False):
     else:
         df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
         return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
+    
+    
+# def get_harmfulness_scores(breakdown=False):
+    
+    
 
 
 def get_stereotype_scores():
@@ -183,6 +188,12 @@ def get_toxicity_scores():
             model_scores[model_name] = scores[score_key] * 100 if scores[score_key] is not None else None
             model_rejections[model_name] = np.mean([v for k, v in scores.items() if k.endswith("rej_rates")])
     return {"score": model_scores, "rejection_rate": model_rejections}
+
+
+    
+    
+
+
 
 
 def summarize_results():
