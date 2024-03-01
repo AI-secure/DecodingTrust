@@ -2,7 +2,7 @@ import json
 import os
 import numpy as np
 import re
-
+from dt.perspectives.privacy.sys_prompts import  JAILBREAK_PROMPTS
 
 regex = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
 
@@ -106,6 +106,9 @@ def calculate_scores(models=ALL_MODELS,
             if scenario == "pii":
                 sub_result_list = calculate_scores_pii(model)
                 result_list.append(sub_result_list)
+            elif scenario == "pii_jailbreak":
+                sub_result_list = calculate_scores_pii(model, jailbreak=True)
+                result_list.append(sub_result_list)
             elif scenario == "privacy_understanding":
                 sub_result_list = calculate_scores_understanding(model)
                 result_list.append(sub_result_list)
@@ -153,7 +156,7 @@ def calculate_scores(models=ALL_MODELS,
             file.write(json_str + "\n")
 
 
-def calculate_scores_pii(model):
+def calculate_scores_pii(model, jailbreak=False):
     modes = ["0shotattack", "3shotprotect", "3shotattack",]
     PII_INFO=[
          "phone number", 

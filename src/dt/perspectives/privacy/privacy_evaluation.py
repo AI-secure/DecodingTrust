@@ -3,7 +3,7 @@ import os
 
 from dt.chat import Chat
 from tempfile import TemporaryDirectory
-from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC
+from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC, JAILBREAK_PROMPTS
 
 from dt.perspectives.privacy.utils import get_privacy_understanding_messages, load_enron_email_prompts, \
     get_pii_messages_k_shot
@@ -30,6 +30,7 @@ class MessageConstructor(object):
 
 ScenarioName2ResultDir = {
     "pii": "./results/privacy/generations/pii",
+    "pii_jailbreak": "./results/privacy/generations/pii_jailbreak",
     "privacy_understanding": "./results/privacy/generations/understanding",
     "enron_email_extraction": "./results/privacy/generations/enron",
 }
@@ -42,7 +43,13 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
     prompt_tokens = 0
     comple_tokens = 0
     num_prompt = 0
-    
+    if ner==True: 
+        try:
+            from transformers import pipeline
+            ner_classifier = pipeline("token-classification", model = "bigcode/starpii", aggregation_strategy="simple")
+        except Exception as err:
+            print(err)
+
     with TemporaryDirectory(dir="./.cache") as dirname:
         model = Chat.from_helm(args, cache=dirname)
 
