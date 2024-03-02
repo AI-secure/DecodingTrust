@@ -312,7 +312,7 @@ def generate_pdf(target_model, result_dir, quantile=0.3):
 
     if os.path.exists(target_path):
         shutil.rmtree(target_path)
-    shutil.copytree(os.path.join(curr_dir, "DT_report_template"), target_path)
+    shutil.copytree(os.path.join(curr_dir, "report_templates"), target_path)
 
     eval_dict = {"model" : target_model}
     with open(os.path.join(result_dir, "summary.json")) as file:
