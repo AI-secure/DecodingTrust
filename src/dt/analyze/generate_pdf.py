@@ -11,6 +11,7 @@ from failure_extraction.fairness_failure import extract_fairness_examples
 from failure_extraction.adv_failure import extract_adv_examples
 from failure_extraction.toxicity_failure import extract_toxic_samples
 from failure_extraction.privacy_failure import extract_privacy_examples
+from failure_extraction.harmfulness_failure import extract_harmfulness_examples
 import random
 
 FAILURE_EXAMPLES = {"instruction_example" : [                   
@@ -476,8 +477,8 @@ def generate_pdf(target_model, result_dir, quantile=0.3):
                 examples = extract_fairness_examples(target_model, subfield, result_dir)
                 random.shuffle(examples)
             elif perspective == "harmfulness":
-                # Placeholder for harmfulness
-                pass
+                examples = extract_harmfulness_examples(target_model, subfield, result_dir)
+                random.shuffle(examples)
             
             try:
                 example_dict["example"] = {}
