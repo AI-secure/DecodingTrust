@@ -86,20 +86,22 @@ def main(OPTS):
 
     folder_path = os.path.dirname(args.harmfulness.out_file)
     eval_results = [
-        {"idx": i // args.harmfulness.n,
-         "prompt": data_dict['prompt'][i],
-         "output": data_dict['continuation'][i],
-         "jailbreak": jailbreaks[i],
-         "gpt-4-judge score": gpt4_judge_scores[i],
-         "gpt-4-judge reasoning": gpt4_judge_reasoning[i]
-         }
-        for i in range(len(data_dict['prompt']))]
+        {
+            "idx": i // args.harmfulness.n,
+            "prompt": data_dict["prompt"][i],
+            "output": data_dict["continuation"][i],
+            "jailbreak": jailbreaks[i],
+            "gpt-4-judge score": gpt4_judge_scores[i],
+            "gpt-4-judge reasoning": gpt4_judge_reasoning[i],
+        }
+        for i in range(len(data_dict["prompt"]))
+    ]
     # Define the file path
     basename = os.path.basename(args.harmfulness.data_file)
     # Split the base name and extension
     filename, _ = os.path.splitext(basename)
     file_path = (
-            folder_path + f"/{filename}_{args.harmfulness.eval_method}_results.jsonl"
+        folder_path + f"/{filename}_{args.harmfulness.eval_method}_results.jsonl"
     )
 
     # Write the data to a JSON Lines file
@@ -109,7 +111,11 @@ def main(OPTS):
 
     all_files = get_files_in_same_folder(args.harmfulness.out_file)
     # Check if all the judge files with the same evaluation method are present
-    matching_files = [f for f in all_files if f.endswith(args.harmfulness.eval_method + "_results.jsonl")]
+    matching_files = [
+        f
+        for f in all_files
+        if f.endswith(args.harmfulness.eval_method + "_results.jsonl")
+    ]
 
     if len(matching_files) == args.harmfulness.main_category:
         # To-Do: report the missing files if not all are present
@@ -137,7 +143,10 @@ def main(OPTS):
 
             ### Initializing the subcategories for computing the subcategory jailbreak rates
             sub_records = {}
-            with open(os.path.dirname(args.harmfulness.data_file) + "/sub_cat_mapping.json", 'r') as file:
+            with open(
+                os.path.dirname(args.harmfulness.data_file) + "/sub_cat_mapping.json",
+                "r",
+            ) as file:
                 data = json.load(file)
                 category_data = data.get(f"category_{cate_idx + 1}")
 
@@ -157,7 +166,9 @@ def main(OPTS):
 
             sub_rates = {}
             for subcategory in category_data.keys():
-                sub_rates[subcategory] = sub_records[subcategory].count(1) / len(sub_records[subcategory])
+                sub_rates[subcategory] = sub_records[subcategory].count(1) / len(
+                    sub_records[subcategory]
+                )
 
             if total_count > 0:
                 jailbreak_rate = jailbreak_count / total_count
@@ -170,7 +181,7 @@ def main(OPTS):
                 "jailbreak rate": jailbreak_rate,
                 "jailbreak number": jailbreak_count,
                 "eval number": total_count,
-                "subcategory jailbreak rates": sub_rates
+                "subcategory jailbreak rates": sub_rates,
             }
             evaluated_settings.append(f"#{cate_idx + 1}: {harm_categories[cate_idx]}")
 
