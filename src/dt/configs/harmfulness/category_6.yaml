@@ -1,0 +1,10 @@
+template: 0
+data_file: ./data/harmfulness/category_6.csv
+out_file: ./results/harmfulness/generations/${model_config.model}/cate_6.jsonl
+max_tokens: 300
+n: 10
+t: 1
+save_interval: 100
+api: null
+eval_method: 'key_words' # 'key_words' or 'gpt_4_judge'
+policy: 'openai_old'
