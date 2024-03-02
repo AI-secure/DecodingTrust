@@ -5,6 +5,7 @@ import json
 import numpy as np
 import random
 import os
+from datasets import load_dataset
 from dt.perspectives.machine_ethics.calculate_score import main as calculate_scores
 
 random.seed(100)
@@ -71,52 +72,40 @@ JIMINY_EVASIVE_DIC = {
 }
 
 
-def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_sentence):
-    # Configure paths to load data
-    data_dir = "./data/machine_ethics"
-    assert os.path.exists(data_dir), f"Please make sure you have downloaded the dataset to '{data_dir}'"
-
-    train_list = []
-    train_labels = []
-    train_sentences = []
-    train_excuses = []
-    test_labels = []
-    test_sentences = []
-    test_excuses = []
+def load_data(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_sentence):
+    # Load datasets
     if "commonsense" in data_name:
-        test_data_file = os.path.join(data_dir, "ethics/commonsense/cm_test.csv")
-        train_data_file = os.path.join(data_dir, "ethics/commonsense/cm_train.csv")
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='cm_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='cm_train')
     elif "virtue" in data_name:
-        test_data_file = os.path.join(data_dir, "ethics/virtue/virtue_test.csv")
-        train_data_file = os.path.join(data_dir, "ethics/virtue/virtue_train.csv")
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='virtue_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='virtue_train')
     elif "justice" in data_name:
-        test_data_file = os.path.join(data_dir, "ethics/justice/justice_test.csv")
-        train_data_file = os.path.join(data_dir, "ethics/justice/justice_train.csv")
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='justice_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='justice_train')
     elif "deontology" in data_name:
-        test_data_file = os.path.join(data_dir, "ethics/deontology/deontology_test.csv")
-        train_data_file = os.path.join(data_dir, "ethics/deontology/deontology_train.csv")
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='deontology_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='deontology_train')
     elif "util" in data_name:
-        test_data_file = os.path.join(data_dir, "ethics/utilitarianism/util_test.csv")
-        train_data_file = os.path.join(data_dir, "ethics/utilitarianism/util_train.csv")
+        test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='util_test')
+        train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='util_train')
     elif "jiminy" in data_name:
         if "conditional" in data_name:
-            test_data_file = os.path.join(data_dir, "jiminy_subset.csv")
-            train_data_file = os.path.join(data_dir, "")
+            test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_subset')
         else:
-            test_data_file = os.path.join(data_dir, "jiminy_test.json")
-            train_data_file = os.path.join(data_dir, "jiminy_train.json")
+            test_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_test')
+            train_df = load_dataset("AI-Secure/DecodingTrust", name="machine_ethics", split='jiminy_train')
     else:
         raise ValueError(f"data_name {data_name} does not exist!")
 
     # Load raw files
     if "util" in data_name:
         # Load test data
-        test_df = pd.read_csv(test_data_file)
         test_sentences, test_labels = [], []
-        for i in range(test_df.shape[0]):
-            test_sentences.append(test_df.iloc[i, 0])  # better examples
+        for i in range(len(test_df)):
+            test_sentences.append(test_df[i]['input1'])  # better examples
             test_labels.append(str(np.random.randint(low=6, high=11)))  # random labels from [6,10]
-            test_sentences.append(test_df.iloc[i, 1])  # worse examples
+            test_sentences.append(test_df[i]['input2'])  # worse examples
             test_labels.append(str(np.random.randint(low=1, high=6)))  # random labels from [1,5]
 
         # Load few-shot demonstrations
@@ -129,45 +118,40 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
 
     elif "ethics" in data_name:
         # Load test and train data
-        test_df = pd.read_csv(test_data_file)
-        train_df = pd.read_csv(train_data_file)
         if "commonsense" in data_name:  # the ethics-commonsense subset can be further separated as short and long samples
             if "short" in data_name:  # short samples
-                test_df = test_df[test_df["is_short"]]
-                train_df = train_df[train_df["is_short"]]
+                test_df = [data_ for data_ in test_df if data_['is_short']]
+                train_df = [data_ for data_ in train_df if data_['is_short']]
             else:  # long samples
-                test_df = test_df[~test_df["is_short"]]
-                train_df = train_df[train_df["is_short"]]  # also select short training samples as demonstrations
+                test_df = [data_ for data_ in test_df if ~data_['is_short']]
+                train_df = [data_ for data_ in train_df if data_['is_short']]  # also select short training samples as demonstrations
 
-        test_labels = [test_df.iloc[i, 0] for i in range(test_df.shape[0])]
-        test_sentences = [test_df.iloc[i, 1] for i in range(test_df.shape[0])]
+        test_labels = [test_df[i]['label'][0] for i in range(len(test_df))]
+        test_sentences = [test_df[i]['input1'] for i in range(len(test_df))]
         dataset_size = len(test_labels)
 
-        train_labels = [train_df.iloc[i, 0] for i in range(train_df.shape[0])]
-        train_sentences = [train_df.iloc[i, 1] for i in range(train_df.shape[0])]
+        train_labels = [train_df[i]['label'][0] for i in range(len(train_df))]
+        train_sentences = [train_df[i]['input1'] for i in range(len(train_df))]
         train_list = [i for i in range(len(train_labels))]
 
         if "deontology" in data_name: # the ethics-deontology subset has addition items called "excuses"
-            test_excuses = [test_df.iloc[i, 2] for i in range(test_df.shape[0])]
-            train_excuses = [train_df.iloc[i, 2] for i in range(train_df.shape[0])]
+            test_excuses = [test_df[i]['input2'] for i in range(len(test_df))]
+            train_excuses = [train_df[i]['input2'] for i in range(len(train_df))]
 
     elif data_name == "jiminy":
         # Load test and train data
-        with open(test_data_file, "r") as f:
-            test_data = json.load(f)
-        with open(train_data_file, "r") as f:
-            train_data = json.load(f)
-        train_list = [i for i in range(len(train_data))]
-        dataset_size = len(test_data)
+        test_labels = [test_df[i]['label'] for i in range(len(test_df))]
+        test_sentences = [test_df[i]['input1'] for i in range(len(test_df))]
+        dataset_size = len(test_labels)
+
+        train_labels = [train_df[i]['label'] for i in range(len(train_df))]
+        train_sentences = [train_df[i]['input1'] for i in range(len(train_df))]
+        train_list = [i for i in range(len(train_labels))]
 
     elif "conditional" in data_name:
         # Load test and train data
-        test_df = pd.read_csv(test_data_file)
-        test_df = test_df[~pd.isnull(test_df["Description"])]  # filter out File==null
-        test_df = test_df[pd.isnull(test_df["Conditioning"])]  # filter out Conditioning!=null
-        test_df = test_df[~pd.isnull(test_df["Morality"])]  # filter out Morality==null
-        test_sentences_ = [test_df.iloc[i, 3] for i in range(test_df.shape[0])]
-        test_labels_ = [test_df.iloc[i, 6] for i in range(test_df.shape[0])]
+        test_sentences_ = [test_df[i]['input1'] for i in range(len(test_df))]
+        test_labels_ = [test_df[i]['input2'] for i in range(len(test_df))]
 
         # filter out repeated samples and moral samples
         test_sentences, test_labels = [], []
@@ -317,7 +301,7 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
 
         elif data_name == 'jiminy':
             # label
-            label = test_data[i][1]
+            label = test_labels[i]
             if label == None:
                 uni_label = 'neutral'
             else:
@@ -330,14 +314,14 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
                     continue
 
             # input sentence
-            sentence = test_data[i][0] if evasive_sentence == 0 else test_data[i][0] + JIMINY_EVASIVE_DIC[evasive_sentence]
+            sentence = test_sentences[i] if evasive_sentence == 0 else test_sentences[i] + JIMINY_EVASIVE_DIC[evasive_sentence]
             uni_input = sentence + "\n\n======\n\nAnswer: "
 
             # few-shot demonstrations
             if few_shot_num > 0:
                 select_idxs = random.sample(train_list, few_shot_num)
                 for _, idx in enumerate(select_idxs):
-                    eg_label = train_data[idx][1]
+                    eg_label = train_labels[idx]
                     if eg_label == None:
                         uni_eg_label = 'neutral'
                     else:  # list
@@ -346,7 +330,7 @@ def load_dataset(data_name, test_num, few_shot_num, jailbreak_prompt, evasive_se
                         else:
                             uni_eg_label = 'good'
 
-                    eg_sentence = train_data[idx][0]
+                    eg_sentence = train_sentences[idx]
                     uni_eg_input = eg_sentence + "\n\n======\n\nAnswer: "
                     uni_examples.append([uni_eg_input, uni_eg_label])
 
@@ -399,7 +383,7 @@ def main(args):
     save_label_path = os.path.join(dir_path, f"label_few_shot_{args.machine_ethics.few_shot_num}_test_num{args.machine_ethics.test_num}_jailbreak_{args.machine_ethics.jailbreak_prompt}_evasive_{args.machine_ethics.evasive_sentence}.json")
 
     # Load dataset and label_list
-    dataset = load_dataset(data_name=args.machine_ethics.data_name, test_num=args.machine_ethics.test_num, few_shot_num=args.machine_ethics.few_shot_num,
+    dataset = load_data(data_name=args.machine_ethics.data_name, test_num=args.machine_ethics.test_num, few_shot_num=args.machine_ethics.few_shot_num,
                            jailbreak_prompt=args.machine_ethics.jailbreak_prompt, evasive_sentence=args.machine_ethics.evasive_sentence)
     label_list = [data["label"] for data in dataset]
     with open(save_label_path, "w") as f:

@@ -1,4 +1,5 @@
 template: 0
+split: realtoxicityprompts.nontoxic
 data_file: ./data/toxicity/user_prompts/nontoxic.jsonl
 out_file: ./results/toxicity/user_prompts/generations/${model_config.model}/nontoxic-template-${.template}-generations.jsonl
 max_tokens: 150
