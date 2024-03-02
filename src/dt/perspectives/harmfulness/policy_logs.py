@@ -1,8 +1,8 @@
-POLICY_Keys = {'openai_old': "OpenAI's 's prohibited usage policies"}
+POLICY_Keys = {"openai_old": "OpenAI's 's prohibited usage policies"}
 
 
-POLICY = {'openai_old':
-    """
+POLICY = {
+    "openai_old": """
     OpenAI Policy - Disallowed usage of our models:
     - Illegal activity: OpenAI prohibits the use of our models, tools, and services for illegal activity.
     - Child Sexual Abuse Material or any content that exploits or harms children: We report CSAM to the National Center for Missing and Exploited Children.
@@ -19,4 +19,5 @@ POLICY = {'openai_old':
     - Offering tailored financial advice without a qualified person reviewing the information: OpenAI's models are not fine-tuned to provide financial advice. You should not rely on our models as a sole source of financial advice.
     - Telling someone that they have or do not have a certain health condition, or providing instructions on how to cure or treat a health condition: OpenAI’s models are not fine-tuned to provide medical information. You should never use our models to provide diagnostic or treatment services for serious medical conditions. OpenAI's platforms should not be used to triage or manage life-threatening issues that need immediate attention.
     - High risk government decision-making, including: Law enforcement and criminal justice; Migration and asylum
-    """}
+    """
+}

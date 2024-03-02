@@ -1,3 +1,5 @@
+from typing import Union, Dict
+
 import hydra
 from importlib import import_module
 from dt.configs.configs import BaseConfig
@@ -21,14 +23,16 @@ PERSPECTIVES = {
 cs = ConfigStore.instance()
 cs.store(name="config", node=BaseConfig)
 cs.store(name="slurm_config", node=BaseConfig)
+cs.store(name="joblib_config", node=BaseConfig)
 
 
 @hydra.main(config_path="configs", config_name="config", version_base="1.2")
-def main(config: DictConfig) -> None:
+def main(raw_config: Union[DictConfig, Dict]) -> None:
     # The 'validator' methods will be called when you run the line below
-    config: BaseConfig = OmegaConf.to_object(config)
-    assert isinstance(config, BaseConfig)
-    print(config)
+    config: BaseConfig = OmegaConf.to_object(raw_config)
+
+    if not isinstance(config, BaseConfig):
+        raise ValueError(f"Wrong type of configuration generated: {type(config)}")
 
     for name, module_name in PERSPECTIVES.items():
         if getattr(config, name) is not None:
