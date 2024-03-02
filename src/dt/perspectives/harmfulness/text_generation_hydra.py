@@ -59,12 +59,12 @@ def main(OPTS):
     
     folder_path = os.path.dirname(args.harmfulness.out_file)
     eval_results  =[
-                {
-                    "prompt": data_dict['prompt'][i],
-                    "output": data_dict['continuation'][i],
-                    "jailbreak": jailbreaks[i],
-                    "gpt-4-judge score": gpt4_judge_scores[i],
-                    "gpt-4-judge reasoning": gpt4_judge_reasoning[i]
+                {"idx": i//args.harmfulness.n,
+                "prompt": data_dict['prompt'][i],
+                "output": data_dict['continuation'][i],
+                "jailbreak": jailbreaks[i],
+                "gpt-4-judge score": gpt4_judge_scores[i],
+                "gpt-4-judge reasoning": gpt4_judge_reasoning[i]
                 }
                 for i in range(len(data_dict['prompt']))]
     # Define the file path
@@ -82,7 +82,9 @@ def main(OPTS):
     all_files = get_files_in_same_folder(args.harmfulness.out_file)
     # Check if all the judge files with the same evaluation method are present
     matching_files = [f for f in all_files if f.endswith(args.harmfulness.eval_method + "_results.jsonl")]
+    
     if len(matching_files) == args.harmfulness.main_category:
+    # To-Do: report the missing files if not all are present
         results_summary = {}
         evaluated_settings = []
 
@@ -96,12 +98,31 @@ def main(OPTS):
             jailbreak_count = 0
             total_count = 0
             
+            
+            ### Initializing the subcategories for computing the subcategory jailbreak rates
+            sub_records = {}
+            with open(os.path.dirname(args.harmfulness.data_file)+"/sub_cat_mapping.json", 'r') as file:
+                data = json.load(file)  
+                category_data = data.get(f"category_{cate_idx+1}")  
+
+
             with open(file_path, 'r') as file:
                 for line in file:
                     data = json.loads(line)
                     total_count += 1
                     if data.get("jailbreak") == 1:
                         jailbreak_count += 1
+
+                    for subcategory, idx_list in category_data.items():
+                        if data.get("idx") in idx_list:
+                            if subcategory not in sub_records:
+                                sub_records[subcategory] = []
+                            sub_records[subcategory].append(data.get("jailbreak"))
+                            break
+            
+            sub_rates = {}
+            for subcategory in category_data.keys():
+                sub_rates[subcategory] = sub_records[subcategory].count(1) / len(sub_records[subcategory])
             
             if total_count > 0:
                 jailbreak_rate = jailbreak_count / total_count
@@ -109,11 +130,12 @@ def main(OPTS):
                 jailbreak_rate = 0
             
             # Storing results for the current category
-            category_key = f"category_{cate_idx}"
+            category_key = f"category_{cate_idx+1}"
             results_summary[category_key] = {
                 "jailbreak rate": jailbreak_rate,
                 "jailbreak number": jailbreak_count,
                 "eval number": total_count,
+                "subcategory jailbreak rates": sub_rates
             }
             evaluated_settings.append(f"#{cate_idx+1}: {harm_categories[cate_idx]}")
 
