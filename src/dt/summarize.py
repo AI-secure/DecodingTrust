@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from glob import glob
 
-
 RESULT_DIR = "./results"
 
 
@@ -21,8 +20,10 @@ def get_adv_demo_scores(breakdown=False):
             scores = json.load(src)
             if not scores:
                 continue
-            model_scores[model_name] = scores["adv_demonstration"] * 100
-            model_rejections[model_name] = scores["adv_demonstration_rej"] * 100
+            scores["adv_demonstration"] *= 100
+            scores["adv_demonstration_rej"] *= 100
+            model_scores[model_name] = scores["adv_demonstration"]
+            model_rejections[model_name] = scores["adv_demonstration_rej"]
             model_breakdowns[model_name] = scores
     if breakdown:
         return model_breakdowns
@@ -39,6 +40,9 @@ def get_advglue_scores(breakdown=False):
     if breakdown:
         with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "breakdown.json")) as src:
             breakdown_scores = json.load(src)
+            for k, v in breakdown_scores.items():
+                for task_name in v:
+                    breakdown_scores[k][task_name]["acc"] *= 100
             return breakdown_scores
     else:
         return {"score": model_scores, "rejection_rate": model_rejections}
@@ -67,7 +71,11 @@ def get_fairness_scores(breakdown=False):
             #     "few-shot-2": {},
             #     "Averaged Score": {},
             # }
-    return {"score": model_scores, "rejection_rate": model_rejections}
+            model_breakdown[model_name] = scores
+    if breakdown:
+        return model_breakdown
+    else:
+        return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def get_ethics_scores(breakdown=False):
@@ -122,7 +130,7 @@ def get_ood_scores(breakdown=False):
             scores = json.load(src)
             if not scores:
                 continue
-            model_scores[model_name] = scores["score"]
+            model_scores[model_name] = scores.get("score", None)
             model_rejections[model_name] = scores.get("rr", None)
             model_breakdowns[model_name] = scores
     if breakdown:
@@ -150,12 +158,13 @@ def get_privacy_scores(breakdown=False):
         return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
 
 
-def get_stereotype_scores():
+def get_stereotype_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "stereotype", "generations/")
     fs = glob(os.path.join(path_prefix, "**", "25_compiled.json"), recursive=True)
     model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
     model_scores = {}
     model_rejections = {}
+    model_breakdown = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
@@ -163,15 +172,20 @@ def get_stereotype_scores():
                 continue
             model_scores[model_name] = scores["overall_score"] * 100
             model_rejections[model_name] = scores["overall_rejection_rate"] * 100
-    return {"score": model_scores, "rejection_rate": model_rejections}
+            model_breakdown[model_name] = scores
+    if breakdown:
+        return model_breakdown
+    else:
+        return {"score": model_scores, "rejection_rate": model_rejections}
 
 
-def get_toxicity_scores():
+def get_toxicity_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "toxicity", "user_prompts", "generations/")
     fs = glob(os.path.join(path_prefix, "**", "report.jsonl"), recursive=True)
     model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
     model_scores = {}
     model_rejections = {}
+    model_breakdown = {}
     for f, model_name in zip(fs, model_names):
         with open(f) as src:
             scores = json.load(src)
@@ -180,9 +194,15 @@ def get_toxicity_scores():
             score_key = os.path.join(model_name, "aggregated-score")
             if score_key not in scores:
                 continue
-            model_scores[model_name] = scores[score_key] * 100 if scores[score_key] is not None else None
+            if scores[score_key] is not None:
+                scores[score_key] *= 100
+            model_scores[model_name] = scores[score_key]
             model_rejections[model_name] = np.mean([v for k, v in scores.items() if k.endswith("rej_rates")])
-    return {"score": model_scores, "rejection_rate": model_rejections}
+            model_breakdown[model_name] = scores
+    if breakdown:
+        return model_breakdown
+    else:
+        return {"score": model_scores, "rejection_rate": model_rejections}
 
 
 def summarize_results():
@@ -200,9 +220,12 @@ def summarize_results():
         "breakdown_results": {
             "adv_demonstration": get_adv_demo_scores(True),
             "adv-glue-plus-plus": get_advglue_scores(True),
+            "fairness": get_fairness_scores(True),
             "machine_ethics": get_ethics_scores(True),
             "ood": get_ood_scores(True),
             "privacy": get_privacy_scores(True),
+            "stereotype": get_stereotype_scores(True),
+            "toxicity": get_toxicity_scores(True)
         }
     }
 

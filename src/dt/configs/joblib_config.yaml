@@ -1,0 +1,25 @@
+key: null
+dry_run: False
+
+defaults:
+  - _self_
+  - override hydra/launcher: joblib
+
+hydra:
+  mode: MULTIRUN
+  job:
+    chdir: false
+  launcher:
+    # @package hydra.launcher
+    _target_: hydra_plugins.hydra_joblib_launcher.joblib_launcher.JoblibLauncher
+    n_jobs: -1
+    backend: null
+    prefer: processes
+    require: null
+    verbose: 10
+    timeout: null
+    pre_dispatch: 2 * n_jobs
+    batch_size: auto
+    temp_folder: null
+    max_nbytes: null
+    mmap_mode: r

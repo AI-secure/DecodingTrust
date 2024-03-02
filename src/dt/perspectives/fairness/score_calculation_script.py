@@ -72,6 +72,11 @@ def aggregate_current_scores(args):
         prediction = []
         idx_known = []
 
+        # do not provide scores if all instances are not evaluated
+        if (len(responses) < 300 and 'crime' in file) or (len(responses)< 200):
+            Is_all_scenarios_evaluated = False
+            continue
+
         for i, response in enumerate(responses):
             answer = response['choices'][0]['message']['content']
             if 'adult' in outfile2sensiattr[file]:
@@ -125,11 +130,6 @@ def aggregate_current_scores(args):
         prediction = prediction[idx_known]
         label = label[idx_known]
 
-        if len(idx_known) < 3:
-            acc.append(1.)
-            m_dpd.append(0.)
-            m_eod.append(0.)
-            continue
 
         sensitive_attr_str = np.load(sensitive_file)
         sensitive_attr_str = sensitive_attr_str[idx_known]

@@ -3,7 +3,7 @@ import os
 
 from dt.chat import Chat
 from tempfile import TemporaryDirectory
-from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC
+from dt.perspectives.privacy.sys_prompts import PROMPT_TEMPLATE, PII_INFO, PII_PROMPT_TYPE, PRIVACY_TOPIC, JAILBREAK_PROMPTS
 
 from dt.perspectives.privacy.utils import get_privacy_understanding_messages, load_enron_email_prompts, \
     get_pii_messages_k_shot
@@ -30,18 +30,25 @@ class MessageConstructor(object):
 
 ScenarioName2ResultDir = {
     "pii": "./results/privacy/generations/pii",
+    "pii_jailbreak": "./results/privacy/generations/pii_jailbreak",
     "privacy_understanding": "./results/privacy/generations/understanding",
     "enron_email_extraction": "./results/privacy/generations/enron",
 }
 
-def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt']):
+def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt'], ner=False):
     dataset_size= len(dataset)
     num_batches = int(dataset_size / batch_size)
     price_cost = 0
     prompt_tokens = 0
     comple_tokens = 0
     num_prompt = 0
-    
+    if ner==True: 
+        try:
+            from transformers import pipeline
+            ner_classifier = pipeline("token-classification", model = "bigcode/starpii", aggregation_strategy="simple")
+        except Exception as err:
+            print(err)
+
     with TemporaryDirectory(dir="./.cache") as dirname:
         model = Chat.from_helm(args, cache=dirname)
 
@@ -73,6 +80,15 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
 
                     res_gen = { "continuation": x[1], "isbanned": x[2], "prompt": x[3], "response": x[-1]}
                     res.update(res_gen)
+                    if ner==True: 
+                        try:
+                            ner_results = ner_classifier(x[1])
+                            ner_words=[] 
+                            if len(ner_results)>0:
+                                ner_words= [entity['word'] for entity in ner_results]
+                            res.update({"named_entity_rec_continuation":  ner_words })
+                        except Exception as err:
+                            print(err)
                     f.write(json.dumps(res) + "\n")
     print("Cost: ", price_cost)
     print("Num of prompt tokens: ", prompt_tokens)
@@ -129,6 +145,47 @@ def main(args):
                 all_prompt_tokens[pii] = prompt_tokens
                 all_comple_tokens[pii] = comple_tokens
                 all_num_prompt[pii] = num_prompt
+    elif args.privacy.scenario_name == "pii_jailbreak":
+
+        for pii in args.privacy.personal_infos:
+            if pii not in PII_INFO:
+                print(f"Skip {pii} as it is not defined in supported PII types {PII_INFO}")
+                continue
+            for jb_idx, jailbreak_prompt in enumerate(JAILBREAK_PROMPTS):
+                constructor = MessageConstructor(jailbreak_prompt, PROMPT_TEMPLATE[args.privacy.template]['task_desc'])
+
+                for fewshot_type in args.privacy.prompt_types:
+                    if fewshot_type not in PII_PROMPT_TYPE:
+                        print(f"Skip {fewshot_type} as it is not defined in supported prompt types {PII_PROMPT_TYPE}")
+                        continue
+
+                    dataset, gt_list = get_pii_messages_k_shot(filename=args.privacy.data_file, k=args.privacy.few_shot_num, pp=pii,
+                                                            fewshot_type=fewshot_type, num_cases=dataset_size)
+
+                    result_dir = ScenarioName2ResultDir[args.privacy.scenario_name]
+                    os.makedirs(result_dir, exist_ok=True)
+                    base_fname= "{}_{}shot{}_s{}_{}_{}_jb{}.jsonl".format(
+                            pii, args.privacy.few_shot_num, fewshot_type, dataset_size, args.model_config.model, args.privacy.seed, jb_idx
+                        ).replace("/", "_").replace(" ", "")
+                    out_file = os.path.join( result_dir, base_fname )
+                    
+                    print(f"Saving to {out_file}")
+
+                    price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
+                                                                                            dataset= dataset, 
+                                                                                            gt_list=[gt_list],
+                                                                                            constructor=constructor, 
+                                                                                            out_file=out_file, 
+                                                                                            batch_size= args.privacy.batch_size,
+                                                                                            keynames=['gt'],
+                                                                                            ner=True
+                                                                                            )
+                    
+                    all_cost[pii] = price_cost
+                    all_prompt_tokens[pii] = prompt_tokens
+                    all_comple_tokens[pii] = comple_tokens
+                    all_num_prompt[pii] = num_prompt
+
 
     elif args.privacy.scenario_name == "privacy_understanding":
         constructor = MessageConstructor(PROMPT_TEMPLATE[args.privacy.template]['sys_prompt'],
