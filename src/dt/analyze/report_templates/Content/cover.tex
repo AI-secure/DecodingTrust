@@ -1,0 +1,51 @@
+\begin{titlepage}
+
+
+\begin{tikzpicture}[remember picture,overlay]
+%%%%%%%%%%%%%%%%%%%% Background %%%%%%%%%%%%%%%%%%%%%%%%
+\fill[blue] (current page.south west) rectangle (current page.north east);
+
+
+\foreach \i in {1, 2.5, 4, ...,23}
+{
+    \node[rounded corners,black!70,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.west)+(2.5,-7)$) {} ;
+}
+
+%%%%%%%%%%%%%%%%%%%% Background Polygon %%%%%%%%%%%%%%%%%%%% 
+
+\foreach \i in {1, 2.5, ...,22}
+{
+\node[rounded corners,black!70,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.north east)+(0,-9.5)$) {} ;
+}
+
+
+\foreach \i in {24, 22.5, ...,5}
+{
+\node[black!70,rounded corners,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.south east)+(-0.75,-3.45)$) {} ;
+}
+
+%%%%%%%%%%%%%%%%%%%% Title of the Report %%%%%%%%%%%%%%%%%%%% 
+% \node[left,blue!5,minimum width=0.625*\paperwidth,minimum height=3cm, rounded corners] at ($(current page.north east)+(-8.0,-9.3)$)
+% {
+% \includesvg[width=1.8in,height=1.8in]{Images/logo-orange.svg}
+% };
+
+\node[left,blue!5,minimum width=0.625*\paperwidth,minimum height=3cm, rounded corners] at ($(current page.north east)+(-0.4,-9.5)$)
+{
+ {\color{babyblue} \fontsize{60}{40} \fontfamily{ptm} \selectfont \bfseries DecodingTrust}
+};
+%%%%%%%%%%%%%%%%%%%% Subtitle %%%%%%%%%%%%%%%%%%%% 
+\node[left,blue!10,minimum width=0.625*\paperwidth,minimum height=2cm, rounded corners] at ($(current page.north east)+(-0.4,-12.5)$)
+{
+{{\fontsize{30}{20}\fontfamily{ptm}  \selectfont \bfseries\text{\llm Assessment}}}
+};
+
+%%%%%%%%%%%%%%%%%%%% Author Name %%%%%%%%%%%%%%%%%%%% 
+\node[left,blue!5,minimum width=0.625*\paperwidth,minimum height=2cm, rounded corners] at ($(current page.north east)+(0.5,-14.3)$)
+{
+{\fontsize{20}{10} \fontfamily{ptm} \selectfont \textsc{UIUC Secure Learning Lab}}
+};
+
+
+\end{tikzpicture}
+\end{titlepage}
