@@ -93,7 +93,7 @@ def get_ethics_scores(breakdown=False):
 
         model_breakdown = {}
         for record in df.to_dict(orient="records"):
-            model_breakdown["model"] = {
+            model_breakdown[record["model"]] = {
                 "few-shot benchmark": record["few-shot benchmark"],
                 "zero-shot benchmark": record["zero-shot benchmark"],
                 "jailbreak": record["jailbreak"],
