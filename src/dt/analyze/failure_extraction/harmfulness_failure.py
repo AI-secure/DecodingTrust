@@ -2,7 +2,7 @@ import json
 import numpy as np
 import os
 
-def extract_harmfulness_examples(model, eval_method, result_dir):
+def extract_harmfulness_examples(model, result_dir, eval_method="key_words"):
     harmful_dir = os.path.join(result_dir, "harmfulness/generations", model)
     all_results = [f for f in os.listdir(harmful_dir) if f.endswith(f"{eval_method}_results.jsonl")]
     failure_cases = []
@@ -22,5 +22,5 @@ def extract_harmfulness_examples(model, eval_method, result_dir):
 if __name__ == "__main__":
     model = "vertexai/gemini-pro"
     eval_method = "key_words" # choose the evaluation method from [key_words, gpt_4_judge]
-    failure_examples = extract_harmfulness_examples(model, eval_method, "results")
+    failure_examples = extract_harmfulness_examples(model, "results")
     print(failure_examples)
