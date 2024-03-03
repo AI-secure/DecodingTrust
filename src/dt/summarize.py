@@ -260,25 +260,25 @@ def get_harmfulness_scores(breakdown=False):
 def summarize_results():
     summarized_results = {
         "aggregated_results": {
-            # "adv_demonstration": get_adv_demo_scores(),
-            # "adv-glue-plus-plus": get_advglue_scores(),
-            # "fairness": get_fairness_scores(),
-            # "machine_ethics": get_ethics_scores(),
-            # "ood": get_ood_scores(),
-            # "privacy": get_privacy_scores(),
-            # "stereotype": get_stereotype_scores(),
-            # "toxicity": get_toxicity_scores(),
+            "adv_demonstration": get_adv_demo_scores(),
+            "adv-glue-plus-plus": get_advglue_scores(),
+            "fairness": get_fairness_scores(),
+            "machine_ethics": get_ethics_scores(),
+            "ood": get_ood_scores(),
+            "privacy": get_privacy_scores(),
+            "stereotype": get_stereotype_scores(),
+            "toxicity": get_toxicity_scores(),
             "harmfulness": get_harmfulness_scores()
         },
         "breakdown_results": {
-            # "adv_demonstration": get_adv_demo_scores(True),
-            # "adv-glue-plus-plus": get_advglue_scores(True),
-            # "fairness": get_fairness_scores(True),
-            # "machine_ethics": get_ethics_scores(True),
-            # "ood": get_ood_scores(True),
-            # "privacy": get_privacy_scores(True),
-            # "stereotype": get_stereotype_scores(True),
-            # "toxicity": get_toxicity_scores(True),
+            "adv_demonstration": get_adv_demo_scores(True),
+            "adv-glue-plus-plus": get_advglue_scores(True),
+            "fairness": get_fairness_scores(True),
+            "machine_ethics": get_ethics_scores(True),
+            "ood": get_ood_scores(True),
+            "privacy": get_privacy_scores(True),
+            "stereotype": get_stereotype_scores(True),
+            "toxicity": get_toxicity_scores(True),
             "harmfulness": get_harmfulness_scores(True)
         }
     }
