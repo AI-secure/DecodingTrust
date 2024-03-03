@@ -31,7 +31,8 @@ FAILURE_EXAMPLES = {"instruction_example" : [
                     "knowledge_example" : ["OoD Knowledge (Zero-shot)"],
                     "style_example" : ["OoD Style (Zero-shot)"],
                     "understanding_example" : ["understanding"],
-                    "zeroshot_example" : ["zero-shot"],}
+                    "zeroshot_example" : ["zero-shot"],
+                    "harmfulness_example" : [""]}
 PERSPECTIVES = [
     "toxicity", "bias", "adv", "OOD",
     "icl", "privacy", "moral", "fairness", "harmfulness"
@@ -421,11 +422,8 @@ def generate_pdf(target_model, result_dir, quantile=0.3):
                 fairness_results_all = [1 - fairness_results[model][subfield]["Equalized Odds Difference"] for model in models_to_analyze]
                 fairness_results_target = 1 - fairness_results[target_model][subfield]["Equalized Odds Difference"]
                 eval_dict[scenario][TASK_CORRESPONDING_FIELDS["fairness"][subfield]] = check_risk_quantile(fairness_results_all, fairness_results_target, quantile)
-        # elif scenario == "harmfulness":
-        #     #Place holder for harmfulness, determining risk levels
-        #     for subfield in TASK_SUBFIELDS[scenario]:
-                
 
+                
         
     env = Environment(
         loader=jinja2.FileSystemLoader(target_path),
@@ -477,8 +475,10 @@ def generate_pdf(target_model, result_dir, quantile=0.3):
                 examples = extract_fairness_examples(target_model, subfield, result_dir)
                 random.shuffle(examples)
             elif perspective == "harmfulness":
+                print("Extracting harmfulness examples")
                 examples = extract_harmfulness_examples(target_model, result_dir)
                 random.shuffle(examples)
+                print(examples[0])
             
             try:
                 example_dict["example"] = {}

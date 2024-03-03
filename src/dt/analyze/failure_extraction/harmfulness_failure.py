@@ -16,11 +16,9 @@ def extract_harmfulness_examples(model, result_dir, eval_method="key_words"):
     return failure_cases
 
 
-
-
-
 if __name__ == "__main__":
     model = "vertexai/gemini-pro"
     eval_method = "key_words" # choose the evaluation method from [key_words, gpt_4_judge]
     failure_examples = extract_harmfulness_examples(model, "results")
-    print(failure_examples)
+    print(failure_examples[0])
+    # print(failure_examples)
