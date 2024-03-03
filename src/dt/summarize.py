@@ -225,7 +225,10 @@ def get_harmfulness_scores(breakdown=False):
         fs = glob(os.path.join(path_prefix, "**", f"harmful_{run}_summary.json"), recursive=True)
         model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
         for f, model_name in zip(fs, model_names):
-            model_breakdown[model_name+'_'+run] = {}
+            try:
+                model_breakdown[model_name][run] = {}
+            except KeyError:
+                model_breakdown[model_name] = {run: {}}
             with open(f, 'r') as file:
                 harmful_summary = json.load(file)
                 # Loop through the harmful_summary to find all category_# keys and calculate their scores
@@ -241,9 +244,13 @@ def get_harmfulness_scores(breakdown=False):
                             score = (1 - jailbreak_rate) * 100
                             
                             # Map the score to the corresponding harm category
-                            model_breakdown[model_name+'_'+run][harm_categories[category_index]] = score
+                            model_breakdown[model_name][run][harm_categories[category_index]] = score
                 # Assuming 'harmfulness score' in the JSON corresponds to the overall model score
-                model_scores[model_name+'_'+run] = harmful_summary.get('harmfulness score', 0)
+                try:
+                    model_scores[model_name][run] = {}
+                except KeyError:
+                    model_scores[model_name] = {run: {}}
+                model_scores[model_name][run] = harmful_summary.get('harmfulness score', 0)
     if breakdown:
         return model_breakdown
     else:
