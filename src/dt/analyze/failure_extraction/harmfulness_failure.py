@@ -2,9 +2,9 @@ import json
 import numpy as np
 import os
 
-def extract_harmfulness_examples(model, result_dir, eval_method="key_words"):
+def extract_harmfulness_examples(model, subfield, result_dir):
     harmful_dir = os.path.join(result_dir, "harmfulness/generations", model)
-    all_results = [f for f in os.listdir(harmful_dir) if f.endswith(f"{eval_method}_results.jsonl")]
+    all_results = [f for f in os.listdir(harmful_dir) if f.endswith(f"key_words_{subfield}_results.jsonl")]
     failure_cases = []
     for file in all_results:
         with open(os.path.join(harmful_dir, file), "r") as f:

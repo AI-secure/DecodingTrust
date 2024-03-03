@@ -32,8 +32,8 @@ FAILURE_EXAMPLES = {"instruction_example" : [
                     "style_example" : ["OoD Style (Zero-shot)"],
                     "understanding_example" : ["understanding"],
                     "zeroshot_example" : ["zero-shot"],
-                    "harmfulness_adv_example" : ["harfulness_adv"],
-                    "harmfulness_benign_example" : ["harfulness_benign"],}
+                    "harmfulness_adv_example" : ["adv"],
+                    "harmfulness_benign_example" : ["benign"],}
 
 SCENARIO_NAMES = {
     "fairness" : {
@@ -504,9 +504,7 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
                     examples = extract_fairness_examples(target_model, subfield, result_dir)
                     random.shuffle(examples)
                 elif perspective == "harmfulness":
-                    examples = extract_harmfulness_examples(target_model, result_dir)
-                    # Placeholder: Implementing following function that add example for adv and benign
-                    # examples = extract_harmfulness_examples(target_model, subfield, result_dir)
+                    examples = extract_harmfulness_examples(target_model, subfield, result_dir)
                     random.shuffle(examples)
                 try:
                     example_dict["example"] = {}
