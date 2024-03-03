@@ -7,11 +7,13 @@ from itertools import chain
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os
+import matplotlib.pyplot as plt
 import pandas as pd
 import random
 import argparse
 
 DEFAULT_PLOTLY_COLORS = plotly.colors.DEFAULT_PLOTLY_COLORS
+
 
 
 def to_rgba(rgb, alpha=1):
@@ -309,12 +311,23 @@ def breakdown_plot(selected_perspective, selected_models=None):
             "",
             selected_models
         )
-    elif selected_perspective == "Harmfulness Adv":
+    elif selected_perspective == "Harmfulness Adv 1":
         fig = radar_plot(
-            list(list(harmfulness_results_adv.values())[0].keys()),
-            list(list(harmfulness_results_adv.values())[0].keys()),
-            harmfulness_results_adv,
-            list(list(harmfulness_results_adv.values())[0].keys()),
+            list(list(harmfulness_results_adv1.values())[0].keys()),
+            list(list(harmfulness_results_adv1.values())[0].keys()),
+            harmfulness_results_adv1,
+            list(list(harmfulness_results_adv1.values())[0].keys()),
+            selected_perspective,
+            "",
+            selected_models
+        )
+    
+    elif selected_perspective == "Harmfulness Adv 2":
+        fig = radar_plot(
+            list(list(harmfulness_results_adv2.values())[0].keys()),
+            list(list(harmfulness_results_adv2.values())[0].keys()),
+            harmfulness_results_adv2,
+            list(list(harmfulness_results_adv2.values())[0].keys()),
             selected_perspective,
             "",
             selected_models
@@ -366,32 +379,93 @@ def update_subscores(target_model, subscores, main_scores):
             perspectives.append("Fairness")
             curr_main_scores[target_model]["Fairness"] = main_scores[target_model]["fairness"]
         elif prespective == "harmfulness":
-            global harmfulness_results_adv
-            harmfulness_results_adv = subscores["harmfulness_adv"]
-            perspectives.append("Harmfulness Adv")
+            global harmfulness_results_adv1
+            harmfulness_results_adv1 = subscores["harmfulness_adv1"]
+            perspectives.append("Harmfulness Adv 1")
+            
+            global harmfulness_results_adv2
+            harmfulness_results_adv2 = subscores["harmfulness_adv2"]
+            perspectives.append("Harmfulness Adv 2")
+            
             global harmfulness_results_benign
             harmfulness_results_benign = subscores["harmfulness_benign"]
             perspectives.append("Harmfulness Benign")
             curr_main_scores[target_model]["Harmfulness"] = main_scores[target_model]["harmfulness"]
     return perspectives, curr_main_scores
 
-def generate_harmfulness_barchart(harfulness_results, out_path="plots"):
-    pass
+
+def generate_harmfulness_barchart(json_data, model, sub_key, risk_categories, out_path="plots"):
+    """
+    Parameters:
+    - json_data: The loaded JSON data.
+    - model: The model key in the JSON data.
+    - sub_key: One of ["benign", "adv1", "adv2"].
+    - risk_categories: Ordered list of risk categories.
+    - out_path: Path to save the image.
+    """
+    # Extract data for the specified sub_key
+    sub_key_data = json_data['breakdown_results']['harmfulness'][model][sub_key]
+    
+    # Prepare data for plotting
+    categories = []
+    values = []
+    colors = []
+    color_map = plt.cm.get_cmap('tab20', len(risk_categories))
+    
+    # Counter for annotations
+    counter = 1
+    
+    for risk_category in risk_categories:
+        if risk_category in sub_key_data:
+            details = sub_key_data[risk_category]
+            for subcategory, value in details['subcatgeories'].items():
+                categories.append(f"{counter}. {subcategory}")  # Numbering included in subcategory names
+                values.append(value)
+                colors.append(color_map(risk_categories.index(risk_category)))
+                counter += 1
+    
+    # Plotting with adjusted annotations and grid enabled
+    fig, ax = plt.subplots(figsize=(24, 10))  # Increased width for better layout
+    bars = ax.bar(range(len(values)), values, color=colors)
+    
+    # Enable grid
+    ax.grid(True, which='both', axis='y', linestyle='--', linewidth=0.5)
+    
+    # Update y-axis label
+    ax.set_ylabel('Jailbreak Rate', fontsize=15)
+    ax.set_xticks(range(len(categories)))
+    
+    # Adjusted subcategory names
+    ax.set_xticklabels(categories, rotation=45, fontsize=11, ha="right", va="top", y=-0.03)
+    
+    # Re-adding colored numerical annotations below the x-axis
+    for i, (bar, color) in enumerate(zip(bars, colors)):
+        ax.annotate(f"{i + 1}", xy=(i, 0), xycoords=('data', 'axes fraction'),
+                    xytext=(0, -4), textcoords='offset points', ha='center', va='top', fontsize=10, color=color, fontweight='bold')
+    
+    # Adjusting legend to a single row at the top
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor=color_map(i), label=cat) for i, cat in enumerate(risk_categories)]
+    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.24),
+              ncol=len(legend_elements)/2+1, fontsize=15)
+    
+    plt.tight_layout()
+    
+    # Save the figure
+    fig.savefig(f"{out_path}/harmfulness_{sub_key}_barchart.png", dpi=300)
 
 def generate_plot(model, main_scores, sub_scores, out_path="plots"):
     global models_to_analyze
     models_to_analyze.append(model)
     perspectives, curr_main_scores = update_subscores(model, sub_scores, main_scores)
-
     for idx, perspective in enumerate(perspectives):
-        if perspective == "Harmfulness Adv" or perspective == "Harmfulness Benign":
+        if perspective == "Harmfulness Adv 1" or perspective == "Harmfulness Benign" or perspective ==  "Harmfulness Adv 2":
             model_list = [model]
         else:
             model_list = [model, "openai/gpt-4-0314"]
         subplot = breakdown_plot(perspective, model_list)
         prespective = perspective.replace(" ", "_")
         subplot.write_image(f"{out_path}/{prespective}_breakdown.png", width=1400, height=700)
-    
     plot = main_radar_plot(curr_main_scores, [model])
     plot.write_image(f"{out_path}/main.png", width=1400, height=700)
     
