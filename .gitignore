@@ -136,3 +136,4 @@ cache/
 results/
 multirun/
 data/harmfulness/category*
+src/dt/analyze/reports
