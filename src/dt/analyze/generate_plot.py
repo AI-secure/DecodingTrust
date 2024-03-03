@@ -16,58 +16,6 @@ DEFAULT_PLOTLY_COLORS = plotly.colors.DEFAULT_PLOTLY_COLORS
 
 def to_rgba(rgb, alpha=1):
     return 'rgba' + rgb[3:][:-1] + f', {alpha})'
-PERSPECTIVES = [
-    "Toxicity", "Stereotype Bias", "Adversarial Robustness", "Out-of-Distribution Robustness",
-    "Robustness to Adversarial Demonstrations", "Privacy", "Machine Ethics", "Fairness", "Harmfulness"
-]
-PERSPECTIVES_LESS = [
-    "Toxicity", "Adversarial Robustness", "Out-of-Distribution Robustness",
-    "Robustness to Adversarial Demonstrations", "Privacy", "Machine Ethics", "Fairness", "Harmfulness"
-]
-
-ADV_TASKS = ["sst2", "qqp", "mnli"]
-
-OOD_TASK = {"knowledge": ["qa_2020", "qa_2023"],
-            "style": ["base", "shake_w", "augment", "shake_p0", "shake_p0.6", "bible_p0", "bible_p0.6", "romantic_p0",
-                      "romantic_p0.6", "tweet_p0", "tweet_p0.6"]}
-
-ADV_DEMO_TASKS = ["counterfactual", "spurious", "backdoor"]
-
-TASK_SUBFIELDS = {"Toxicity":[
-                    "nontoxic-benign-sys",
-                    "toxic-benign-sys",
-                    "toxic-gpt3.5-benign-sys",
-                    "toxic-gpt4-benign-sys",
-                    "nontoxic-adv-sys",
-                    "toxic-adv-sys",
-                    "toxic-gpt3.5-adv-sys",
-                    "toxic-gpt4-adv-sys",
-                     ],
-                  "Stereotype Bias":["benign", "untargeted", "targeted"],
-                  "Adversarial Robustness":["sst2", "qqp", "mnli"],
-                  "Out-of-Distribution Robustness":[
-                        "OoD Knowledge (Zero-shot)", "OoD Style (Zero-shot)", "OoD Knowledge (Few-shot)",
-                        "OoD Style (Few-shot)",
-                    ],
-                  "Robustness to Adversarial Demonstrations":["counterfactual", "spurious", "backdoor"],
-                  "Privacy":["enron", "PII", "understanding"],
-                  "Machine Ethics":["jailbreaking prompts", "evasive sentence", "zero-shot benchmark", "few-shot benchmark"],
-                  "Fairness":["zero-shot", "few-shot setting given unfair context", "few-shot setting given fair context"],
-                  "Harmfulness": ['illegal_activity', 'harm_children', 'hate_harass_violence', 'malware',
-            'physical_harm', 'economic_harm', 'fraudulent_deceptive', 'adult_content', 'political', 'privacy_violation',
-            'financial_advice']}
-
-TASK_CORRESPONDING_FIELDS = {"Out-of-Distribution Robustness":{"OoD Knowledge (Zero-shot)": "knowledge_zeroshot",
-                              "OoD Style (Zero-shot)": "style_zeroshot",
-                              "OoD Knowledge (Few-shot)": "knowledge_fewshot",
-                              "OoD Style (Few-shot)": "style_fewshot"},
-                              "Privacy":{"zero-shot": "zero-shot",
-                              "few-shot setting given unfair context": "few-shot-1",
-                              "few-shot setting given fair context": "few-shot-2"},
-                              "Machine Ethics": {"jailbreaking prompts": "jailbreak",
-                                "evasive sentence": "evasive"}
-                              }
-
 
 models_to_analyze = [
     "hf/mosaicml/mpt-7b-chat",
@@ -80,16 +28,6 @@ models_to_analyze = [
     "openai/gpt-4-0314"
 ]
 
-models_to_analyze_dict = {
-    os.path.basename("hf/mosaicml/mpt-7b-chat"): "hf/mosaicml/mpt-7b-chat",
-    os.path.basename("hf/togethercomputer/RedPajama-INCITE-7B-Instruct"): "hf/togethercomputer/RedPajama-INCITE-7B-Instruct",
-    os.path.basename("hf/tiiuae/falcon-7b-instruct"): "hf/tiiuae/falcon-7b-instruct",
-    os.path.basename("hf/lmsys/vicuna-7b-v1.3"): "hf/lmsys/vicuna-7b-v1.3",
-    os.path.basename("hf/chavinlo/alpaca-native"): "hf/chavinlo/alpaca-native",
-    os.path.basename("hf/meta-llama/Llama-2-7b-chat-hf"): "hf/meta-llama/Llama-2-7b-chat-hf",
-    os.path.basename("openai/gpt-3.5-turbo-0301"): "openai/gpt-3.5-turbo-0301",
-    os.path.basename("openai/gpt-4-0314"): "openai/gpt-4-0314"
-}
 
 def radar_plot(aggregate_keys, all_keys, results, thetas, title, metric, selected_models=None):
     # Extract performance values for each model across all benchmarks
@@ -177,7 +115,7 @@ def radar_plot(aggregate_keys, all_keys, results, thetas, title, metric, selecte
     return fig
 
 
-def main_radar_plot(perspectives, selected_models=None):
+def main_radar_plot(main_scores, selected_models):
     fig = make_subplots(
         rows=2, cols=1,
         shared_xaxes=True,
@@ -185,26 +123,15 @@ def main_radar_plot(perspectives, selected_models=None):
         row_heights=[1.0, 0.5],
         specs=[[{"type": "polar"}], [{"type": "table"}]]
     )
-
-    # perspectives_shift = (perspectives[4:] + perspectives[:4])  # [::-1
+    model_scores = {}
+    for model in selected_models:
+        model_name = os.path.basename(model)
+        model_scores[model_name] = main_scores[model_name]
+    perspectives = list(model_scores[os.path.basename(selected_models[0])].keys())
     perspectives_shift = perspectives
-    model_scores = MAIN_SCORES
-    if selected_models is not None:
-        model_scores = {}
-        for model in selected_models:
-            select_name = os.path.basename(model)
-            model_scores[select_name] = []
-            for perspective in perspectives:
-                score_idx = PERSPECTIVES.index(perspective)
-                model_scores[select_name].append(MAIN_SCORES[select_name][score_idx])
-
-
-    for i, (model_name, score) in enumerate(model_scores.items()):
+    for i, model_name in enumerate(model_scores.keys()):
         color = DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]
-
-        # score_shifted = score[4:] + score[:4]
-        score_shifted = score
-        # print(score_shifted + [score_shifted[0]])
+        score_shifted = list(model_scores[model_name].values())
         fig.add_trace(
             go.Scatterpolar(
                 r=score_shifted + [score_shifted[0]],
@@ -220,7 +147,7 @@ def main_radar_plot(perspectives, selected_models=None):
     header_texts = ["Model"] + perspectives
     rows = [
         list(model_scores.keys()),  # Model Names
-        *[[round(score[i], 2) for score in list(model_scores.values())] for i in range(len(perspectives))]
+        *[[round(score[perspective], 2) for score in list(model_scores.values())] for perspective in perspectives]
     ]
     column_widths = [10] + [5] * len(perspectives)
 
@@ -261,16 +188,12 @@ def main_radar_plot(perspectives, selected_models=None):
 def breakdown_plot(selected_perspective, selected_models=None):
     if selected_models is None:
         selected_models = models_to_analyze
-    if selected_perspective == "Main Figure":
-        if selected_models is not None:
-            selected_models = [os.path.basename(selected_model) for selected_model in selected_models]
-        fig = main_radar_plot(PERSPECTIVES, selected_models)
-    elif selected_perspective == "Adversarial Robustness":
+    if selected_perspective == "Adversarial Robustness":
         fig = radar_plot(
-            ADV_TASKS,
-            ADV_TASKS,
+            ["sst2", "qqp", "mnli"],
+            ["sst2", "qqp", "mnli"],
             adv_results,
-            ADV_TASKS,
+            ["sst2", "qqp", "mnli"],
             selected_perspective,
             "acc",
             selected_models
@@ -376,69 +299,100 @@ def breakdown_plot(selected_perspective, selected_models=None):
             "category_overall_score",
             selected_models
         )
-    elif selected_perspective == "Harmfulness":
+    elif selected_perspective == "Harmfulness Benign":
         fig = radar_plot(
-            list(list(harmfulness_results.values())[0].keys()),
-            list(list(harmfulness_results.values())[0].keys()),
-            harmfulness_results,
-            list(list(harmfulness_results.values())[0].keys()),
+            list(list(harmfulness_results_benign.values())[0].keys()),
+            list(list(harmfulness_results_benign.values())[0].keys()),
+            harmfulness_results_benign,
+            list(list(harmfulness_results_benign.values())[0].keys()),
+            selected_perspective,
+            "",
+            selected_models
+        )
+    elif selected_perspective == "Harmfulness Adv":
+        fig = radar_plot(
+            list(list(harmfulness_results_adv.values())[0].keys()),
+            list(list(harmfulness_results_adv.values())[0].keys()),
+            harmfulness_results_adv,
+            list(list(harmfulness_results_adv.values())[0].keys()),
             selected_perspective,
             "",
             selected_models
         )
 
     else:
-        raise ValueError(f"Choose perspective from {PERSPECTIVES}!")
+        raise ValueError(f"Perspective is not included!")
     return fig
 
-def update_subscores(subscores):
-    for prespective in PERSPECTIVES:
-        if prespective == "Toxicity":
+def update_subscores(target_model, subscores, main_scores):
+    perspectives = []
+    target_model = target_model.split('/')[-1]
+    curr_main_scores = {}
+    curr_main_scores[target_model] = {}
+    for prespective in main_scores[target_model].keys():
+        if prespective == "toxicity":
             global toxicity_results
             toxicity_results = subscores["toxicity"]
-        elif prespective == "Adversarial Robustness":
+            perspectives.append("Toxicity")
+            curr_main_scores[target_model]["Toxicity"] = main_scores[target_model]["toxicity"]
+        elif prespective == "adv":
             global adv_results
             adv_results = subscores["adv"]
-        elif prespective == "Out-of-Distribution Robustness":
+            perspectives.append("Adversarial Robustness")
+            curr_main_scores[target_model]["Adversarial Robustness"] = main_scores[target_model]["adv"]
+        elif prespective == "ood":
             global ood_results
-            ood_results = subscores["OOD"]
-        elif prespective == "Robustness to Adversarial Demonstrations":
+            ood_results = subscores["ood"]
+            perspectives.append("Out-of-Distribution Robustness")
+            curr_main_scores[target_model]["Out-of-Distribution Robustness"] = main_scores[target_model]["ood"]
+        elif prespective == "icl":
             global adv_demo_results
             adv_demo_results = subscores["icl"]
-        elif prespective == "Privacy":
+            perspectives.append("Robustness to Adversarial Demonstrations")
+            curr_main_scores[target_model]["Robustness to Adversarial Demonstrations"] = main_scores[target_model]["icl"]
+        elif prespective == "privacy":
             global privacy_results
             privacy_results = subscores["privacy"]
-        elif prespective == "Machine Ethics":
+            perspectives.append("Privacy")
+            curr_main_scores[target_model]["Privacy"] = main_scores[target_model]["privacy"]
+        elif prespective == "moral":
             global ethics_results
             ethics_results = subscores["moral"]
-        elif prespective == "Fairness":
+            perspectives.append("Machine Ethics")
+            curr_main_scores[target_model]["Machine Ethics"] = main_scores[target_model]["moral"]
+        elif prespective == "fairness":
             global fairness_results
             fairness_results = subscores["fairness"]
-        elif prespective == "Harmfulness":
-            global harmfulness_results
-            harmfulness_results = subscores["harmfulness"]
+            perspectives.append("Fairness")
+            curr_main_scores[target_model]["Fairness"] = main_scores[target_model]["fairness"]
+        elif prespective == "harmfulness":
+            global harmfulness_results_adv
+            harmfulness_results_adv = subscores["harmfulness_adv"]
+            perspectives.append("Harmfulness Adv")
+            global harmfulness_results_benign
+            harmfulness_results_benign = subscores["harmfulness_benign"]
+            perspectives.append("Harmfulness Benign")
+            curr_main_scores[target_model]["Harmfulness"] = main_scores[target_model]["harmfulness"]
+    return perspectives, curr_main_scores
+
+def generate_harmfulness_barchart(harfulness_results, out_path="plots"):
+    pass
 
 def generate_plot(model, main_scores, sub_scores, out_path="plots"):
-    global MAIN_SCORES
-    MAIN_SCORES = main_scores
     global models_to_analyze
     models_to_analyze.append(model)
-    global models_to_analyze_dict
-    models_to_analyze_dict[os.path.basename(model)] = model
-    
-    update_subscores(sub_scores)
-    for idx, perspective in enumerate(PERSPECTIVES):
-        if perspective == "Stereotype Bias":
-            continue
-        if perspective == "Harmfulness":
+    perspectives, curr_main_scores = update_subscores(model, sub_scores, main_scores)
+
+    for idx, perspective in enumerate(perspectives):
+        if perspective == "Harmfulness Adv" or perspective == "Harmfulness Benign":
             model_list = [model]
         else:
             model_list = [model, "openai/gpt-4-0314"]
         subplot = breakdown_plot(perspective, model_list)
         prespective = perspective.replace(" ", "_")
         subplot.write_image(f"{out_path}/{prespective}_breakdown.png", width=1400, height=700)
-    prespectives = [perspective for perspective in PERSPECTIVES if perspective != "Stereotype Bias"]
-    plot = main_radar_plot(prespectives, [model])
+    
+    plot = main_radar_plot(curr_main_scores, [model])
     plot.write_image(f"{out_path}/main.png", width=1400, height=700)
     
 if __name__ == "__main__":
