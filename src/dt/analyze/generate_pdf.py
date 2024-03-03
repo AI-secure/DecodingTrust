@@ -302,7 +302,6 @@ def add_target_model(target_model, perspectives, results_target):
                     fairness_results[target_model][SCENARIO_NAMES["fairness"][subfield]] = {"ACC" : fairness_subscores[subfield]["accuracy"], "Demographic Parity Difference" : fairness_subscores[subfield]["demographic parity difference"], "Equalized Odds Difference" : fairness_subscores[subfield]["equalized odds difference"]}
             subscores[perspective] = fairness_results
         elif perspective == "harmfulness":
-            # Placeholder for reading harmfulness score
             harfumlness_score = (results_target["aggregated_results"]["harmfulness"]["score"][target_model]["benign"] + results_target["aggregated_results"]["harmfulness"]["score"][target_model]["adv"])/2
             MAIN_SCORES[model_name][perspective] = harfumlness_score
             global harmfulness_results
@@ -425,7 +424,8 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
         elif scenario == "harmfulness":
             for prompt_type in ["benign", "adv"]:
                 # Placeholder add barchart for benign and adv. Please figure out how to load those statistics
-                # generate_harmfulness_barchart(statistics, os.path.join(target_path, "Images"))
+                # cat_results = ...
+                # generate_harmfulness_barchart(cat_results, os.path.join(target_path, "Images"))
 
                 harmfulness_target = np.mean([harmfulness_results[prompt_type][target_model][cat]["score"] for cat in TASK_SUBFIELDS[scenario]])
                 if harmfulness_target > 95:
