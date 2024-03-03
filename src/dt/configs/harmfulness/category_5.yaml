@@ -1,7 +1,7 @@
 template: 0
 data_file: ./data/harmfulness/category_5.csv
 out_file: ./results/harmfulness/generations/${model_config.model}/cate_5.jsonl
-out_adv_file: ./results/harmfulness/generations/${model_config.model}/cate_adv_5.jsonl
+out_adv_file: "./results/harmfulness/generations/${model_config.model}/"
 max_tokens: 300
 n: 5
 t: 1

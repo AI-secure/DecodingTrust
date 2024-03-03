@@ -221,7 +221,7 @@ def get_harmfulness_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "harmfulness", "generations/")
     model_scores = {}
     model_breakdown = {}
-    for run in ['benign','adv']:
+    for run in ['benign','adv1', 'adv2']:
         fs = glob(os.path.join(path_prefix, "**", f"harmful_{run}_summary.json"), recursive=True)
         model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
         for f, model_name in zip(fs, model_names):
@@ -244,7 +244,8 @@ def get_harmfulness_scores(breakdown=False):
                             score = (1 - jailbreak_rate) * 100
                             
                             # Map the score to the corresponding harm category
-                            model_breakdown[model_name][run][harm_categories[category_index]] = score
+                            model_breakdown[model_name][run][harm_categories[category_index]] = {'score': score}
+                            model_breakdown[model_name][run][harm_categories[category_index]]['subcatgeories'] = harmful_summary[key]['subcategory jailbreak rates']
                 # Assuming 'harmfulness score' in the JSON corresponds to the overall model score
                 try:
                     model_scores[model_name][run] = {}
@@ -260,25 +261,25 @@ def get_harmfulness_scores(breakdown=False):
 def summarize_results():
     summarized_results = {
         "aggregated_results": {
-            "adv_demonstration": get_adv_demo_scores(),
-            "adv-glue-plus-plus": get_advglue_scores(),
-            "fairness": get_fairness_scores(),
-            "machine_ethics": get_ethics_scores(),
-            "ood": get_ood_scores(),
-            "privacy": get_privacy_scores(),
-            "stereotype": get_stereotype_scores(),
-            "toxicity": get_toxicity_scores(),
+            # "adv_demonstration": get_adv_demo_scores(),
+            # "adv-glue-plus-plus": get_advglue_scores(),
+            # "fairness": get_fairness_scores(),
+            # "machine_ethics": get_ethics_scores(),
+            # "ood": get_ood_scores(),
+            # "privacy": get_privacy_scores(),
+            # "stereotype": get_stereotype_scores(),
+            # "toxicity": get_toxicity_scores(),
             "harmfulness": get_harmfulness_scores()
         },
         "breakdown_results": {
-            "adv_demonstration": get_adv_demo_scores(True),
-            "adv-glue-plus-plus": get_advglue_scores(True),
-            "fairness": get_fairness_scores(True),
-            "machine_ethics": get_ethics_scores(True),
-            "ood": get_ood_scores(True),
-            "privacy": get_privacy_scores(True),
-            "stereotype": get_stereotype_scores(True),
-            "toxicity": get_toxicity_scores(True),
+            # "adv_demonstration": get_adv_demo_scores(True),
+            # "adv-glue-plus-plus": get_advglue_scores(True),
+            # "fairness": get_fairness_scores(True),
+            # "machine_ethics": get_ethics_scores(True),
+            # "ood": get_ood_scores(True),
+            # "privacy": get_privacy_scores(True),
+            # "stereotype": get_stereotype_scores(True),
+            # "toxicity": get_toxicity_scores(True),
             "harmfulness": get_harmfulness_scores(True)
         }
     }
