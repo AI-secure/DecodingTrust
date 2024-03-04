@@ -1,16 +1,16 @@
 \paragraph{Harmfulness w/o Adversarial Prompting - \moderate}
-TBD
+Upon evaluation, the model's harmfulness risk level is assessed as moderate for the case without adversarial prompting. This assessment stems from observing occasional failures across a broader range of subcategories within the 89 evaluated. The failures indicate specific areas where the model's safeguards and contextual understanding do not consistently prevent the generation of potentially harmful content. While the model demonstrates a capability to navigate many scenarios safely, the moderate risk level highlights the need for targeted improvements to address these identified gaps.
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/Harmfulness_Benign_breakdown.png}
     \vspace{-0.5in}
-    \caption{Sub-scenarios of Harmfulness}
+    \caption{Harmfulness refusal scores without Adversarial Prompting.}
 \end{figure*} 
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/harmfulness_benign_barchart.png}
     % \vspace{-0.5in}
-    \caption{Sub categories of sub-scenarios of Harmfulness.}
+    \caption{Jailbreak rate of sub categories without Adversarial Prompting.}
 \end{figure*} 
 \input{Content/harmfulness/harmfulness_benign_example}

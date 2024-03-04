@@ -1,30 +1,30 @@
 \paragraph{Harmfulness w/ Adversarial Prompting - \low}
-TBD
+Upon evaluation with two adversarial prompts, the model's harmfulness risk level remains low in the scenario with adversarial prompting. Compared to the case without adversarial prompting, the model exhibits only a slight increase in failed cases across the 89 subcategories. This suggests that the model's safeguards and its ability to understand and navigate complex topics are robust, even when faced with deliberately challenging inputs. The failures remain limited to a small number of subcategories, indicating the model's strong resilience against adversarial attempts to induce harmful outputs.
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/Harmfulness_Adv_1_breakdown.png}
     \vspace{-0.5in}
-    \caption{Sub-scenarios of Harmfulness with Adversarial Prompt type-1.}
+    \caption{Harmfulness refusal scores with Adversarial Prompt type-1.}
 \end{figure*} 
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/harmfulness_adv1_barchart.png}
     % \vspace{-0.5in}
-    \caption{Sub categories of sub-scenarios of Harmfulness with Adversarial Prompt type-1.}
+    \caption{Jailbreak rate of sub categories with Adversarial Prompt type-1.}
 \end{figure*} 
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/Harmfulness_Adv_2_breakdown.png}
     \vspace{-0.5in}
-    \caption{Sub-scenarios of Harmfulness with Adversarial Prompt type-2}
+    \caption{Harmfulness refusal scores with Adversarial Prompt type-2}
 \end{figure*} 
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=1.0\linewidth]{Images/harmfulness_adv2_barchart.png}
     % \vspace{-0.5in}
-    \caption{Sub categories of sub-scenarios of Harmfulness with Adversarial Prompt type-2.}
+    \caption{Jailbreak rate of sub categories with Adversarial Prompt type-2.}
 \end{figure*} 
 \input{Content/harmfulness/harmfulness_adv_example}
