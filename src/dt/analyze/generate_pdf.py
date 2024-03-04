@@ -184,7 +184,7 @@ TASK_CORRESPONDING_FIELDS = {"ood":{"OoD Knowledge (Zero-shot)": "knowledge_zero
                               "fairness": {"zero-shot": "zeroshot", "few-shot-1": "fewshot1", "few-shot-2": "fewshot2"}
                               }
 
-PERSPECTIVE_CONVERSION = {"adv_demonstration" : "icl", "advglue" : "adv", "machine_ethics" : "moral"}
+PERSPECTIVE_CONVERSION = {"adv_demonstration" : "icl", "advglue" : "adv", "machine_ethics" : "moral", "adv-glue-plus-plus" : "adv"}
 
 curr_path = os.path.abspath(__file__)
 curr_dir = os.path.dirname(curr_path)
@@ -341,7 +341,6 @@ def add_target_model(target_model, perspectives, results_target):
 def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
     target_path = os.path.join(curr_dir, f"reports_latex/{target_model}/report")
     perspectives = perspectives.split(",")
-    perspectives = [PERSPECTIVE_CONVERSION[perspective] if perspective in PERSPECTIVE_CONVERSION.keys() else perspective for perspective in perspectives]
     if os.path.exists(target_path):
         shutil.rmtree(target_path)
     shutil.copytree(os.path.join(curr_dir, "report_template"), target_path)
@@ -349,6 +348,11 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
     eval_dict = {"model" : target_model}
     with open(os.path.join(result_dir, "summary.json")) as file:
         results_target = json.load(file)
+    # Only generate avaiable perspectives
+    available_perspectives = [perspective for perspective in results_target["breakdown_results"].keys() if target_model in results_target["breakdown_results"][perspective].keys()]
+    available_perspectives = [PERSPECTIVE_CONVERSION[perspective] if perspective in PERSPECTIVE_CONVERSION.keys() else perspective for perspective in available_perspectives]
+    perspectives = [PERSPECTIVE_CONVERSION[perspective] if perspective in PERSPECTIVE_CONVERSION.keys() else perspective for perspective in perspectives]
+    perspectives = [perspective for perspective in perspectives if perspective in available_perspectives]
     subscores = add_target_model(target_model, perspectives, results_target)
     generate_plot(target_model, MAIN_SCORES, subscores, os.path.join(target_path, "Images"))
 
@@ -547,7 +551,7 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
     if not os.path.exists(report_saving_dir):
         os.makedirs(report_saving_dir)
     report_saving_path = os.path.join(report_saving_dir, f'{os.path.basename(target_model)}.pdf')
-    
+
     os.system(f"cd {target_path} && tar -czvf {os.path.basename(target_model)}.tar.gz ./ ")
     os.system(f"cd {target_path} && curl -F 'files[]=@{os.path.basename(target_model)}.tar.gz' -o {report_saving_path} 'https://texlive2020.latexonline.cc/data?command=pdflatex&target=main.tex'")
 
