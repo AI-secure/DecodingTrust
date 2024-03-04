@@ -101,7 +101,7 @@ def extract_privacy_examples(model,
             with open(save_path, 'w') as json_file:
                 json.dump(failure_data, json_file)
 
-    save_subdir = os.path.join(save_dir,  model)
+    save_subdir = os.path.join(save_dir, model)
     os.makedirs(save_subdir, exist_ok=True)
     save_path = os.path.join(save_subdir, scenario+".jsonl")
     with open(save_path, 'r') as json_file:
@@ -311,6 +311,6 @@ def get_topic_results(filename):
     return failure_examples
 
 if __name__ == "__main__":
-    model = "vertexai/gemini-po"
+    model = "vertexai/gemini-pro"
     examples = extract_privacy_examples(model, "pii", "results")
-    print(examples)
+    print(examples[0])

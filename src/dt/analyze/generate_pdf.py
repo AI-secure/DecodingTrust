@@ -136,7 +136,6 @@ MAIN_SCORES = {
     }
 }
 
-ADV_TASKS = ["sst2", "qqp", "mnli"]
 adv_results = {
     "hf/mosaicml/mpt-7b-chat": {"sst2": {"acc": 71.73}, "qqp": {"acc": 48.37}, "mnli": {"acc": 18.50}},
     "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {"sst2": {"acc": 66.02}, "qqp": {"acc": 48.22}, "mnli": {"acc": 20.2}},
@@ -184,6 +183,9 @@ TASK_CORRESPONDING_FIELDS = {"ood":{"OoD Knowledge (Zero-shot)": "knowledge_zero
                                 "evasive sentence": "evasive"},
                               "fairness": {"zero-shot": "zeroshot", "few-shot-1": "fewshot1", "few-shot-2": "fewshot2"}
                               }
+
+PERSPECTIVE_CONVERSION = {"adv_demonstration" : "icl", "advglue" : "adv", "machine_ethics" : "moral"}
+
 curr_path = os.path.abspath(__file__)
 curr_dir = os.path.dirname(curr_path)
 
@@ -220,6 +222,21 @@ models_to_analyze = [
     "openai/gpt-3.5-turbo-0301",
     "openai/gpt-4-0314"
 ]
+
+def replace_latex_special_chars(text):
+    latex_special_char = {
+        "#": "\\#",
+        "$": "\\$",
+        "%": "\\%",
+        "&": "\\&",
+        "^": "\\^",
+        "_": "\\_",
+        "|": "\\|",
+        "~": "\\~",
+        "{": "\\{",
+        "}": "\\}"
+    }
+    return ''.join(latex_special_char.get(c, c) for c in text)
 
 def check_risk_quantile(results, target, quantile):
     results = sorted(results)
@@ -289,8 +306,12 @@ def add_target_model(target_model, perspectives, results_target):
         elif perspective == "moral":
             MAIN_SCORES[model_name][perspective] = (results_target["aggregated_results"]["machine_ethics"]["agg_score"][target_model])
             global ethics_results
-            #Placeholder
-            ethics_results[target_model] = {"jailbreak": {"brittleness": 0}, "evasive": {"brittleness": 0.},"zero-shot benchmark": {"performance": 0}, "few-shot benchmark": {"performance": 0.}}
+            ethics_results[target_model] = {
+                                            "jailbreak": {"brittleness": results_target["breakdown_results"]["machine_ethics"][target_model]["jailbreak"]}, 
+                                            "evasive": {"brittleness": results_target["breakdown_results"]["machine_ethics"][target_model]["evasive"]},
+                                            "zero-shot benchmark": {"performance": results_target["breakdown_results"]["machine_ethics"][target_model]["zero-shot benchmark"]}, 
+                                            "few-shot benchmark": {"performance": results_target["breakdown_results"]["machine_ethics"][target_model]["few-shot benchmark"]}
+                                            }
             subscores[perspective] = ethics_results
         elif perspective == "fairness":
             MAIN_SCORES[model_name][perspective] = (results_target["aggregated_results"]["fairness"]["score"][target_model])
@@ -318,8 +339,9 @@ def add_target_model(target_model, perspectives, results_target):
     return subscores
 
 def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
-    target_path = os.path.join(curr_dir, f"reports/{target_model}/report")
+    target_path = os.path.join(curr_dir, f"reports_latex/{target_model}/report")
     perspectives = perspectives.split(",")
+    perspectives = [PERSPECTIVE_CONVERSION[perspective] if perspective in PERSPECTIVE_CONVERSION.keys() else perspective for perspective in perspectives]
     if os.path.exists(target_path):
         shutil.rmtree(target_path)
     shutil.copytree(os.path.join(curr_dir, "report_template"), target_path)
@@ -420,10 +442,6 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
                 eval_dict[scenario][TASK_CORRESPONDING_FIELDS["fairness"][subfield]] = check_risk_quantile(fairness_results_all, fairness_results_target, quantile)
         elif scenario == "harmfulness":
             for prompt_type in ["benign", "adv"]:
-                # Placeholder add barchart for benign and adv. Please figure out how to load those statistics
-                # generate_harmfulness_barchart(cat_results, os.path.join(target_path, "Images"))
-                
-                
                 
                 if prompt_type == "adv":
                     harmfulness_target_1 = np.mean([harmfulness_results['adv1'][target_model][cat]["score"] for cat in TASK_SUBFIELDS[scenario]])
@@ -514,8 +532,8 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
                     random.shuffle(examples)
                 try:
                     example_dict["example"] = {}
-                    example_dict["example"]["input"] = examples[0]["Query"].replace("$", "\$")
-                    example_dict["example"]["output"] = examples[0]["Outputs"].replace("$", "\$")
+                    example_dict["example"]["input"] = replace_latex_special_chars(examples[0]["Query"])
+                    example_dict["example"]["output"] = replace_latex_special_chars(examples[0]["Outputs"])
                 except:
                     example_dict = {}
 
@@ -525,8 +543,13 @@ def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
                 with open(os.path.join(target_path, f"Content/{perspective}/{filename}"), "w") as f:
                     f.write(output)
 
+    report_saving_dir = os.path.join(curr_dir, "reports")
+    if not os.path.exists(report_saving_dir):
+        os.makedirs(report_saving_dir)
+    report_saving_path = os.path.join(report_saving_dir, f'{os.path.basename(target_model)}.pdf')
+    
     os.system(f"cd {target_path} && tar -czvf {os.path.basename(target_model)}.tar.gz ./ ")
-    os.system(f"cd {target_path} && curl -F 'files[]=@{os.path.basename(target_model)}.tar.gz' -o ./{os.path.basename(target_model)}.pdf 'https://texlive2020.latexonline.cc/data?command=pdflatex&target=main.tex'")
+    os.system(f"cd {target_path} && curl -F 'files[]=@{os.path.basename(target_model)}.tar.gz' -o {report_saving_path} 'https://texlive2020.latexonline.cc/data?command=pdflatex&target=main.tex'")
 
             
 
@@ -535,7 +558,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, default="vertexai/gemini-pro")
     parser.add_argument('--quantile', type=float, default=0.3)
     parser.add_argument('--result_dir', type=str, default="./results")
-    parser.add_argument('--perspectives', type=str, default="toxicity,adv,ood,icl,privacy,moral,fairness,harmfulness")
+    parser.add_argument('--perspectives', type=str, default="toxicity,advglue,ood,adv_demonstration,privacy,machine_ethics,fairness,harmfulness")
     args = parser.parse_args()
 
     generate_pdf(args.model, args.perspectives, args.result_dir, args.quantile)
