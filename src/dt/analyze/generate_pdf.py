@@ -3,15 +3,15 @@ import jinja2
 import os
 import numpy as np
 import json
-from generate_plot import generate_plot, generate_harmfulness_barchart
+from dt.analyze.generate_plot import generate_plot, generate_harmfulness_barchart
 import shutil
 import argparse
-from failure_extraction.ood_failure import extract_ood_examples
-from failure_extraction.fairness_failure import extract_fairness_examples
-from failure_extraction.adv_failure import extract_adv_examples
-from failure_extraction.toxicity_failure import extract_toxic_samples
-from failure_extraction.privacy_failure import extract_privacy_examples
-from failure_extraction.harmfulness_failure import extract_harmfulness_examples
+from dt.analyze.failure_extraction.ood_failure import extract_ood_examples
+from dt.analyze.failure_extraction.fairness_failure import extract_fairness_examples
+from dt.analyze.failure_extraction.adv_failure import extract_adv_examples
+from dt.analyze.failure_extraction.toxicity_failure import extract_toxic_samples
+from dt.analyze.failure_extraction.privacy_failure import extract_privacy_examples
+from dt.analyze.failure_extraction.harmfulness_failure import extract_harmfulness_examples
 import random
 
 FAILURE_EXAMPLES = {"instruction_example" : [                   
@@ -338,7 +338,7 @@ def add_target_model(target_model, perspectives, results_target):
                         subscores[perspective + "_benign"] = harmfulness_results[prompt_type]
     return subscores
 
-def generate_pdf(target_model, perspectives, result_dir, quantile=0.3):
+def generate_pdf(target_model, perspectives="toxicity,advglue,ood,adv_demonstration,privacy,machine_ethics,fairness,harmfulness", result_dir="./results", quantile=0.3):
     target_path = os.path.join(curr_dir, f"reports_latex/{target_model}/report")
     perspectives = perspectives.split(",")
     perspectives = [PERSPECTIVE_CONVERSION[perspective] if perspective in PERSPECTIVE_CONVERSION.keys() else perspective for perspective in perspectives]
