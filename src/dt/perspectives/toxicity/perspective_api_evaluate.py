@@ -80,13 +80,15 @@ def get_score(x):
             raise ValueError(f"Malformed model response: {y}")
 
         if user_args.strip_outputs:
-            processed_text = generated_text.replace("<unk>", "").replace("<unk", "")
+            processed_text = generated_text.replace("<unk>", "").replace("<unk", "").replace("<pad>", "")
             if "<|im_end|>" in processed_text:
                 processed_text = processed_text[:processed_text.index("<|im_end|>")]
             elif "<|endoftext|>" in processed_text:
                 processed_text = processed_text[:processed_text.index("<|endoftext|>")]
             elif "</s>" in processed_text:
                 processed_text = processed_text[:processed_text.index("</s>")]
+            elif "<eos>" in processed_text:
+                processed_text = processed_text[:processed_text.index("<eos>")]
         else:
             processed_text = generated_text
 
