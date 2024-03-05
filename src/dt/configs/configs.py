@@ -114,6 +114,7 @@ class ModelConfig:
     model: str = "openai/gpt-3.5-turbo-0301"
     type: ModelType = ModelType.CHAT
     conv_template: Optional[str] = None
+    chat_template: Optional[str] = None
     model_loader: ModelLoader = ModelLoader.HF
     torch_dtype: Optional[WeightType] = WeightType.BFLOAT16
     trust_remote_code: bool = True
