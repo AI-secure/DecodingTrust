@@ -1,3 +1,4 @@
+import os
 import time
 import warnings
 import shortuuid
@@ -6,7 +7,9 @@ from dt.utils import timeout
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 from helm.common.request import Request
+from transformers import AutoTokenizer
 from dt.conversation import get_conv_template
+from dt.configs.template_config.chat_template import get_chat_template
 from dt.configs.configs import BaseConfig
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
@@ -37,6 +40,7 @@ class Chat(ABC):
         kwargs["quantization_config"] = quant_config
         kwargs["model_dtype"] = main_config.model_config.torch_dtype
         kwargs["conv_template"] = main_config.model_config.conv_template
+        kwargs["chat_template"] = main_config.model_config.chat_template
         kwargs["tokenizer_name"] = main_config.model_config.tokenizer_name
         kwargs["device_map"] = main_config.model_config.device_map
 
@@ -353,7 +357,7 @@ class OpenAIChat(Chat):
 
 
 class HFChat(Chat):
-    def __init__(self, model_name: str, conv_template: str, cache: str, disable_sys_prompt: None = False, **kwargs):
+    def __init__(self, model_name: str, conv_template: str, chat_template: str, cache: str, disable_sys_prompt: None = False, **kwargs):
         super().__init__(model_name, model_type=kwargs.get("model_type", "chat"), prompt_price=0, completion_price=0)
 
         try:
@@ -369,13 +373,27 @@ class HFChat(Chat):
             if "@" in model_name:  # model specified with a revision
                 model_name = model_name[:model_name.find("@")]
             self.model_config = get_huggingface_model_config(model_name)
+            if self.model_config is None:
+                self.model_config = get_huggingface_model_config(f"huggingface/{os.path.split(model_name)[-1]}")
             print(e)
 
         if self.model_config is None:
             raise ValueError("Unable to retrieve model config")
 
         self.client = AutoClient(credentials={}, cache_path=cache)
-        self.conv_template = get_conv_template(conv_template)
+        if conv_template is None:
+            self.conv_template = None
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.model_config.path)
+            except AttributeError as e:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.model_config.model_id)
+            if chat_template is not None:
+                chat_template = get_chat_template(chat_template)
+                if chat_template is not None:
+                    self.tokenizer.chat_template = chat_template
+        else:
+            self.conv_template = get_conv_template(conv_template)
+            self.tokenizer = None
         self.model_name = self.model_config.model_id
         self.disable_sys_prompt = disable_sys_prompt
 
@@ -383,27 +401,50 @@ class HFChat(Chat):
         if isinstance(messages, str):
             return messages  # Override prompt templates / simply use as the prompt for completion model
 
-        conv = self.conv_template.copy()
-        for message in messages:
-            if "name" in message:
-                warnings.warn("'name' argument is not supported.")
-            msg_role = message["role"]
-            if msg_role == "system":
-                if self.disable_sys_prompt:
-                    warnings.warn("User system prompt ignored! Using default system prompt instead.")
+        if self.conv_template is not None:
+            conv = self.conv_template.copy()
+            for message in messages:
+                if "name" in message:
+                    warnings.warn("'name' argument is not supported.")
+                msg_role = message["role"]
+                if msg_role == "system":
+                    if self.disable_sys_prompt:
+                        warnings.warn("User system prompt ignored! Using default system prompt instead.")
+                    else:
+                        conv.system = message["content"]
+                elif msg_role == "user":
+                    conv.append_message(conv.roles[0], message["content"])
+                elif msg_role == "assistant":
+                    conv.append_message(conv.roles[1], message["content"])
                 else:
-                    conv.system = message["content"]
-            elif msg_role == "user":
-                conv.append_message(conv.roles[0], message["content"])
-            elif msg_role == "assistant":
-                conv.append_message(conv.roles[1], message["content"])
-            else:
-                raise ValueError(f"Unknown role: {msg_role}")
-        conv.append_message(conv.roles[1], None)
-        return conv.get_prompt()  # Prompt generated from the selected template
+                    raise ValueError(f"Unknown role: {msg_role}")
+            conv.append_message(conv.roles[1], None)
+            prompt = conv.get_prompt()  # Prompt generated from the selected template
+        else:
+            chat = []
+            previous_role = ''
+            for message in messages:
+                if "name" in message:
+                    warnings.warn("'name' argument is not supported.")
+                msg_role = message["role"]
+                if msg_role == "system":
+                    if self.disable_sys_prompt:
+                        warnings.warn("User system prompt ignored! Using default system prompt instead.")
+                    else:
+                        chat.append(message)
+                elif msg_role == "user" or msg_role == "assistant":
+                    if msg_role == previous_role:
+                        chat[-1]["content"] += message["content"]
+                    else:
+                        chat.append({"role": msg_role, "content": message["content"]})
+                    previous_role = msg_role
+                else:
+                    raise ValueError(f"Unknown role: {msg_role}")
+            prompt = self.tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
+        return prompt
 
     def post_process_generation(self, generation: str):
-        if self.conv_template.stop_str:
+        if self.conv_template and self.conv_template.stop_str:
             return generation[:generation.find(self.conv_template.stop_str)]
         else:
             return generation
@@ -413,8 +454,10 @@ class HFChat(Chat):
         prompt = self.messages_to_prompt(messages)
 
         kwargs = {}
-        if self.conv_template.stop_token_ids:
+        if self.conv_template and self.conv_template.stop_token_ids:
             kwargs["stop_token_ids"] = self.conv_template.stop_token_ids
+        elif self.tokenizer and self.tokenizer.eos_token_id:
+            kwargs["stop_token_ids"] = [self.tokenizer.eos_token_id]
         request = Request(
             model=self.model_name, prompt=prompt, num_completions=n, max_tokens=max_tokens, temperature=t, **kwargs
         )
