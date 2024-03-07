@@ -72,6 +72,11 @@ def aggregate_current_scores(args):
         prediction = []
         idx_known = []
 
+        # do not provide scores if all instances are not evaluated
+        if (len(responses) < 300 and 'crime' in file) or (len(responses)< 200):
+            Is_all_scenarios_evaluated = False
+            continue
+
         for i, response in enumerate(responses):
             answer = response['choices'][0]['message']['content']
             if 'adult' in outfile2sensiattr[file]:
