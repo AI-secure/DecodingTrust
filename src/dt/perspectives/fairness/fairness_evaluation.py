@@ -30,7 +30,7 @@ def main(args):
             gpt = Chat.from_helm(args, cache=dirname)
             # TODO: Very dumb monkey patch - refactor later
             task_message = task_dic[args.fairness.dataset]
-            acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=True, args=args)
+            acc, unknown, cost, cache, prediction = gpt.do_classification(dataset, task_message, example_prefix=False, args=args)
 
             out = {
                 "requests": [x[0] for x in cache],
