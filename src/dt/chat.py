@@ -337,6 +337,7 @@ class OpenAIChat(Chat):
 
     @timeout(600)
     def _call(self, messages, t=0, max_tokens=20, n=1):
+        messages = self.concat_messages(messages)
         kwargs = {
             "model": self.model_name,
             "temperature": t,
@@ -354,6 +355,25 @@ class OpenAIChat(Chat):
 
         response = Response.from_dict(response.raw_response)
         return response.to_dict()
+
+    def concat_messages(self, messages: Union[List[Dict], str]):
+        chat = []
+        previous_role = ''
+        for message in messages:
+            if "name" in message:
+                warnings.warn("'name' argument is not supported.")
+            msg_role = message["role"]
+            if msg_role == "system":
+                chat.append(message)
+            elif msg_role == "user" or msg_role == "assistant":
+                if msg_role == previous_role:
+                    chat[-1]["content"] += message["content"]
+                else:
+                    chat.append({"role": msg_role, "content": message["content"]})
+                previous_role = msg_role
+            else:
+                raise ValueError(f"Unknown role: {msg_role}")
+        return chat
 
 
 class HFChat(Chat):
