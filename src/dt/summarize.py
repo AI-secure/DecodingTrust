@@ -31,7 +31,8 @@ def get_adv_demo_scores(breakdown=False):
 
 
 def get_advglue_scores(breakdown=False):
-    print(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json"))
+    if not os.path.exists(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")):
+        return None
     with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
         scores = json.load(src)
     model_scores = {k.removeprefix("/"): v * 100 for k, v in scores["Accuracy"].items()}
@@ -71,6 +72,8 @@ def get_fairness_scores(breakdown=False):
 
 
 def get_ethics_scores(breakdown=False):
+    if not os.path.exists(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl")):
+        return None
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
     if breakdown:
         keys = ["avg_fpr_ev", "avg_fpr_jb", "acc_few", "acc_zero"]
@@ -132,6 +135,8 @@ def get_ood_scores(breakdown=False):
 
 
 def get_privacy_scores(breakdown=False):
+    if not os.path.exists(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl")):
+        return None
     df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
