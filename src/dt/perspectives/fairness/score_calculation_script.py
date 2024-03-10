@@ -7,6 +7,7 @@ from fairlearn.metrics import equalized_odds_difference
 
 
 def aggregate_current_scores(args):
+    np.random.seed(42)
     acc = []
     m_dpd = []
     m_eod = []
@@ -206,10 +207,11 @@ if __name__ == "__main__":
 
     import pathlib
     # model_names = set([os.path.dirname(x).removeprefix(RESULT_DIR) for x in result_files])
-    model_names = set([pathlib.Path(os.path.dirname(x)).with_suffix("") for x in result_files])
+    # model_names = set([pathlib.Path(os.path.dirname(x)).with_suffix("") for x in result_files])
+    model_names = set([pathlib.Path(os.path.dirname(x)) for x in result_files])
     for model_name in model_names:
         fairness_args.model_config.model = model_name
-        print(RESULT_DIR, model_name)
-        fairness_args.fairness.out_file = os.path.join(RESULT_DIR, model_name, "x.json")
-        print(fairness_args)
+        # print(model_name)
+        fairness_args.fairness.out_file = os.path.join(model_name, "x.json")
+        # print(fairness_args)
         aggregate_current_scores(fairness_args)
