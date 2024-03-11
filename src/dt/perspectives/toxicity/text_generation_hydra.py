@@ -36,6 +36,14 @@ def main(OPTS):
         print("#/ completion tokens:", result[0][2])
         ensure_dir(args.toxicity.out_file)
         print(f"Saving to {args.toxicity.out_file}")
+        
+        os.makedirs(os.path.dirname(args.toxicity.out_file), exist_ok=True)
+        with open(args.toxicity.out_file, "w") as f:
+            for x in result[1]:
+                res = {"continuation": x[1], "isbanned": x[2], "prompt": x[3], "all_text": x[3] + x[1],
+                       "response": x[-1],
+                       "message": x[0]}
+                f.write(json.dumps(res) + "\n")
 
     Score = namedtuple('Score', ['data_path', 'out_path', 'api', 'prompt_path', 'workers', 'numgen', 'debug', 'model', 'strip_outputs'])
     score_args = Score(
