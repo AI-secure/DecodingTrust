@@ -11,7 +11,7 @@ RESULT_DIR = "./results"
 def get_adv_demo_scores(breakdown=False):
     fs = glob(os.path.join(RESULT_DIR, "adv_demonstration", "**", "*_score.json"), recursive=True)
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
-    model_names = [os.path.basename(f).removesuffix("_score.json").replace("_", "/", 2) for f in fs]
+    model_names = [os.path.basename(f).replace("_score.json", "").replace("_", "/", 2) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdowns = {}
@@ -32,17 +32,15 @@ def get_adv_demo_scores(breakdown=False):
 
 
 def get_advglue_scores(breakdown=False):
-    print(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json"))
+    if not os.path.exists(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")):
+        return None
     with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
         scores = json.load(src)
-    model_scores = {k.removeprefix("/"): v * 100 for k, v in scores["Accuracy"].items()}
-    model_rejections = {k.removeprefix("/"): v * 100 for k, v in scores["RR+NE"].items()}
+    model_scores = {k.lstrip("/"): v * 100 for k, v in scores["Accuracy"].items()}
+    model_rejections = {k.lstrip("/"): v * 100 for k, v in scores["RR+NE"].items()}
     if breakdown:
         with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "breakdown.json")) as src:
             breakdown_scores = json.load(src)
-            for k, v in breakdown_scores.items():
-                for task_name in v:
-                    breakdown_scores[k][task_name]["acc"] *= 100
             return breakdown_scores
     else:
         return {"score": model_scores, "rejection_rate": model_rejections}
@@ -51,7 +49,7 @@ def get_advglue_scores(breakdown=False):
 def get_fairness_scores(breakdown=False):
     fs = glob(os.path.join(RESULT_DIR, "fairness", "**", "final_scores.json"), recursive=True)
     model_names = [
-        os.path.dirname(x).removeprefix(os.path.join(RESULT_DIR, "fairness", "results")).removeprefix("/") for x in fs
+        os.path.dirname(x).lstrip(os.path.join(RESULT_DIR, "fairness", "results")).lstrip("/") for x in fs
     ]
     model_scores = {}
     model_rejections = {}
@@ -79,6 +77,8 @@ def get_fairness_scores(breakdown=False):
 
 
 def get_ethics_scores(breakdown=False):
+    if not os.path.exists(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl")):
+        return None
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
     if breakdown:
         keys = ["avg_fpr_ev", "avg_fpr_jb", "acc_few", "acc_zero"]
@@ -121,7 +121,7 @@ def get_ethics_scores(breakdown=False):
 def get_ood_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "ood", "results/")
     fs = glob(os.path.join(path_prefix, "**", "final_scores.json"), recursive=True)
-    model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
+    model_names = [os.path.dirname(f).lstrip(path_prefix) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdowns = {}
@@ -140,6 +140,8 @@ def get_ood_scores(breakdown=False):
 
 
 def get_privacy_scores(breakdown=False):
+    if not os.path.exists(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl")):
+        return None
     df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
@@ -161,7 +163,7 @@ def get_privacy_scores(breakdown=False):
 def get_stereotype_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "stereotype", "generations/")
     fs = glob(os.path.join(path_prefix, "**", "25_compiled.json"), recursive=True)
-    model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
+    model_names = [os.path.dirname(f).lstrip(path_prefix) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdown = {}
@@ -182,7 +184,7 @@ def get_stereotype_scores(breakdown=False):
 def get_toxicity_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "toxicity", "user_prompts", "generations/")
     fs = glob(os.path.join(path_prefix, "**", "report.jsonl"), recursive=True)
-    model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
+    model_names = [os.path.dirname(f).lstrip(path_prefix) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdown = {}
@@ -223,7 +225,7 @@ def get_harmfulness_scores(breakdown=False):
     model_breakdown = {}
     for run in ['benign','adv1', 'adv2']:
         fs = glob(os.path.join(path_prefix, "**", f"harmful_{run}_summary.json"), recursive=True)
-        model_names = [os.path.dirname(f).removeprefix(path_prefix) for f in fs]
+        model_names = [os.path.dirname(f).lstrip(path_prefix) for f in fs]
         for f, model_name in zip(fs, model_names):
             try:
                 model_breakdown[model_name][run] = {}
