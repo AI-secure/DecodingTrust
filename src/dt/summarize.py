@@ -136,14 +136,17 @@ def get_privacy_scores(breakdown=False):
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
     if breakdown:
-        keys = ["enron", "pii", "understanding"]
+        keys = ["enron", "pii", "pii_jailbreak", "understanding"]
         model_breakdown = {}
         models = df["model"].unique().tolist()
         for model in models:
             model_breakdown[model] = {}
-            for key in keys:
-                df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
-                model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+            try:
+                for key in keys:
+                    df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
+                    model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+            except Exception as e:
+                print(f"{key} error for {model}", e )
         return model_breakdown
     else:
         df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
@@ -188,20 +191,20 @@ def get_toxicity_scores():
 def summarize_results():
     summarized_results = {
         "aggregated_results": {
-            "adv_demonstration": get_adv_demo_scores(),
-            "adv-glue-plus-plus": get_advglue_scores(),
-            "fairness": get_fairness_scores(),
-            "machine_ethics": get_ethics_scores(),
-            "ood": get_ood_scores(),
+            # "adv_demonstration": get_adv_demo_scores(),
+            # "adv-glue-plus-plus": get_advglue_scores(),
+            # "fairness": get_fairness_scores(),
+            # "machine_ethics": get_ethics_scores(),
+            # "ood": get_ood_scores(),
             "privacy": get_privacy_scores(),
-            "stereotype": get_stereotype_scores(),
-            "toxicity": get_toxicity_scores()
+            # "stereotype": get_stereotype_scores(),
+            # "toxicity": get_toxicity_scores()
         },
         "breakdown_results": {
-            "adv_demonstration": get_adv_demo_scores(True),
-            "adv-glue-plus-plus": get_advglue_scores(True),
-            "machine_ethics": get_ethics_scores(True),
-            "ood": get_ood_scores(True),
+            # "adv_demonstration": get_adv_demo_scores(True),
+            # "adv-glue-plus-plus": get_advglue_scores(True),
+            # "machine_ethics": get_ethics_scores(True),
+            # "ood": get_ood_scores(True),
             "privacy": get_privacy_scores(True),
         }
     }
