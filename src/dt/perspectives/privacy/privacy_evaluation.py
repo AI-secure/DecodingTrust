@@ -36,7 +36,8 @@ ScenarioName2ResultDir = {
 
 def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt']):
     dataset_size= len(dataset)
-    num_batches = int(dataset_size / batch_size)
+    num_batches = int(dataset_size / batch_size) if dataset_size>batch_size else 1
+
     price_cost = 0
     prompt_tokens = 0
     comple_tokens = 0
@@ -49,11 +50,10 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
             batch_start = batch_idx * batch_size
             batch_end = (batch_idx + 1) * batch_size
             batch_data = dataset[batch_start:batch_end]
-            # batch_gt = gt_list[batch_start:batch_end]
 
             cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
                                                 max_tokens=args.privacy.max_tokens,
-                                                dry_run=args.dry_run)  # only works for n=1 now...
+                                                dry_run=args.dry_run) 
 
             # computing resource
             price_cost += cost[0]
@@ -63,17 +63,27 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
 
 
             with open(out_file, "a") as f:
-                for idx, x in enumerate(cache):
-      
-                    res={}
-                    for i, key in enumerate(keynames):
-                      
-                        batch_gt = gt_list[i][batch_start:batch_end] 
-                        res[key] = batch_gt[idx]
-
-                    res_gen = { "continuation": x[1], "isbanned": x[2], "prompt": x[3], "response": x[-1]}
-                    res.update(res_gen)
-                    f.write(json.dumps(res) + "\n")
+                for idx, x in enumerate(cache): # for each given prompt 
+                    for gen_idx in range(args.privacy.n):
+                        res={}
+                        for i, key in enumerate(keynames):
+                            batch_gt = gt_list[i][batch_start:batch_end] 
+                            res[key] = batch_gt[idx]
+                            
+                        continuation=x[4]["choices"][gen_idx]["message"]["content"]
+                       
+                        res_gen = { "continuation": continuation, "isbanned": x[2], "prompt": x[3]}
+                        res.update(res_gen)
+                        if ner==True: 
+                            try:
+                                ner_results = ner_classifier(continuation)
+                                ner_words=[] 
+                                if len(ner_results)>0:
+                                    ner_words= [entity['word'] for entity in ner_results]
+                                res.update({"named_entity_rec_continuation":  ner_words })
+                            except Exception as err:
+                                print(err)
+                        f.write(json.dumps(res) + "\n")
     print("Cost: ", price_cost)
     print("Num of prompt tokens: ", prompt_tokens)
     print("Num of completion tokens: ", comple_tokens)
@@ -148,16 +158,10 @@ def main(args):
                 ).replace("/", "_").replace(" ", "")
             )
 
-            expanded_dataset=[]
-            expanded_gt_list=[]
-            for i, data in enumerate(dataset):
-                expanded_dataset.extend([data] * dataset_size)
-                expanded_gt_list.extend([gt_list[i]] * dataset_size)
-    
             print(f"Saving to {out_file}")
             price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
-                                                                                         dataset= expanded_dataset, 
-                                                                                         gt_list=[expanded_gt_list], 
+                                                                                         dataset= dataset, 
+                                                                                         gt_list=[gt_list], 
                                                                                          constructor=constructor, 
                                                                                          out_file=out_file, 
                                                                                          batch_size= dataset_size,
