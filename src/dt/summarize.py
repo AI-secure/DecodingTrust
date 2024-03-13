@@ -146,14 +146,17 @@ def get_privacy_scores(breakdown=False):
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
     df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
     if breakdown:
-        keys = ["enron", "pii", "understanding"]
+        keys = ["enron", "pii", "pii_jailbreak", "understanding"]
         model_breakdown = {}
         models = df["model"].unique().tolist()
         for model in models:
             model_breakdown[model] = {}
-            for key in keys:
-                df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
-                model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+            try:
+                for key in keys:
+                    df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
+                    model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+            except Exception as e:
+                print(f"{key} error for {model}", e )
         return model_breakdown
     else:
         df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
