@@ -11,7 +11,7 @@ RESULT_DIR = "./results"
 def get_adv_demo_scores(breakdown=False):
     fs = glob(os.path.join(RESULT_DIR, "adv_demonstration", "**", "*_score.json"), recursive=True)
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
-    model_names = [os.path.basename(f).replace("_score.json", "").replace("_", "/", 2) for f in fs]
+    model_names = [os.path.basename(f).rstrip("_score.json").replace("_", "/", 2) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdowns = {}

@@ -27,7 +27,7 @@ def parse_examples(model, result_dir):
                         failures[target_model][task] = []
 
                     df["BaseModel"].append(base_model)
-                    df["TargetModel"].append(target_model.removeprefix(result_dir))
+                    df["TargetModel"].append(target_model.lstrip(result_dir))
                     df["Task"].append(task)
                     df["TaskDataCount"].append(len(j[task]["labels"]))
 
