@@ -140,28 +140,31 @@ def get_ood_scores(breakdown=False):
 
 
 def get_privacy_scores(breakdown=False):
-    if not os.path.exists(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl")):
-        return None
-    df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
-    # TODO: This won't work if OpenAI or Anthropic models start to have underscores
-    df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
-    if breakdown:
-        keys = ["enron", "pii", "pii_jailbreak", "understanding"]
-        model_breakdown = {}
-        models = df["model"].unique().tolist()
-        for model in models:
-            model_breakdown[model] = {}
-            try:
-                for key in keys:
-                    df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
-                    model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
-            except Exception as e:
-                print(f"{key} error for {model}", e )
-        return model_breakdown
-    else:
-        df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
-        return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
 
+    try: 
+        df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
+        # TODO: This won't work if OpenAI or Anthropic models start to have underscores
+        df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
+        if breakdown:
+            keys = ["enron", "pii", "pii_jailbreak", "understanding"]
+            model_breakdown = {}
+            models = df["model"].unique().tolist()
+            for model in models:
+                model_breakdown[model] = {}
+                for key in keys:
+                    try:
+                        df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
+                        model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+                    except Exception as e:
+                        print(f"{key} error for {model}", e )
+                        model_breakdown[model][key] = {"asr": 0}
+            return model_breakdown
+        else:
+            df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
+            return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
+    except Exception as e:
+        print(e)
+        return {"privacy_score": 0, "reject_rate": 0, "privacy_score_wo_reject":0 }
 
 def get_stereotype_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "stereotype", "generations/")
