@@ -270,7 +270,7 @@ if __name__ == "__main__":
         os.path.join(user_args.result_dir, user_args.model, "nontoxic-template-0-generations.jsonl"),
         recursive=True
     )
-    target_models = [os.path.dirname(x).removeprefix(user_args.result_dir) for x in generation_files]
+    target_models = [os.path.dirname(x).lstrip(user_args.result_dir) for x in generation_files]
     print(target_models)
     for target_model in target_models:
         user_args.model = target_model

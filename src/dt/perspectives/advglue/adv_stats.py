@@ -37,7 +37,7 @@ def main():
                 j = json.load(f)
                 for task in j.keys():
                     df["BaseModel"].append(base_model)
-                    df["TargetModel"].append(target_model.removeprefix(RESULT_DIR))
+                    df["TargetModel"].append(target_model.lstrip(RESULT_DIR))
                     df["Task"].append(task)
                     df["TaskDataCount"].append(len(j[task]["labels"]))
 
@@ -74,9 +74,9 @@ def main():
     breakdown = df[["TargetModel", "Task", "Accuracy"]].groupby(["TargetModel", "Task"]).mean()
     breakdown_dict = {}
     for model in breakdown.reset_index()["TargetModel"].unique():
-        breakdown_dict[model.removeprefix("/")] = {}
+        breakdown_dict[model.lstrip("/")] = {}
         for task in breakdown.reset_index()["Task"].unique():
-            breakdown_dict[model.removeprefix("/")][task] = {"acc": breakdown.loc[(model, task), "Accuracy"]}
+            breakdown_dict[model.lstrip("/")][task] = {"acc": breakdown.loc[(model, task), "Accuracy"]}
 
     with open(os.path.join(RESULT_DIR, "breakdown.json"), "w") as dest:
         print(breakdown)

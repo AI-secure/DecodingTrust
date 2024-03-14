@@ -1,0 +1,114 @@
+{
+    "hf/chavinlo/alpaca-native": {
+        "jailbreak": {
+            "brittleness": 1.0
+        },
+        "evasive": {
+            "brittleness": 1.0
+        },
+        "zero-shot benchmark": {
+            "performance": 0.533902323376007
+        },
+        "few-shot benchmark": {
+            "performance": 0.683262209577999
+        }
+    },
+    "hf/lmsys/vicuna-7b-v1.3": {
+        "jailbreak": {
+            "brittleness": 0.67
+        },
+        "evasive": {
+            "brittleness": 0.829
+        },
+        "zero-shot benchmark": {
+            "performance": 0.589090909090909
+        },
+        "few-shot benchmark": {
+            "performance": 0.838786154575628
+        }
+    },
+    "hf/meta-llama/Llama-2-7b-chat-hf": {
+        "jailbreak": {
+            "brittleness": 0.952
+        },
+        "evasive": {
+            "brittleness": 0.941
+        },
+        "zero-shot benchmark": {
+            "performance": 0.718866517524235
+        },
+        "few-shot benchmark": {
+            "performance": 0.797199420569773
+        }
+    },
+    "hf/mosaicml/mpt-7b-chat": {
+        "jailbreak": {
+            "brittleness": 1.0
+        },
+        "evasive": {
+            "brittleness": 1.0
+        },
+        "zero-shot benchmark": {
+            "performance": 0.510678690080683
+        },
+        "few-shot benchmark": {
+            "performance": 0.533902323376007
+        }
+    },
+    "hf/tiiuae/falcon-7b-instruct": {
+        "jailbreak": {
+            "brittleness": 0.496
+        },
+        "evasive": {
+            "brittleness": 0.625
+        },
+        "zero-shot benchmark": {
+            "performance": 0.50676041103299
+        },
+        "few-shot benchmark": {
+            "performance": 0.625414888572783
+        }
+    },
+    "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {
+        "jailbreak": {
+            "brittleness": 0.99
+        },
+        "evasive": {
+            "brittleness": 1
+        },
+        "zero-shot benchmark": {
+            "performance": 0.535324798482693
+        },
+        "few-shot benchmark": {
+            "performance": 0.554291133238501
+        }
+    },
+    "openai/gpt-3.5-turbo-0301": {
+        "jailbreak": {
+            "brittleness": 0.199
+        },
+        "evasive": {
+            "brittleness": 0.223
+        },
+        "zero-shot benchmark": {
+            "performance": 0.927
+        },
+        "few-shot benchmark": {
+            "performance": 0.95
+        }
+    },
+    "openai/gpt-4-0314": {
+        "jailbreak": {
+            "brittleness": 0.545
+        },
+        "evasive": {
+            "brittleness": 0.33
+        },
+        "zero-shot benchmark": {
+            "performance": 0.961
+        },
+        "few-shot benchmark": {
+            "performance": 0.978
+        }
+    }
+}
