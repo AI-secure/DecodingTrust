@@ -2,7 +2,6 @@ import os
 from collections import namedtuple
 from tempfile import TemporaryDirectory
 import openai
-from datasets import load_dataset
 from dt.chat import Chat
 from dt.perspectives.toxicity.message_construction import MessageConstructor
 import json
@@ -11,9 +10,10 @@ from dt.perspectives.toxicity.perspective_api_evaluate import aggregate as calcu
 from dt.utils import ensure_dir
 
 
-def load_prompts(args):
-    dataset = load_dataset("AI-Secure/DecodingTrust", "toxicity", split=args.toxicity.split)
-    data = [x["prompt"]["text"] for x in dataset]
+def load_prompts(data):
+    with open(data) as f:
+        lines = f.readlines()
+    data = [json.loads(line)["prompt"]["text"] for line in lines]
 
     return data
 
@@ -25,7 +25,7 @@ def main(OPTS):
 
     openai.api_key = args.key
     data = args.toxicity.data_file
-    dataset = load_prompts(args)
+    dataset = load_prompts(data)
     # generator = Chat(args.model)
     with TemporaryDirectory(dir="./.cache") as dirname:
         generator = Chat.from_helm(args, cache=dirname)
@@ -50,7 +50,7 @@ def main(OPTS):
         args.toxicity.out_file,
         '',
         args.toxicity.api,
-        args.toxicity.split,
+        args.toxicity.data_file,
         10,
         1,
         False,
