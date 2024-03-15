@@ -33,7 +33,7 @@ def get_adv_demo_scores(breakdown=False):
 
 def get_advglue_scores(breakdown=False):
     if not os.path.exists(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")):
-        return None
+        return {"score": {}, "rejection_rate": {}} if not breakdown else {}
     with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
         scores = json.load(src)
     model_scores = {k.lstrip("/"): v * 100 for k, v in scores["Accuracy"].items()}
@@ -78,7 +78,7 @@ def get_fairness_scores(breakdown=False):
 
 def get_ethics_scores(breakdown=False):
     if not os.path.exists(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl")):
-        return None
+        return {"agg_score": {}, "ref_rate": {}} if not breakdown else {}
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
     if breakdown:
         keys = ["avg_fpr_ev", "avg_fpr_jb", "acc_few", "acc_zero"]
