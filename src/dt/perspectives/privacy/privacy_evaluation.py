@@ -35,7 +35,7 @@ ScenarioName2ResultDir = {
     "enron_email_extraction": "./results/privacy/generations/enron",
 }
 
-def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt'], ner=False):
+def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size, keynames=['gt'], ner=False, n_generations=1):
     dataset_size= len(dataset)
     num_batches = int(dataset_size / batch_size) if dataset_size>batch_size else 1
 
@@ -58,7 +58,7 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
             batch_end = (batch_idx + 1) * batch_size
             batch_data = dataset[batch_start:batch_end]
 
-            cost, cache = model.do_generation(batch_data, constructor, n=args.privacy.n, t=args.privacy.t,
+            cost, cache = model.do_generation(batch_data, constructor, n=n_generations, t=args.privacy.t,
                                                 max_tokens=args.privacy.max_tokens,
                                                 dry_run=args.dry_run) 
 
@@ -71,7 +71,7 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
 
             with open(out_file, "a") as f:
                 for idx, x in enumerate(cache): # for each given prompt 
-                    for gen_idx in range(args.privacy.n):
+                    for gen_idx in range(n_generations):
                         res={}
                         for i, key in enumerate(keynames):
                             batch_gt = gt_list[i][batch_start:batch_end] 
@@ -139,6 +139,7 @@ def main(args):
                                                                                          constructor=constructor, 
                                                                                          out_file=out_file, 
                                                                                          batch_size= args.privacy.batch_size,
+                                                                                         n_generations=args.privacy.n,
                                                                                          keynames=['gt']
                                                                                          )
 
@@ -178,6 +179,7 @@ def main(args):
                                                                                             constructor=constructor, 
                                                                                             out_file=out_file, 
                                                                                             batch_size= args.privacy.batch_size,
+                                                                                            n_generations=args.privacy.n,
                                                                                             keynames=['gt'],
                                                                                             ner=True
                                                                                             )
@@ -199,20 +201,29 @@ def main(args):
 
             result_dir = ScenarioName2ResultDir[args.privacy.scenario_name]
             os.makedirs(result_dir, exist_ok=True)
+            
             out_file = os.path.join(
                 result_dir,
-                "{}_t{}_s{}_{}_ques{}_{}.jsonl".format(
-                    topic, args.privacy.template, dataset_size, args.model_config.model, args.privacy.question_prompt, args.privacy.seed
+                "{}_t{}_s{}_{}_ques{}_{}.jsonl".format( # hardcode 100 here to be consistent with the previous results where args.privacy.n=100
+                    topic, args.privacy.template, 100, args.model_config.model, args.privacy.question_prompt, args.privacy.seed
                 ).replace("/", "_").replace(" ", "")
             )
-
             print(f"Saving to {out_file}")
+
+            # to avoid OOD for a large "args.privacy.n", we repeat the prompts for "args.privacy.n" times and generate 1 time for each prompt
+            expanded_dataset=[]
+            expanded_gt_list=[]
+            for i, data in enumerate(dataset):
+                expanded_dataset.extend([data] * args.privacy.n)
+                expanded_gt_list.extend([gt_list[i]] * args.privacy.n)
+            
             price_cost, prompt_tokens, comple_tokens, num_prompt=  generate_and_save(args=args, 
-                                                                                         dataset= dataset, 
-                                                                                         gt_list=[gt_list], 
+                                                                                         dataset= expanded_dataset, 
+                                                                                         gt_list=[expanded_gt_list], 
                                                                                          constructor=constructor, 
                                                                                          out_file=out_file, 
-                                                                                         batch_size= dataset_size,
+                                                                                         batch_size= args.privacy.batch_size,
+                                                                                         n_generations=1,
                                                                                          keynames=['word']
                                                                                          )
         
@@ -246,6 +257,7 @@ def main(args):
                                                                                          constructor=constructor, 
                                                                                          out_file=out_file, 
                                                                                          batch_size= args.privacy.batch_size,
+                                                                                         n_generations=args.privacy.n,
                                                                                          keynames=['gt-email', 'gt-name']
                                                                                          )
             all_cost[prompt_type] = price_cost

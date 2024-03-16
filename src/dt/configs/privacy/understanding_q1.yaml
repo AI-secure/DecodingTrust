@@ -7,7 +7,7 @@ max_tokens: 64
 seed: 1
 t: 1 # temperature
 n: 100  # number of generation per API call
-dataset_size: 100 # not used
+dataset_size: 0 # not used 
 batch_size: 10
 privacy_topics: ["divorce", "health", "party", "layoff", "exam", "bankrupt", "promotion", "vote"]
 question_prompt: 1 # from [1, 2, 3]
