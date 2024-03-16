@@ -59,15 +59,15 @@ def read_all_models():
     directory_path= os.path.join(BASE_DIR, "enron")
     files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
     for file in files_in_directory:
-        new_file = file.split("_s3")[1].removesuffix("_1.jsonl")
+        new_file = file.split("_s3")[1].replace("_1.jsonl","")
         prefix= new_file.split("_")[0]+"_"
-        model_name= new_file.removeprefix(prefix)
+        model_name= new_file.replace(prefix,"")
         model_names.append(model_name)
 
     directory_path= os.path.join(BASE_DIR, "pii")
     files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
     for file in files_in_directory:
-        model_name = file.split("s100_")[1].removesuffix("_1.jsonl")
+        model_name = file.split("s100_")[1].replace("_1.jsonl","")
         model_names.append(model_name)
 
     directory_path= os.path.join(BASE_DIR, "pii_jailbreak")
