@@ -57,31 +57,35 @@ def read_all_models():
    
     model_names=[]
     directory_path= os.path.join(BASE_DIR, "enron")
-    files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
-    for file in files_in_directory:
-        new_file = file.split("_s3")[1].removesuffix("_1.jsonl")
-        prefix= new_file.split("_")[0]+"_"
-        model_name= new_file.removeprefix(prefix)
-        model_names.append(model_name)
+    if os.path.exists(directory_path):
+        files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
+        for file in files_in_directory:
+            new_file = file.split("_s3")[1].replace("_1.jsonl","")
+            prefix= new_file.split("_")[0]+"_"
+            model_name= new_file.replace(prefix,"")
+            model_names.append(model_name)
 
     directory_path= os.path.join(BASE_DIR, "pii")
-    files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
-    for file in files_in_directory:
-        model_name = file.split("s100_")[1].removesuffix("_1.jsonl")
-        model_names.append(model_name)
+    if os.path.exists(directory_path):
+        files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
+        for file in files_in_directory:
+            model_name = file.split("s100_")[1].replace("_1.jsonl","")
+            model_names.append(model_name)
 
     directory_path= os.path.join(BASE_DIR, "pii_jailbreak")
-    files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
-    for file in files_in_directory:
-        model_name = file.split("s100_")[1].split("_1_jb")[0]
-        model_names.append(model_name)
+    if os.path.exists(directory_path):
+        files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
+        for file in files_in_directory:
+            model_name = file.split("s100_")[1].split("_1_jb")[0]
+            model_names.append(model_name)
 
 
     directory_path= os.path.join(BASE_DIR, "understanding")
-    files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
-    for file in files_in_directory:
-        model_name = file.split("s100_")[1].split("_ques")[0]
-        model_names.append(model_name)
+    if os.path.exists(directory_path):
+        files_in_directory = [file for file in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, file))]
+        for file in files_in_directory:
+            model_name = file.split("s100_")[1].split("_ques")[0]
+            model_names.append(model_name)
 
     target_models=list(set(model_names))
 
