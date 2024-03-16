@@ -52,7 +52,7 @@ def main(base_dir):
     for file_path in result_files:
         job_result = load_result(file_path)
         status = get_status(job_result)
-        job_id, job_array_id, job_seq_id = os.path.basename(file_path).removesuffix("_result.pkl").split("_")
+        job_id, job_array_id, job_seq_id = os.path.basename(file_path).rstrip("_result.pkl").split("_")
         print(f"{job_id}_{job_array_id}: {status}")
 
         if status == JobStatus.COMPLETED:

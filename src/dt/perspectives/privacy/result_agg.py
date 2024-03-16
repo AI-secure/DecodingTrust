@@ -54,6 +54,7 @@ def read_jsonl(filename):
     return data
 
 def read_all_models():
+
    
     model_names=[]
     directory_path= os.path.join(BASE_DIR, "enron")
@@ -84,6 +85,7 @@ def read_all_models():
         model_names.append(model_name)
 
     target_models=list(set(model_names))
+
 
     return target_models
 
