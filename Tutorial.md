@@ -143,5 +143,18 @@ We provide a unified output format for different trustworthiness perspectives. T
 }
 ```
 
+# Adding New Perspectives
 
+We are rolling out the new abstractions for different perspectives! To add your own perspective to DecodingTrust, simply follow the following TODO items
+
++ Create your own Python module and implement the abstract functions in `DatasetManager`, `BenchmarkExecutor`, and `ModelEvaluationMetricsInterface`.
+  + In `DatasetManager`, implement `load_dataset` method to load your dataset given a `task_name` string. We recommend hosting your dataset on Hugging Face and use their `load_dataset` function. You can utilize gated access of HF dataset repositories to guard your dataset if it contains private information. Alternatively, you can also deserialize any JSON file here.
+  + In `prepare_task_message`, transform your raw data into model query messages. Don't worry about prompt templates since they are handled my model interface. Simply transform your dataset into a list of `OpenAI` style object queries.
+  + In `BenchmarkExecutor`, implement `prepare_task_query` to add additional decoding parameters to the model.
+  + In `BenchmarkExecutor`, implement `prediction_processor` to parse raw model answers into your own format of choice so that they can be read by your metric pipeline.
+  + In `ModelEvaluationMetricsInterface`, implement `calculate_metrics` that takes a list of parsed results and compare they with ground truth. Output a dictionary of metric values.
++ Create a `main` function in your module with one argument to take user-specified arguments.
++ Add your configuration files under a new configuration folder and their corresponding data model for your configuration to `BaseConfig`.
++ In `main.py`, add path to your new module.
++ Final testing with `dt-run +perspective_name=scenario_name +model_config=llama-2-13b-chat`.
 
