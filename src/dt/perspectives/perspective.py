@@ -112,12 +112,3 @@ class ModelEvaluationMetricsInterface(ABC):
             A dictionary where keys are metric names and values are metric scores.
         """
         pass
-
-
-"""
-Tutorial
-
-1. Data loading
-2. 
-3. Model output -- getting outputs: keywords, LLM-as-judge
-"""
