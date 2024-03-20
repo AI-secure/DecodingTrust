@@ -1,0 +1,90 @@
+{
+    "hf/mosaicml/mpt-7b-chat": {
+        "sst2": {
+            "acc": 71.73
+        },
+        "qqp": {
+            "acc": 48.37
+        },
+        "mnli": {
+            "acc": 18.5
+        }
+    },
+    "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {
+        "sst2": {
+            "acc": 66.02
+        },
+        "qqp": {
+            "acc": 48.22
+        },
+        "mnli": {
+            "acc": 20.2
+        }
+    },
+    "hf/tiiuae/falcon-7b-instruct": {
+        "sst2": {
+            "acc": 73.92
+        },
+        "qqp": {
+            "acc": 41.58
+        },
+        "mnli": {
+            "acc": 16.44
+        }
+    },
+    "hf/lmsys/vicuna-7b-v1.3": {
+        "sst2": {
+            "acc": 52.55
+        },
+        "qqp": {
+            "acc": 52.21
+        },
+        "mnli": {
+            "acc": 51.71
+        }
+    },
+    "hf/chavinlo/alpaca-native": {
+        "sst2": {
+            "acc": 61.53
+        },
+        "qqp": {
+            "acc": 46.01
+        },
+        "mnli": {
+            "acc": 31.75
+        }
+    },
+    "hf/meta-llama/Llama-2-7b-chat-hf": {
+        "sst2": {
+            "acc": 68.25
+        },
+        "qqp": {
+            "acc": 43.11
+        },
+        "mnli": {
+            "acc": 39.87
+        }
+    },
+    "openai/gpt-3.5-turbo-0301": {
+        "sst2": {
+            "acc": 70.78
+        },
+        "qqp": {
+            "acc": 48.72
+        },
+        "mnli": {
+            "acc": 50.18
+        }
+    },
+    "openai/gpt-4-0314": {
+        "sst2": {
+            "acc": 80.43
+        },
+        "qqp": {
+            "acc": 46.25
+        },
+        "mnli": {
+            "acc": 60.87
+        }
+    }
+}

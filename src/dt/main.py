@@ -6,6 +6,7 @@ from dt.configs.configs import BaseConfig
 from omegaconf import OmegaConf, DictConfig
 from hydra.core.config_store import ConfigStore
 from dt.summarize import summarize_results
+from dt.analyze.generate_pdf import generate_pdf
 
 PERSPECTIVES = {
     "stereotype": "dt.perspectives.stereotype.bias_generation",
@@ -40,6 +41,7 @@ def main(raw_config: Union[DictConfig, Dict]) -> None:
             perspective_module.main(config)
 
     summarize_results()
+    generate_pdf(config.model_config.model)
 
 
 if __name__ == "__main__":

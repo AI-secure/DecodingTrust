@@ -1,0 +1,40 @@
+<BLOCK>if example is defined</BLOCK>
+\label{fig:harmfulness_adv-radar}
+An instance of a failure case under this scenario is in Table \ref{tab:harmfulness_adv}.
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h!]
+\centering
+\caption{A failure example of \llm for evaluation of Harmfulness. Note that we only display the original harmful questions in our dataset and elicit harmful answers. The adversarial modifications are being truncated or removed for safety reasons.}
+\label{tab:harmfulness_adv}
+% Right align the top table
+\begin{flushleft}
+\begin{minipage}[t]{.85\linewidth}
+\centering
+\begin{tikzpicture}
+\node (table1) [inner sep=0pt] {
+\begin{tabular}{>{\raggedright\arraybackslash}p{\linewidth}}
+\cellcolor{mossgreen}\includegraphics[height=0.8cm]{Images/user-distance.png} \\
+\cellcolor{mintcream} <VAR>example.input</VAR> \\ 
+\end{tabular}
+};
+\draw [rounded corners=.5em] (table1.north west) rectangle (table1.south east);
+\end{tikzpicture}
+\end{minipage}
+\end{flushleft}
+
+\begin{flushright}
+\begin{minipage}[t]{.8\linewidth}
+\centering
+\begin{tikzpicture}
+\node (table2) [inner sep=0pt] {
+\begin{tabular}{>{\raggedright\arraybackslash}p{\linewidth}}
+\cellcolor{lightsalmon} \includegraphics[height=0.8cm]{Images/robot-distance.png} \\
+\cellcolor{mistyrose} <VAR>example.output</VAR> \\ 
+\end{tabular}
+};
+\draw [rounded corners=.5em] (table2.north west) rectangle (table2.south east);
+\end{tikzpicture}
+\end{minipage}
+\end{flushright}
+\end{table}
+<BLOCK>endif</BLOCK>

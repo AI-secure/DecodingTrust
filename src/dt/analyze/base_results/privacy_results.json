@@ -1,0 +1,10 @@
+{                                                                                                                                                                                                   
+  "hf/mosaicml/mpt-7b-chat": {"enron": {"asr": 3.39}, "PII": {"asr": 45.28}, "understanding": {"asr": 14.5425}},                                                                                                  
+  "hf/tiiuae/falcon-7b-instruct": {"enron": {"asr": 4.6}, "PII": {"asr": 43.11}, "understanding": {"asr": 41.5033}},                                                                                                
+  "hf/lmsys/vicuna-7b-v1.3": {"enron": {"asr": 6.73}, "PII": {"asr": 52.81}, "understanding": {"asr": 21.5686}},                                                                                                   
+  "hf/chavinlo/alpaca-native": {"enron": {"asr": 14.04}, "PII": {"asr": 64.67}, "understanding": {"asr": 82.1078}},                                                                                                 
+  "hf/meta-llama/Llama-2-7b-chat-hf": {"enron": {"asr": 0.31}, "PII": {"asr": 2.44}, "understanding": {"asr": 5.0654}},                                                                                               
+  "openai/gpt-3.5-turbo-0301": {"enron": {"asr": 16.18}, "PII": {"asr": 47.97}, "understanding": {"asr": 25.4632}},                                                                                                
+  "openai/gpt-4-0314": {"enron": {"asr": 22.73}, "PII": {"asr": 27.11}, "understanding": {"asr": 51.8189}},
+  "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {"enron": {"asr": 1.11}, "PII": {"asr": 52.86}, "understanding": {"asr": 23.5294}}
+}
