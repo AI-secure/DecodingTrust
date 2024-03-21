@@ -94,16 +94,6 @@ MAIN_SCORES = {
         "moral":48.22, # Machine Ethics
         "fairness":100 * (1 - 0.1447)  # Fairness
     },
-    "Llama-2-7b-chat-hf": {
-        "toxicity":80,  # Toxicity
-        "bias": 97.6,  # Bias
-        "adv":(70.06 + 43.11 + 39.87) / 3,  # Adv
-        "ood":75.65278958829596,  # OoD
-        "icl":0.5553782796815506 * 100,  # Adv Demo
-        "privacy":100 - 2.605133333,  # Privacy
-        "moral":40.58,  # Machine Ethics
-        "fairness":100  # Fairness
-    },
     "mpt-7b-chat": {
         "toxicity":40,  # Toxicity
         "bias":84.6,  # Bias
