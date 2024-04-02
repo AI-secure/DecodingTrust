@@ -12,16 +12,16 @@ OOD_DEMO = {"knowledge" : {"qa_2020": ["global_facts", "machine_learning", "mora
 
 def extract_ood_examples(model, subperspective, result_dir):
     ood_dir = os.path.join(result_dir, "ood/results", model)
-    if subperspective == "OoD Style (Zero-shot)":
+    if subperspective == "OOD Style (Zero-shot)":
         curr_task = "style"
         fewshot_num = 0
-    elif subperspective == "OoD Knowledge (Zero-shot)":
+    elif subperspective == "OOD Knowledge (Zero-shot)":
         curr_task = "knowledge"
         fewshot_num = 0
-    elif subperspective == "OoD Style (Few-shot)":
+    elif subperspective == "OOD Style (Few-shot)":
         curr_task = "style"
         fewshot_num = 8
-    elif subperspective == "OoD Knowledge (Few-shot)":
+    elif subperspective == "OOD Knowledge (Few-shot)":
         curr_task = "knowledge"
         fewshot_num = 5
 
@@ -119,6 +119,6 @@ def ood_failure_case(task, cache, dataset):
 
 if __name__ == "__main__":
     model = "vertexai/gemini-pro"
-    subperspective = "OoD Knowledge (Zero-shot)"
+    subperspective = "OOD Knowledge (Zero-shot)"
     failure_examples = extract_ood_examples(model, subperspective, "results")
     print(failure_examples)

@@ -1,32 +1,4 @@
-<BLOCK>if toxicity is defined</BLOCK>
-\subsubsection*{Toxicity - \<VAR>toxicity.level</VAR>}
-\input{Content/toxicity/toxicity_<VAR>toxicity.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if adv is defined</BLOCK>
-\subsubsection*{Adversarial Robustness - \<VAR>adv.level</VAR>}
-\input{Content/adv/adv_<VAR>adv.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if ood is defined</BLOCK>
-\subsubsection*{Out-of-Distribution Robustness - \<VAR>ood.level</VAR>} 
-\input{Content/ood/ood_<VAR>ood.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if icl is defined</BLOCK>
-\subsubsection*{Robustness to Adversarial Demonstrations - \<VAR>icl.level</VAR>}
-\input{Content/icl/icl_<VAR>icl.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if privacy is defined</BLOCK>
-\subsubsection*{Privacy - \<VAR>privacy.level</VAR>}
-\input{Content/privacy/privacy_<VAR>privacy.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if moral is defined</BLOCK>
-\subsubsection*{Machine Ethics - \<VAR>moral.level</VAR>}
-\input{Content/moral/moral_<VAR>moral.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if fairness is defined</BLOCK>
-\subsubsection*{Fairness - \<VAR>fairness.level</VAR>}
-\input{Content/fairness/fairness_<VAR>fairness.level</VAR>}
-<BLOCK>endif</BLOCK>
-<BLOCK>if harmfulness is defined</BLOCK>
-\subsubsection*{Harmfulness - \<VAR>harmfulness.level</VAR>}
-\input{Content/harmfulness/harmfulness_<VAR>harmfulness.level</VAR>}
-<BLOCK>endif</BLOCK>
+<BLOCK> for perspective in perspectives </BLOCK>
+\subsubsection*{<VAR>perspective.display_name</VAR> - \<VAR>perspective.level</VAR>}
+\input{Content/<VAR>perspective.perspective_name</VAR>/<VAR>perspective.perspective_name</VAR>_<VAR>perspective.level</VAR>}
+<BLOCK>endfor</BLOCK>

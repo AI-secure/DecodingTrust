@@ -1,0 +1,25 @@
+name: "Adversarial Robustness"
+subfields: 
+  sst2: ["sst2"]
+  qqp: ["qqp"]
+  mnli: ["mnli"]
+sub_plot: true
+metric: 
+  name: "acc"
+  scale: false
+  minus: false
+threshold: [46.20, 56.69]
+categories:
+  sst2: 
+    subfields: ["sst2"]
+    threshold: [66.02, 73.92]
+    failure_example: true
+  qqp: 
+    subfields: ["qqp"]
+    threshold: [46.01, 48.72]
+    failure_example: true
+  mnli:
+    subfields: ["mnli"]
+    threshold: [20.2, 51.71]
+    failure_example: true
+recommendations: false

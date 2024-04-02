@@ -2,7 +2,7 @@ import json
 import joblib
 import os
 
-def extract_toxic_samples(model, subperspective, result_dir):
+def extract_toxicity_examples(model, subperspective, result_dir):
     # remove adv and benign from subperspective
     if "adv" in subperspective:
         template = 1
@@ -70,6 +70,6 @@ def load_toxic_examples(toxicity_dir, save_dir):
 if __name__ == '__main__':
     model = "vertexai/gemini-pro"
     subperspective = "toxic-gpt4-benign-sys" 
-    failure_examples = extract_toxic_samples(model, subperspective, "results")
+    failure_examples = extract_toxicity_examples(model, subperspective, "results")
     print(failure_examples)
     

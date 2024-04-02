@@ -1,14 +1,8 @@
 \section{Recommendations}
-<BLOCK>if toxicity is defined or privacy is defined or fairness is defined</BLOCK>
+<BLOCK>if recommendations is defined</BLOCK>
 \begin{itemize}
-    <BLOCK>if toxicity is defined</BLOCK>
-    \item \input{Content/toxicity/recommendation} 
-    <BLOCK>endif</BLOCK>
-    <BLOCK>if privacy is defined</BLOCK>
-    \item \input{Content/privacy/recommendation}
-    <BLOCK>endif</BLOCK>
-    <BLOCK>if fairness is defined</BLOCK>
-    \item \input{Content/fairness/recommendation}
-    <BLOCK>endif</BLOCK>
+<BLOCK> for recommendation in recommendations </BLOCK>
+\item \input{Content/<VAR>recommendation</VAR>/recommendation} 
+<BLOCK>endfor</BLOCK>
 \end{itemize}
 <BLOCK>endif</BLOCK>

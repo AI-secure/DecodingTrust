@@ -1,0 +1,26 @@
+name: "Out-of-Distribution Robustness"
+subfields: 
+  OOD Knowledge (Zero-shot): ["knowledge"]
+  OOD Style (Zero-shot): ["style"]
+  OOD Knowledge (Few-shot): ["knowledge_fewshot"]
+  OOD Style (Few-shot): ["style_fewshot"]
+sub_plot: true
+metric: 
+  name: null
+  scale: false
+  minus: false
+threshold: [54.21, 73.58]
+categories:
+  knowledge: 
+    subfields: ["OOD Knowledge (Zero-shot)"]
+    threshold: [24.71, 80.23]
+    failure_example: true
+  style: 
+    subfields: ["OOD Style (Zero-shot)"]
+    threshold: [75.01, 84.45]
+    failure_example: true
+  icl:
+    subfields: ["OOD Knowledge (Few-shot)", "OOD Style (Few-shot)"]
+    threshold: [55.87, 69.55]
+    failure_example: false
+recommendations: false
