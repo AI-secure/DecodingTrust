@@ -1,6 +1,11 @@
 # Overview
  
-This tutorial is designed to introduce how to a new perspective to the automatic PDF report generation of `DecodingTrust`. Users first requires to generate a `results/summary.json` file. Then, by executing `src/dt/analyze/generate_plot.py --model <evaluated-model>`, a pdf report will be generated at `src/dt/analyze/reports`. An example report encompassing perspectives such as Toxicity, Adversarial Robustness, Out-of-Distribution (OOD) performance, Robustness Over Adversarial Demonstrations, Privacy, Machine Ethics, and Fairness based on evaluations over Gemini_Pro is accessible via this [link](https://drive.google.com/file/d/1l9M-6vNb1u0B8b3kBXObTYQ0axxEtuOi/view?usp=sharing). To incorporate a new perspective, users must supply a YAML configuration detailing the evaluation settings for the current perspective at `src/dt/analyze/configs`, introduce a new LaTeX template in `src/dt/analyze/reports_template/Content/<perspective>`, and optionally implement a script for extracting failure cases at `src/dt/analyze/failure_extraction/<perspective>_failure.py`, which includes an `extract_<perspective>_examples` Python function.
+This tutorial is designed to introduce how to add a new perspective to the automatic PDF report generation of `DecodingTrust`. Users are first required to generate a `results/summary.json` file from `src/dt/summarize.py` after evaluation. Then, by executing `src/dt/analyze/generate_plot.py --model <evaluated-model>`, a pdf report will be generated at `src/dt/analyze/reports`. An example report encompassing perspectives such as Toxicity, Adversarial Robustness, Out-of-Distribution (OOD) performance, Robustness Over Adversarial Demonstrations, Privacy, Machine Ethics, and Fairness based on evaluations over Gemini_Pro is accessible via this [link](https://drive.google.com/file/d/1l9M-6vNb1u0B8b3kBXObTYQ0axxEtuOi/view?usp=sharing). To incorporate a new perspective, users must 
+- supply a YAML configuration detailing the evaluation settings for the current perspective at `src/dt/analyze/configs`,
+- introduce a new LaTeX template in `src/dt/analyze/reports_template/Content/<perspective>`,
+- and optionally implement a script for extracting failure cases at `src/dt/analyze/failure_extraction/<perspective>_failure.py`, which includes an `extract_<perspective>_examples` Python function.
+  
+The detailed implementation information on these three required items is as follows:
  
 # YAML Configuration
  
@@ -18,7 +23,7 @@ subfields: # Subfields for perspective radar plot.
     toxic-gpt3.5-adv-sys: ["toxic-gpt3.5-template-1-generations-toxicity"]
     toxic-gpt4-adv-sys: ["toxic-gpt4-template-1-generations-toxicity"]
 sub_plot: true # Indicates whether a radar plot for this perspective is required.
-threshold: [28, 47] # The threshold values defining High risk and Low risk.
+threshold: [28, 47] # The threshold values define High risk and Low risk.
 metric: # The metric for evaluating results
     name: null # Should be null if the result is a number. If the result is a dictionary, a metric name can be specified to retrieve it. Otherwise, the first item of the dictionary will be selected.
     scale: true # Should be true if the results range from 0-1.
@@ -37,7 +42,7 @@ recommendations: true # If a recommendation of improvements is written.
  
  
 # Latex template
-Structure of toxicity is as the following:
+To automatically generate a report on a new perspective, the user must create a folder at `src/dt/analyze/report_template/Content/\<perspective\>`. As an example, the structure of toxicity in `src/dt/analyze/report_template/Content/toxicity` is as follows:
  
 ```
 .
@@ -57,19 +62,19 @@ Structure of toxicity is as the following:
 |-toxicity_high.tex
 ```
 ## Content structure:
-Using the above structure as an example, you need to first create a folder `src/dt/analyze/report_template/Content/<perspective>`.
+Using the above structure as an example, you must first create a folder `src/dt/analyze/report_template/Content/<perspective>`.
  
 Then, the total number of the file for a new perspective is: 3 main results (toxicity_high/moderate/low) + 1 overview of perspective (toxicity_details) + 1 scenario intro(toxicity_scenario_intro) +  3 * number of scenarios (instruction_high/moderate/low + user_high/moderate/low) + 1 recommendations
  
-Detailed instruction is as the following. please strictly follow the pattern defined below:
-### Evaluation summary
+Detailed instructions are as follows. please strictly follow the pattern defined below:
+### Evaluation Summary
 Please write a description for each risk level in \<perspective\>_low.tex, \<perspective\>_high.tex, \<perspective\>_moderate.tex
    
-### Risk analysis
+### Risk Analysis
 In \<perspective\>_details.tex, please add the overview of this perspective that gives a concise introduction and goal of this perspective.
    
-### Subscenario results
-Please first complete the \<perspective\>_scenario_intro.tex in your perspective folder. If you want to add a radar plot, please insert such plot in this file. Then, for each evaluation scenario, create scenario risk level files (as defined in yaml categories, e.g., \<cateory\>_low.tex) and complete them, please use the template from contents/Toxicity/instruction_example.tex as an exaple to add a failure example on this model for each scenario if it is appropriate (e.g., the few-shot case might be too long to put in the report)
+### Subscenario Results
+Please first complete the \<perspective\>_scenario_intro.tex in your perspective folder. If you want to add a radar plot, please insert such a plot in this file. Then, for each evaluation scenario, create scenario risk level files (as defined in yaml categories, e.g., \<cateory\>_low.tex) and complete them, please use the template from contents/Toxicity/instruction_example.tex as an exaple to add a failure example on this model for each scenario if it is appropriate (e.g., the few-shot case might be too long to put in the report)
 ### Recommendation
 In recommendations, please create recommendation.tex and add your recommendations to the model based on the risk level of each scenario if you have any.
  
