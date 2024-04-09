@@ -4,6 +4,7 @@ subfields:
   spurious: ["spurious"]
   backdoor: ["backdoor"]
 sub_plot: true
+additional_plots: null
 metric: 
   name: null
   scale: true

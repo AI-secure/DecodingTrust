@@ -3,7 +3,7 @@ import jinja2
 import os
 import numpy as np
 import json
-from dt.analyze.generate_plot import generate_harmfulness_barchart, generate_plot
+from dt.analyze.generate_plot import generate_plot
 import shutil
 import argparse
 import importlib
@@ -66,7 +66,7 @@ def add_target_model(target_model, perspectives, results_target, config_dicts):
         elif perspective == "privacy":
             main_scores[model_name][perspective] = results_target["aggregated_results"]["privacy"]["privacy_score"][target_model]
             raw_results = results_target["breakdown_results"]["privacy"][target_model]
-        elif perspectives == "harmfulness":
+        elif perspective == "harmfulness":
             sub_types = ["benign", "adv1", "adv2"]
             main_scores[model_name][perspective] = min([results_target["aggregated_results"]["harmfulness"]["score"][target_model][sub_type] for sub_type in sub_types])
             raw_results = results_target["breakdown_results"]["harmfulness"][target_model]
@@ -142,10 +142,12 @@ def generate_pdf(target_model, perspectives="toxicity,advglue,ood,adv_demonstrat
             subfield_dict["level"] = check_risk_quantile(threshold, scores)
             subfield_dict["name"] = category.lower()
             eval_dict["subfields"].append(subfield_dict)
-        if scenario == "harmfulness":
-            generate_harmfulness_barchart(results_target, target_model, 'adv1', config_dicts[scenario]["subfields"]["benign"], os.path.join(target_path, "Images"))
-            generate_harmfulness_barchart(results_target, target_model, 'adv2', config_dicts[scenario]["subfields"]["benign"], os.path.join(target_path, "Images"))
-            generate_harmfulness_barchart(results_target, target_model, 'benign', config_dicts[scenario]["subfields"]["benign"], os.path.join(target_path, "Images"))
+        if config_dicts[scenario]["additional_plots"] is not None:
+            for image_path in config_dicts[scenario]["additional_plots"]:
+                if os.path.exist(os.path.join(curr_dir, image_path)):
+                    shutil.copy(os.path.join(curr_dir, image_path), os.path.join(target_path, "Images"))
+                else:
+                    ValueError(f"Path {image_path} is not found. Please generate the plots first.")
         eval_dicts["perspectives"].append(eval_dict)
 
     env = Environment(
@@ -234,7 +236,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, default="vertexai/gemini-pro")
     parser.add_argument('--quantile', type=float, default=0.3)
     parser.add_argument('--result_dir', type=str, default="./results")
-    parser.add_argument('--perspectives', type=str, default="toxicity,advglue,ood,adv_demonstration,privacy,machine_ethics,fairness")
+    parser.add_argument('--perspectives', type=str, default="toxicity,advglue,ood,adv_demonstration,privacy,machine_ethics,fairness,harmfulness")
     args = parser.parse_args()
 
     generate_pdf(args.model, args.perspectives, args.result_dir, args.quantile)

@@ -4,6 +4,13 @@ subfields:
   adv1: ['illegal_activity', 'harm_children', 'hate_harass_violence', 'malware', 'physical_harm', 'economic_harm', 'fraudulent_deceptive', 'adult_content', 'political', 'privacy_violation', 'financial_advice']
   adv2: ['illegal_activity', 'harm_children', 'hate_harass_violence', 'malware', 'physical_harm', 'economic_harm', 'fraudulent_deceptive', 'adult_content', 'political', 'privacy_violation', 'financial_advice']
 sub_plot: false
+additional_plots: ["extra_plots/harmfulness/plots/harmfulness_adv1_barchart.png",
+                  "extra_plots/harmfulness/plots/harmfulness_adv2_barchart.png",
+                  "extra_plots/harmfulness/plots/harmfulness_benign_barchart.png",
+                  "extra_plots/harmfulness/plots/Harmfulness_Adv_1_breakdown.png",
+                  "extra_plots/harmfulness/plots/Harmfulness_Adv_2_breakdown.png",
+                  "extra_plots/harmfulness/plots/Harmfulness_Benign_breakdown.png"
+                  ]
 metric: 
   name: "score"
   scale: false

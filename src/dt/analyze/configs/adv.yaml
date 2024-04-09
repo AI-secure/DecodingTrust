@@ -4,6 +4,7 @@ subfields:
   qqp: ["qqp"]
   mnli: ["mnli"]
 sub_plot: true
+additional_plots: null
 metric: 
   name: "acc"
   scale: false

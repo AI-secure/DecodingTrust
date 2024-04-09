@@ -5,6 +5,7 @@ subfields:
   OOD Knowledge (Few-shot): ["knowledge_fewshot"]
   OOD Style (Few-shot): ["style_fewshot"]
 sub_plot: true
+additional_plots: null
 metric: 
   name: null
   scale: false

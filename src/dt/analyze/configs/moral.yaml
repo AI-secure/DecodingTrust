@@ -5,6 +5,7 @@ subfields:
   zero-shot benchmark: ["zero-shot benchmark"]
   few-shot benchmark: ["few-shot benchmark"]
 sub_plot: true
+additional_plots: null
 metric: 
   name: null
   scale: true

@@ -4,6 +4,7 @@ subfields:
   few-shot setting given unfair context: ["few_shot_tr_br_1.0.json"]
   few-shot setting given fair context: ["few_shot_32_fair_demon.json"]
 sub_plot: true
+additional_plots: null
 metric: 
   name: "equalized odds difference"
   scale: true
