@@ -13,6 +13,8 @@ Concretely, the top-level main configuration file (`./configs/config.yaml`) cont
 We support three types of model name specifications.
 + OpenAI Models: `openai/model-name`
 + Huggingface Hub Models: `hf/namespace/repo-name`
++ Together Models: `together/namespace/repo-name`
++ Anthropic Models: `anthropic/namespace/repo-name`
 + Local Models: `hf//path/to/local/hf/repo`
 
 ```yaml
@@ -46,6 +48,11 @@ task: ["sst2", "qqp", "mnli"]
 # Running the Script
 
 To run our evaluations with the default settings for each perspective, simply run `dt-run`.
+
+## Running standard Decoding-trust evaluations
+
+To run the standard Decoding-trust evaluations including all the perspectives, please refer to the example script `scripts/hf_example/dt.sh`, where we provide an example evaluating the default Llama model on all the perspectives.
+You can also evaluate any perspective using the command provided in the example script.
 
 ## Running custom evaluations
 
