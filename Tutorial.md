@@ -31,7 +31,7 @@ use_auth_token: true
 
 ```
 
-This is an example of the sub-configuration file for testing AdvGLUE++ data generated against an Alpaca base model, referenced in the top-level file as `adv-glue-plus-plus: alpaca`.
+This is an example of the sub-configuration file for testing the Robustness perspective with AdvGLUE++ data generated against an Alpaca base model, referenced in the top-level file as `adv-glue-plus-plus: alpaca`.
 
 ```yaml
 sys: false
