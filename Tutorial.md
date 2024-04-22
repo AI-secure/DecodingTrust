@@ -89,7 +89,7 @@ Alternatively, you can also compose a different configuration file in `./configs
 
 # Output Format
 
-We provide a unified output format for different trustworthiness perspectives. Take AdvGLUE++ as an example.  The output files will be written to `./results/adv-glue-plus-plus/model-organization/model-name` in the following format to record the raw model queries, raw responses, parsed results, labels, and scores for each task:
+We provide a unified output format for different trustworthiness perspectives. Take the Robustenss with AdvGLUE++ as an example.  The output files will be written to `./results/adv-glue-plus-plus/model-organization/model-name` in the following format to record the raw model queries, raw responses, parsed results, labels, and scores for each task:
 
 ```json
 {
