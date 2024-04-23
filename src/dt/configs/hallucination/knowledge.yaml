@@ -1,0 +1,4 @@
+data_file: ./data/hallucination/qa_sampled_data.json
+generation_file: ./results/hallucination/generations/${model_config.model}/knowledge.json
+score_file: ./results/hallucination/scores/${model_config.model}/knowledge.json
+task: ['knowledge']

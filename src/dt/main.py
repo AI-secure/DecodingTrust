@@ -13,7 +13,8 @@ PERSPECTIVES = {
     "privacy": "dt.perspectives.privacy.privacy_evaluation",
     "adv_demonstration": "dt.perspectives.adv_demonstration.adv_demonstration_hydra",
     "machine_ethics": "dt.perspectives.machine_ethics.test_machine_ethics",
-    "ood": "dt.perspectives.ood.evaluation_ood"
+    "ood": "dt.perspectives.ood.evaluation_ood",
+    "hallucination": "dt.perspectives.hallucination.eval_hallucination"
 }
 
 
