@@ -4,13 +4,13 @@ This tutorial aims to provide an overview of the configuration system of `Decodi
 
 # Configuration
 
-The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations. Our codebase comes with a `BaseConfig` that specifies general information like model names and secret keys. To avoid combinatorially many configuration files, we use a modularized scheme as the configure management. Each trustworthy perspective, e.g. adversarial robustness as `AdvGLUEConfig`, extends `BaseConfig` and stores its dedicated configurations in its separate folder under `./configs`. The configurations are defined in the `configs.py` script and registered with Hydra's `ConfigStore` in `main.py`.
+The `main.py` script uses [Hydra](https://hydra.cc/) for managing configurations. Our codebase comes with a `BaseConfig` that specifies general information like model names and API keys. To avoid combinatorially many configuration files, we use a modularized scheme as the configure management. Each trustworthy perspective, e.g. adversarial robustness as `AdvGLUEConfig`, extends `BaseConfig` and stores its dedicated configurations in its separate folder under `./configs`. The configurations are defined in the `configs.py` script and registered with Hydra's `ConfigStore` in `main.py`.
 
 You can provide input to the script through a YAML configuration file. This file should be located in the `./src/dt/configs` directory. We have provided a default configuration set in `./configs`.
 
 Concretely, the top-level main configuration file (`./configs/config.yaml`) contains basic information required by all perspectives such as model configuration (`model_config`) and API key (`key`). We also support specifying model configuration as a config group located in `./configs/model_config`.
 
-We support three types of model name specifications.
+We support five types of model name specifications.
 + OpenAI Models: `openai/model-name`
 + Huggingface Hub Models: `hf/namespace/repo-name`
 + Together Models: `together/namespace/repo-name`
