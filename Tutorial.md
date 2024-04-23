@@ -45,7 +45,7 @@ task: ["sst2", "qqp", "mnli"]
 
 # Running the Script
 
-To run our evaluations with the default settings for each perspective, simply run `dt-run`.
+To run our evaluations with the default settings for each perspective, simply run `dt-run`. If you are using docker, simply replace `dt-run` with `docker run garyxcj/decoding-trust`.
 
 ## Running custom evaluations
 

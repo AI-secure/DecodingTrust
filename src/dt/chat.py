@@ -45,7 +45,7 @@ class Chat(ABC):
             return OpenAIChat(model_name, **kwargs)
         elif model_name.startswith("hf/"):
             kwargs.pop("api_key")
-            return HFChat(model_name.replace("hf/", "").rstrip("/"), **kwargs)
+            return HFChat(model_name.lstrip("hf/").rstrip("/"), **kwargs)
         elif model_name.startswith("together/"):
             return TogetherChat(model_name, **kwargs)
         elif model_name.startswith("anthropic/"):

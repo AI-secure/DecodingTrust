@@ -233,7 +233,7 @@ def generate_pdf(target_model, perspectives="toxicity,advglue,ood,adv_demonstrat
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default="vertexai/gemini-pro")
+    parser.add_argument('--model', type=str, default="vertexai/gemini-pro", required=True)
     parser.add_argument('--quantile', type=float, default=0.3)
     parser.add_argument('--result_dir', type=str, default="./results")
     parser.add_argument('--perspectives', type=str, default="toxicity,advglue,ood,adv_demonstration,privacy,machine_ethics,fairness,harmfulness")

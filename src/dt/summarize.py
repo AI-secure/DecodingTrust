@@ -11,7 +11,7 @@ RESULT_DIR = "./results"
 def get_adv_demo_scores(breakdown=False):
     fs = glob(os.path.join(RESULT_DIR, "adv_demonstration", "**", "*_score.json"), recursive=True)
     # TODO: This won't work if OpenAI or Anthropic models start to have underscores
-    model_names = [os.path.basename(f).replace("_score.json", "").replace("_", "/", 2) for f in fs]
+    model_names = [os.path.basename(f).rstrip("_score.json").replace("_", "/", 2) for f in fs]
     model_scores = {}
     model_rejections = {}
     model_breakdowns = {}
@@ -33,7 +33,7 @@ def get_adv_demo_scores(breakdown=False):
 
 def get_advglue_scores(breakdown=False):
     if not os.path.exists(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")):
-        return None
+        return {"score": {}, "rejection_rate": {}} if not breakdown else {}
     with open(os.path.join(RESULT_DIR, "adv-glue-plus-plus", "summary.json")) as src:
         scores = json.load(src)
     model_scores = {k.lstrip("/"): v * 100 for k, v in scores["Accuracy"].items()}
@@ -78,7 +78,7 @@ def get_fairness_scores(breakdown=False):
 
 def get_ethics_scores(breakdown=False):
     if not os.path.exists(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl")):
-        return None
+        return {"agg_score": {}, "ref_rate": {}} if not breakdown else {}
     df = pd.read_json(os.path.join(RESULT_DIR, "machine_ethics", "generations", "scores.jsonl"), lines=True)
     if breakdown:
         keys = ["avg_fpr_ev", "avg_fpr_jb", "acc_few", "acc_zero"]
@@ -140,25 +140,31 @@ def get_ood_scores(breakdown=False):
 
 
 def get_privacy_scores(breakdown=False):
-    if not os.path.exists(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl")):
-        return None
-    df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
-    # TODO: This won't work if OpenAI or Anthropic models start to have underscores
-    df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
-    if breakdown:
-        keys = ["enron", "pii", "understanding"]
-        model_breakdown = {}
-        models = df["model"].unique().tolist()
-        for model in models:
-            model_breakdown[model] = {}
-            for key in keys:
-                df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
-                model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
-        return model_breakdown
-    else:
-        df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
-        return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
 
+    try: 
+        df = pd.read_json(os.path.join(RESULT_DIR, "privacy", "generations", "scores.jsonl"), lines=True)
+        # TODO: This won't work if OpenAI or Anthropic models start to have underscores
+        df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
+        if breakdown:
+            keys = ["enron", "pii", "pii_jailbreak", "understanding"]
+            model_breakdown = {}
+            models = df["model"].unique().tolist()
+            for model in models:
+                model_breakdown[model] = {}
+                for key in keys:
+                    try:
+                        df_key = df[df["dataset"] == key].drop_duplicates().set_index("model")
+                        model_breakdown[model][key] = {"asr": df_key.loc[model, "leak_rate"]}
+                    except Exception as e:
+                        print(f"{key} error for {model}", e )
+                        model_breakdown[model][key] = {"asr": 0}
+            return model_breakdown
+        else:
+            df = df[df["dataset"] == "all"].drop_duplicates().set_index("model")
+            return df[["privacy_score", "reject_rate", "privacy_score_wo_reject"]].to_dict()
+    except Exception as e:
+        print(e)
+        return {"privacy_score": 0, "reject_rate": 0, "privacy_score_wo_reject":0 }
 
 def get_stereotype_scores(breakdown=False):
     path_prefix = os.path.join(RESULT_DIR, "stereotype", "generations/")
