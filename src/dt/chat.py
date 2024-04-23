@@ -5,12 +5,11 @@ from tqdm import tqdm
 from dt.utils import timeout
 from abc import ABC, abstractmethod
 from typing import List, Dict, Union
-from helm.common.request import Request
+from .clients.common.request import Request
 from dt.conversation import get_conv_template
 from dt.configs.configs import BaseConfig
-from helm.proxy.clients.auto_client import AutoClient
-from helm.proxy.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig
-from helm.proxy.clients.huggingface_model_registry import ModelLoader, WeightType
+from .clients.clients.auto_client import AutoClient
+from .clients.clients.huggingface_model_registry import HuggingfaceModelQuantizationConfig, ModelLoader, WeightType
 from dt.response import Response
 
 
@@ -359,13 +358,13 @@ class HFChat(Chat):
         try:
             import os
             if os.path.exists(model_name):
-                from helm.proxy.clients.huggingface_model_registry import register_huggingface_local_model_config
+                from .clients.clients.huggingface_model_registry import register_huggingface_local_model_config
                 self.model_config = register_huggingface_local_model_config(self.model_name, **kwargs)
             else:
-                from helm.proxy.clients.huggingface_model_registry import register_huggingface_hub_model_config
+                from .clients.clients.huggingface_model_registry import register_huggingface_hub_model_config
                 self.model_config = register_huggingface_hub_model_config(self.model_name, **kwargs)
         except ValueError as e:
-            from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
+            from .clients.clients.huggingface_model_registry import get_huggingface_model_config
             if "@" in model_name:  # model specified with a revision
                 model_name = model_name[:model_name.find("@")]
             self.model_config = get_huggingface_model_config(model_name)
@@ -457,7 +456,7 @@ class TogetherChat(Chat):
         self.client = AutoClient(credentials={"togetherApiKey": api_key}, cache_path=cache)
         self.conv_template = get_conv_template(conv_template)
 
-        from helm.proxy.clients.together_client import register_custom_together_model
+        from .clients.clients.together_client import register_custom_together_model
         self.model_name = register_custom_together_model(model_name).name
         self.disable_sys_prompt = disable_sys_prompt
 
