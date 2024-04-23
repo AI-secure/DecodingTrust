@@ -1,0 +1,82 @@
+{
+    "hf/mosaicml/mpt-7b-chat": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.3871000112833333},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.7713396943724999},
+        "toxic-gpt4-benign-sys": {"emt": 0.4719578069891667},
+        "toxic-gpt4-adv-sys": {"emt": 0.8380275574291667},
+        "toxic-benign-sys": {"emt": 0.6698596572073577},
+        "toxic-adv-sys": {"emt": 0.833226035131271},
+        "nontoxic-benign-sys": {"emt": 0.23652753686666667},
+        "nontoxic-adv-sys": {"emt": 0.5555786727891667}
+    },
+    "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.8884273325333334},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.9321301558583331},
+        "toxic-gpt4-benign-sys": {"emt": 0.9132178175750001},
+        "toxic-gpt4-adv-sys": {"emt": 0.9383921316500001},
+        "toxic-benign-sys": {"emt": 0.7889603180267559},
+        "toxic-adv-sys": {"emt": 0.8949989838712374},
+        "nontoxic-benign-sys": {"emt": 0.4649510269583334},
+        "nontoxic-adv-sys": {"emt": 0.7425119895583333}
+    },
+    "hf/tiiuae/falcon-7b-instruct": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.5192528808633333},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.7595906799725},
+        "toxic-gpt4-benign-sys": {"emt": 0.6198772105375},
+        "toxic-gpt4-adv-sys": {"emt": 0.8242200406833333},
+        "toxic-benign-sys": {"emt": 0.6696862103252508},
+        "toxic-adv-sys": {"emt": 0.7368644469314382},
+        "nontoxic-benign-sys": {"emt": 0.2752433930991666},
+        "nontoxic-adv-sys": {"emt": 0.48518374365083333}
+    },
+    "hf/lmsys/vicuna-7b-v1.3": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.5612207816608333},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.8953978621416667},
+        "toxic-gpt4-benign-sys": {"emt": 0.6538888036158332},
+        "toxic-gpt4-adv-sys": {"emt": 0.9106015368166667},
+        "toxic-benign-sys": {"emt": 0.6741872563645486},
+        "toxic-adv-sys": {"emt": 0.9125633366973243},
+        "nontoxic-benign-sys": {"emt": 0.2547704746533333},
+        "nontoxic-adv-sys": {"emt": 0.9049542627833334}
+    },
+    "hf/chavinlo/alpaca-native": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.8434125454175},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.9555135859333332},
+        "toxic-gpt4-benign-sys": {"emt": 0.9076140469333333},
+        "toxic-gpt4-adv-sys": {"emt": 0.9640645635333334},
+        "toxic-benign-sys": {"emt": 0.7847516143645485},
+        "toxic-adv-sys": {"emt": 0.903218820367893},
+        "nontoxic-benign-sys": {"emt": 0.24096387618624998},
+        "nontoxic-adv-sys": {"emt": 0.6654709327958334}
+    },
+    "hf/meta-llama/Llama-2-7b-chat-hf": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.22881659484916667},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.19916693867833332},
+        "toxic-gpt4-benign-sys": {"emt": 0.20371491664083335},
+        "toxic-gpt4-adv-sys": {"emt": 0.19703681009083335},
+        "toxic-benign-sys": {"emt": 0.2532422249055184},
+        "toxic-adv-sys": {"emt": 0.21255765405434782},
+        "nontoxic-benign-sys": {"emt": 0.137745148345},
+        "nontoxic-adv-sys": {"emt": 0.18319824235416668}
+    },
+    "openai/gpt-3.5-turbo-0301": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.18},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.86},
+        "toxic-gpt4-benign-sys": {"emt": 0.22},
+        "toxic-gpt4-adv-sys": {"emt": 0.86},
+        "toxic-benign-sys": {"emt": 0.37},
+        "toxic-adv-sys": {"emt": 0.86},
+        "nontoxic-benign-sys": {"emt": 0.13},
+        "nontoxic-adv-sys": {"emt": 0.76}
+    },
+    "openai/gpt-4-0314": {
+        "toxic-gpt3.5-benign-sys": {"emt": 0.24},
+        "toxic-gpt3.5-adv-sys": {"emt": 0.94},
+        "toxic-gpt4-benign-sys": {"emt": 0.24},
+        "toxic-gpt4-adv-sys": {"emt": 0.95},
+        "toxic-benign-sys": {"emt": 0.38},
+        "toxic-adv-sys": {"emt": 0.94},
+        "nontoxic-benign-sys": {"emt": 0.11},
+        "nontoxic-adv-sys": {"emt": 0.91}
+    }
+}

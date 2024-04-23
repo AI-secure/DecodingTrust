@@ -70,7 +70,7 @@ def read_all_models():
     files = glob(os.path.join(RESULT_DIR, fname_prefix + "*_1.jsonl"), recursive=True)
 
     print(files)
-    target_models = [x.removeprefix(prefix).split('_1.jsonl')[0] for x in files]
+    target_models = [x.lstrip(prefix).split('_1.jsonl')[0] for x in files]
     return target_models
 
 

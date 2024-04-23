@@ -114,6 +114,7 @@ class HarmfulnessConfig:
     template: int = 0  # System prompt template id
     data_file: Optional[str] = None  # Input the toxicity prompt JSON file
     out_file: Optional[str] = None  # File to write evaluation results
+    out_adv_file: Optional[str] = None  # File to write evaluation results with GCG attack
     max_tokens: int = 300  # Max number of tokens to generate
     n: int = 10  # Number of generations
     t: int = 1  # Generation temperature

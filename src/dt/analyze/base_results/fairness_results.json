@@ -1,0 +1,178 @@
+{
+    "hf/chavinlo/alpaca-native": {
+        "zero-shot": {
+            "Acc": 57.5,
+            "Demographic Parity Difference": 0.11,
+            "Equalized Odds Difference": 0.376
+        },
+        "few-shot-1": {
+            "Acc": 48.0,
+            "Demographic Parity Difference": 0.055,
+            "Equalized Odds Difference": 0.075
+        },
+        "few-shot-2": {
+            "Acc": 55.9,
+            "Demographic Parity Difference": 0.056,
+            "Equalized Odds Difference": 0.097
+        },
+        "Averaged Score": {
+            "Acc": 53.8,
+            "Demographic Parity Difference": 0.074,
+            "Equalized Odds Difference": 0.183
+        }
+    },
+    "hf/lmsys/vicuna-7b-v1.3": {
+        "zero-shot": {
+            "Acc": 60.8,
+            "Demographic Parity Difference": 0.337,
+            "Equalized Odds Difference": 0.421
+        },
+        "few-shot-1": {
+            "Acc": 53.2,
+            "Demographic Parity Difference": 0.097,
+            "Equalized Odds Difference": 0.124
+        },
+        "few-shot-2": {
+            "Acc": 55.5,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "Averaged Score": {
+            "Acc": 56.5,
+            "Demographic Parity Difference": 0.145,
+            "Equalized Odds Difference": 0.223
+        }
+    },
+    "hf/meta-llama/Llama-2-7b-chat-hf": {
+        "zero-shot": {
+            "Acc": null,
+            "Demographic Parity Difference": 0,
+            "Equalized Odds Difference": 0
+        },
+        "few-shot-1": {
+            "Acc": null,
+            "Demographic Parity Difference": 0,
+            "Equalized Odds Difference": 0
+        },
+        "few-shot-2": {
+            "Acc": null,
+            "Demographic Parity Difference": 0,
+            "Equalized Odds Difference": 0
+        },
+        "Averaged Score": {
+            "Acc": null,
+            "Demographic Parity Difference": 0,
+            "Equalized Odds Difference": 0
+        }
+    },
+    "hf/mosaicml/mpt-7b-chat": {
+        "zero-shot": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-1": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-2": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "Averaged Score": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        }
+    },
+    "hf/tiiuae/falcon-7b-instruct": {
+        "zero-shot": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-1": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-2": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "Averaged Score": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        }
+    },
+    "openai/gpt-3.5-turbo-0301": {
+        "zero-shot": {
+            "Acc": 68.3,
+            "Demographic Parity Difference": 0.313,
+            "Equalized Odds Difference": 0.293
+        },
+        "few-shot-1": {
+            "Acc": 67.2,
+            "Demographic Parity Difference": 0.06,
+            "Equalized Odds Difference": 0.106
+        },
+        "few-shot-2": {
+            "Acc": 68.0,
+            "Demographic Parity Difference": 0.3,
+            "Equalized Odds Difference": 0.225
+        },
+        "Averaged Score": {
+            "Acc": 67.8,
+            "Demographic Parity Difference": 0.224,
+            "Equalized Odds Difference": 0.208
+        }
+    },
+    "openai/gpt-4-0314": {
+        "zero-shot": {
+            "Acc": 78.8,
+            "Demographic Parity Difference": 0.463,
+            "Equalized Odds Difference": 0.537
+        },
+        "few-shot-1": {
+            "Acc": 76.5,
+            "Demographic Parity Difference": 0.163,
+            "Equalized Odds Difference": 0.2
+        },
+        "few-shot-2": {
+            "Acc": 79.5,
+            "Demographic Parity Difference": 0.463,
+            "Equalized Odds Difference": 0.45
+        },
+        "Averaged Score": {
+            "Acc": 78.3,
+            "Demographic Parity Difference": 0.363,
+            "Equalized Odds Difference": 0.396
+        }
+    },
+    "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {
+        "zero-shot": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-1": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "few-shot-2": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        },
+        "Averaged Score": {
+            "Acc": 50.0,
+            "Demographic Parity Difference": 0.0,
+            "Equalized Odds Difference": 0.0
+        }
+    }
+}
