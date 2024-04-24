@@ -2,10 +2,30 @@ import os
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 
+from datasets import Dataset
 from pydantic.dataclasses import dataclass
 from typing import List, Dict, Tuple, Any, Optional, Union
 from dt.chat import Chat
 from dt.configs.configs import BaseConfig
+
+
+@dataclass
+class ModelQuery:
+    task_name: str
+
+    label: Union[str, int]
+    messages: List[Dict]
+
+    temperature: Optional[float] = 1
+    top_p: Optional[float] = None
+    top_k: Optional[int] = None   # Not available to OpenAI models
+
+    max_tokens: Optional[int]
+    n: Optional[int]
+
+    presence_penalty: Optional[float]
+
+    stop: Optional[List[str]]
 
 
 @dataclass
@@ -19,12 +39,28 @@ class QueryUsage:
 class QueryResult:
     task_name: str
 
+    query: ModelQuery
     response: Dict
-    prediction: Union[str, int]
-    label: Union[str, int]
-    request: Dict
 
     query_usage: QueryUsage
+
+
+@dataclass
+class MetricResult:
+    name: str
+    scenario: str
+    value: float
+
+
+@dataclass
+class AggregatedMetricResult(ABC):
+    name: str
+    scenario_results: List[MetricResult]
+
+    @property
+    @abstractmethod
+    def value(self):
+        pass
 
 
 class DatasetManager(ABC):
@@ -33,10 +69,10 @@ class DatasetManager(ABC):
 
     def __init__(self, options: BaseConfig):
         self.options: BaseConfig = options
-        self.datasets: Optional[Dict[str, List[Dict]]] = None  # Top-level HF datasets with different tasks
+        self.datasets: Optional[Union[List[Dict], Dataset]] = None  # Top-level HF datasets with different tasks
 
     @abstractmethod
-    def load_dataset(self, task_name: str) -> List[List[Dict]]:
+    def load_dataset(self, task_name: str) -> Union[List[Dict], Dataset]:
         """Load and return the dataset for a given task."""
         pass
 
@@ -65,10 +101,6 @@ class BenchmarkExecutor:
     def prepare_task_query(self, messages: List[Dict]) -> Dict:
         pass
 
-    @abstractmethod
-    def prediction_processor(self, response: Dict, task_name: str) -> int:
-        pass
-
     def execute_classification(self, tasks: List[str]):
         for task_name in tasks:
             dataset = self.dataset_manager.load_dataset(task_name)
@@ -93,15 +125,23 @@ class BenchmarkExecutor:
                         query_usage=QueryUsage(
                             prompt_token_count=response["usage"]["prompt_tokens"],
                             completion_tokens=response["usage"]["completion_tokens"],
-                            price=self.model_interaction.calc_price(response)
+                            price=self.model_interaction.calc_price(response),
                         )
                     )
                 )
 
 
 class ModelEvaluationMetricsInterface(ABC):
+
+    def __init__(self, task_name: str):
+        self.task_name = task_name
+
     @abstractmethod
-    def calculate_metrics(self, results: List[QueryResult]) -> Dict[str, float]:
+    def prediction_processor(self, response: Dict, task_name: str) -> int:
+        pass
+
+    @abstractmethod
+    def calculate_metrics(self, results: List[QueryResult]) -> MetricResult:
         """
         Calculate evaluation metrics based on predictions and ground truth labels.
 
