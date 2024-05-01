@@ -1,12 +1,23 @@
+import json
+import logging
 import os
 from abc import ABC, abstractmethod
+from dataclasses import asdict
 from tempfile import TemporaryDirectory
 
 from datasets import Dataset
 from pydantic.dataclasses import dataclass
-from typing import List, Dict, Tuple, Any, Optional, Union
+from typing import List, Dict, Tuple, Any, Optional, Union, Set
+
+from tqdm import tqdm
+
 from dt.chat import Chat
 from dt.configs.configs import BaseConfig
+
+
+def write_jsonl(dest: str, json_list: List[Dict]) -> None:
+    with open(dest, "w") as f:
+        f.writelines([json.dumps(line) + "\n" for line in json_list])
 
 
 @dataclass
@@ -32,12 +43,13 @@ class ModelQuery:
 class QueryUsage:
     prompt_token_count: int
     completion_token_count: int
-    cost_in_dollars: float
+    cost_in_dollars: Optional[float]
 
 
 @dataclass
 class QueryResult:
     task_name: str
+    model_name: str
 
     query: ModelQuery
     response: Dict
@@ -77,22 +89,24 @@ class DatasetManager(ABC):
         pass
 
     @abstractmethod
-    def prepare_task_message(self, task_name: str) -> List[List[Dict]]:
+    def prepare_task_message(self, task_name: str) -> List[ModelQuery]:
         """Prepare and return the task-specific message for model interaction."""
         pass
 
 
 class BenchmarkExecutor:
     cache_dir = ".cache"
+    response_cache_file = "response.jsonl"
 
-    def __init__(self, options: BaseConfig):
+    def __init__(self, options: BaseConfig, perspective: str):
         self.options = options
+        self.perspective = perspective
         self.dataset_manager = DatasetManager(options)
         self.results: Dict[str, List[QueryResult]] = dict()
 
         self._init_files()
         with TemporaryDirectory(dir=self.cache_dir) as dirname:
-            self.model_interaction = Chat.from_helm(options, cache=dirname)
+            self.chat_model = Chat.from_helm(options, cache=dirname)
 
     def _init_files(self):
         os.makedirs(self.cache_dir, exist_ok=True)
@@ -105,30 +119,44 @@ class BenchmarkExecutor:
         for task_name in tasks:
             dataset = self.dataset_manager.load_dataset(task_name)
             task_message = self.dataset_manager.prepare_task_message(task_name)
-            accuracy, unknown, cost, cache = self.model_interaction.do_classification(dataset, task_message)
+            accuracy, unknown, cost, cache = self.chat_model.do_classification(dataset, task_message)
             # Process and display the results as needed
 
-    def execute_calls(self, tasks: List[str]):
-        for task_name in tasks:
-            task_messages = self.dataset_manager.prepare_task_message(task_name)
+    def execute_queries(self, queries: List[ModelQuery]) -> List[QueryResult]:
+        distinct_task_names: Set[str] = {q.task_name for q in queries}
+        if len(distinct_task_names) > 1:
+            raise ValueError(f"Multiple tasks ({distinct_task_names}) in the same list of input is not supported!")
 
-            for task_message in task_messages:
-                response = self.model_interaction.call(
-                    messages=task_message, t=0, max_tokens=16, dry_run=self.options.dry_run
+        query_results: List[QueryResult] = []
+        for i, query in tqdm(enumerate(queries)):
+            response = self.chat_model.call(
+                messages=query.messages, t=query.temperature, max_tokens=query.max_tokens,
+                dry_run=self.options.dry_run
+            )
+            query_result = QueryResult(
+                task_name=query.task_name, model_name=self.options.model_config.model, query=query, response=response,
+                query_usage=QueryUsage(
+                    prompt_token_count=response["usage"]["prompt_tokens"],
+                    completion_token_count=response["usage"]["completions_tokens"]
                 )
+            )
 
-                self.results[task_name].append(
-                    QueryResult(
-                        prediction=self.prediction_processor(response, task_name),
-                        task_name=task_name, response=response,
-                        request=task_message,
-                        query_usage=QueryUsage(
-                            prompt_token_count=response["usage"]["prompt_tokens"],
-                            completion_tokens=response["usage"]["completion_tokens"],
-                            price=self.model_interaction.calc_price(response),
-                        )
-                    )
+            query_results.append(query_result)
+
+            if (i + 1) % self.options.save_interval == 0 or (i + 1) == len(queries):
+                dest_path = os.path.join(
+                    self.options.result_dir, self.perspective, query.task_name, self.response_cache_file
                 )
+                logging.info(f"Saving to {dest_path}")
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                write_jsonl(dest_path, [asdict(x) for x in query_results])
+
+        return query_results
+
+    def execute_task(self, task_name: str):
+        self.dataset_manager.load_dataset(task_name)
+        task_queries = self.dataset_manager.prepare_task_message(task_name)
+        query_results = self.execute_queries(task_queries)
 
 
 class ModelEvaluationMetricsInterface(ABC):
