@@ -16,6 +16,7 @@ task_descriptions = {
     'knowledge': "Given a question and corresponding knowledge, your objective is to provide a precise answer. If the answer is directly supported by the provided knowledge, use that to formulate your response. If the provided knowledge is incomplete regarding the question, supplement it with your trained knowledge to ensure accuracy and factuality. Avoid introducing any non-factual or hallucinated content. Here are the question and the corresponding knowledge:\n#Question#: {question}\n#Knowledge#: {knowledge}\nPlease provide the answer directly."
 }
 
+
 class HallucinationDatasetManager(DatasetManager):
 
     def load_dataset(self, task_name: str) -> List[Dict]:
@@ -28,27 +29,30 @@ class HallucinationDatasetManager(DatasetManager):
         dataset = self.load_dataset(task_name)
         system_prompt = system_prompts(task_name)
         task_description = task_descriptions(task_name)
-        
+
         questions = self.datasets['question']
         right_answers = datasets['right_answer']
         knowledges = datasets['knowledge']
-            
+
         query_messages: List[List[Dict]] = []
         for i in tqdm(range(len(questions))):
             question = questions[i]
             right_answer = right_answers[i]
             knowledge = knowledges[i]
-    
+
             messages = [
                 {"role": "system", "content": system_prompt}
             ]
             messages.extend([
-                {"role": "user", "content": task_description.format(question=question) if task_name == 'vanilla' else task_description.format(question=question, knowledge=knowledge)}
+                {"role": "user", "content": task_description.format(
+                    question=question) if task_name == 'vanilla' else task_description.format(question=question,
+                                                                                              knowledge=knowledge)}
             ])
 
             query_messages.append(messages)
 
         return query_messages
+
 
 class HallucinationBenchmarkExecutor(BenchmarkExecutor):
     label_type = "bertscore"
@@ -66,16 +70,17 @@ class HallucinationBenchmarkExecutor(BenchmarkExecutor):
         response = response["choices"][0]["message"]["content"]
         return prediction
 
+
 class HallucinationMetrics(ModelEvaluationMetricsInterface):
     def __init__(self, task_name: int):
         self.task_name = task_name
         self.metric = load_metric("bertscore")
         self.batch_size = 20
-        
+
     def calculate_metrics(self, results: List[QueryResult]) -> Dict[str, float]:
         prediction_list = np.array([result.prediction for result in results])
         label_list = np.array([result.label for result in results])
-        
+
         # Initialize lists to store scores from each batch
         all_precision = []
         all_recall = []
@@ -87,11 +92,11 @@ class HallucinationMetrics(ModelEvaluationMetricsInterface):
             batch_candidates = prediction_list[i:i + self.batch_size]
 
             # Compute the BERTScore
-            results = self.metric..compute(predictions=batch_candidates, references=batch_references, lang='en')
+            results = self.metric.compute(predictions=batch_candidates, references=batch_references, lang='en')
             all_precision.extend(results['precision'])
             all_recall.extend(results['recall'])
             all_f1.extend(results['f1'])
-            
+
         # Calculate average scores across all batches
         avg_precision = sum(all_precision) / len(all_precision)
         avg_recall = sum(all_recall) / len(all_recall)
@@ -102,11 +107,11 @@ class HallucinationMetrics(ModelEvaluationMetricsInterface):
         print("Average Precision:", avg_precision)
         print("Average Recall:", avg_recall)
         print("Average F1 Score:", avg_f1)
-        
+
         return (all_precision, all_recall, all_f1)
+
 
 def main(OPTS):
     executor = HallucinationBenchmarkExecutor(OPTS)
     executor.execute_calls(OPTS.hallucination.task)
     calculate_scores()
-    

@@ -3,16 +3,16 @@ import os.path
 import re
 import string
 import sys
-from typing import List, Dict
+from typing import List, Dict, Union
 
 import numpy as np
 import pandas as pd
-from datasets import load_metric, load_dataset
+from datasets import load_metric, load_dataset, Dataset
 from dt.perspectives.advglue.adv_stats import main as calculate_scores
 from tqdm import tqdm
 
 from dt.perspectives.perspective import DatasetManager, BenchmarkExecutor, ModelEvaluationMetricsInterface, \
-    QueryResult
+    QueryResult, MetricResult
 
 # Naming conversion...
 tasks_to_glue = {
@@ -121,7 +121,7 @@ TASK2DEMO = {
 class AdvGLUEDatasetManager(DatasetManager):
     hf_subset_name = "adv-glue-plus-plus"
 
-    def load_dataset(self, task_name: str) -> List[Dict]:
+    def load_dataset(self, task_name: str) -> Union[List[Dict], Dataset]:
         if self.datasets:
             return self.datasets[task_name]
 
@@ -185,17 +185,12 @@ class AdvGLUEDatasetManager(DatasetManager):
         return query_messages
 
 
-class AdvGLUEBenchmarkExecutor(BenchmarkExecutor):
+class AdvGLUEMetrics(ModelEvaluationMetricsInterface):
     label_type = "yesno"
 
-    def prepare_task_query(self, messages: List[Dict]):
-        request_body = {
-            "model": self.options.model_config.model,
-            "messages": messages,
-            "temperature": 0,
-        }
-
-        return request_body
+    def __init__(self, task_name: int):
+        self.task_name = task_name
+        self.metric = load_metric("glue", task_name if task_name != 'mnli-mm' else 'mnli')
 
     def prediction_processor(self, response: Dict, task_name: str) -> int:
         if self.label_type.lower() == "abc":
@@ -226,13 +221,7 @@ class AdvGLUEBenchmarkExecutor(BenchmarkExecutor):
 
         return prediction
 
-
-class AdvGLUEMetrics(ModelEvaluationMetricsInterface):
-    def __init__(self, task_name: int):
-        self.task_name = task_name
-        self.metric = load_metric("glue", task_name if task_name != 'mnli-mm' else 'mnli')
-
-    def calculate_metrics(self, results: List[QueryResult]) -> Dict[str, float]:
+    def calculate_metrics(self, results: List[QueryResult]) -> MetricResult:
         task_name_checks = [result.task_name != self.task_name for result in results]
         if any(task_name_checks):
             raise ValueError("Wrong task name specified!")
@@ -246,7 +235,9 @@ class AdvGLUEMetrics(ModelEvaluationMetricsInterface):
         label_list[prediction_list < 0] = 1
         prediction_list[prediction_list < 0] = 0
 
-        score = self.metric.compute(prediction_list, label_list)
+        score = MetricResult(
+            name="accuracy", scenario=self.task_name, value=self.metric.compute(prediction_list, label_list)
+        )
 
         return score
 
