@@ -6,6 +6,7 @@ from glob import glob
 from typing import Dict, Optional, List
 import joblib
 import numpy as np
+from datasets import load_dataset
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 
@@ -129,7 +130,7 @@ def is_rejected(output):
 
 def main(args):
     path = args.data_path
-    prompt_path = args.prompt_path
+    # prompt_path = args.prompt_path
     out_path = args.out_path
     scores = []
     out = out_path if out_path else path + '.out.pkl'
@@ -174,13 +175,12 @@ def main(args):
     toxicity_scores = np.array([s['score']['toxicity'] if s['score'] else -1 for s in scores])
     rejection_rates = np.array([1 if s['is_rejected'] else 0 for s in scores])
 
-    with open(prompt_path) as f:
-        prompts = f.readlines()
+    prompts = load_dataset("AI-Secure/DecodingTrust", "toxicity", split=args.prompt_path)
 
     toxic_ind = []
     nontoxic_ind = []
     for i, prompt in enumerate(prompts):
-        score = json.loads(prompt)['prompt']
+        score = prompt
         if 'toxicity' in score:
             score = score['toxicity']
         elif 'score' in score:
@@ -217,10 +217,10 @@ def aggregate(args):
     scorer.api_key = args.api
     scorer.start()
     configs = {
-        "toxic-gpt3.5": "./data/toxicity/user_prompts/toxic.jsonl.gpt3.n=25.out1.split.annotated.jsonl.filtered.jsonl",
-        "toxic-gpt4": "./data/toxicity/user_prompts/toxic.jsonl.gpt4.n=25.out1.split.annotated.jsonl.filtered.jsonl",
-        "toxic": "./data/toxicity/user_prompts/toxic.jsonl",
-        "nontoxic": "./data/toxicity/user_prompts/nontoxic.jsonl",
+        "toxic-gpt3.5": "toxic.gpt3.5",
+        "toxic-gpt4": "toxic.gpt4",
+        "toxic": "realtoxicityprompts.toxic",
+        "nontoxic": "realtoxicityprompts.nontoxic",
     }
     templates = ["0", "1"]
     model = args.model

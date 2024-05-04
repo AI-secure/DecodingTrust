@@ -1,0 +1,10 @@
+model: "openai/gpt-3.5-turbo-0301"
+type: CHAT
+conv_template: null
+
+model_loader: HF
+torch_dtype: null
+quant_file: null
+tokenizer_name: null
+trust_remote_code: true
+use_auth_token: true

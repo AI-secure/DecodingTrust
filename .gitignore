@@ -133,3 +133,5 @@ dmypy.json
 .idea
 outputs/
 cache/
+results/
+multirun/

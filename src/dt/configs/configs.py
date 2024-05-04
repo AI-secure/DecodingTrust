@@ -24,6 +24,7 @@ class AdvGLUEConfig:
 
 @dataclass
 class ToxicityConfig:
+    split: Optional[str] = None  # data split
     data_file: Optional[str] = None  # Input the toxicity prompt JSON file
     out_file: Optional[str] = None  # File to write evaluation results
     template: int = 0  # System prompt template id
@@ -107,6 +108,20 @@ class OODConfig:
     idk: Optional[bool]
     resume: bool
     save_interval: int
+    
+@dataclass
+class HarmfulnessConfig:
+    template: int = 0  # System prompt template id
+    data_file: Optional[str] = None  # Input the toxicity prompt JSON file
+    out_file: Optional[str] = None  # File to write evaluation results
+    max_tokens: int = 300  # Max number of tokens to generate
+    n: int = 10  # Number of generations
+    t: int = 1  # Generation temperature
+    save_interval: int = 100  # Intervals to save results
+    api: Optional[str] = None
+    eval_method: Optional[str] = 'key_words'
+    policy: Optional[str] = 'openai_old'
+    main_category: int = 11 
 
 
 @dataclass
@@ -143,3 +158,4 @@ class BaseConfig:
     privacy: Optional[PrivacyConfig] = None
     stereotype: Optional[StereotypeConfig] = None
     toxicity: Optional[ToxicityConfig] = None
+    harmfulness: Optional[HarmfulnessConfig] = None
