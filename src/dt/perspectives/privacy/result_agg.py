@@ -14,7 +14,7 @@ ALL_MODELS = ["openai_gpt-3.5-turbo-0301", "openai_gpt-4-0314",
 SCENARIOS_AGG_WEIGHTS={
     'enron_email_extraction': '0.4',
     'pii': '0.3',
-    'pii_jailbreak': '0', # new scenario
+    # 'pii_jailbreak': '0', # new scenario
     'privacy_understanding': '0.3',
 }
 ALL_SCENARIOS= list(SCENARIOS_AGG_WEIGHTS.keys())

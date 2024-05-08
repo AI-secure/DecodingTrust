@@ -50,7 +50,9 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
         except Exception as err:
             print(err)
 
-    with TemporaryDirectory(dir="./.cache") as dirname:
+    cache_dir = "./.cache"
+    os.makedirs(cache_dir, exist_ok=True)
+    with TemporaryDirectory(dir=cache_dir) as dirname:
         model = Chat.from_helm(args, cache=dirname)
 
         for batch_idx in range(num_batches):
@@ -70,7 +72,7 @@ def generate_and_save(args, dataset, gt_list, constructor, out_file, batch_size,
 
 
             with open(out_file, "a") as f:
-                for idx, x in enumerate(cache): # for each given prompt 
+                for idx, x in enumerate(cache): # for each given prompt
                     for gen_idx in range(n_generations):
                         res={}
                         for i, key in enumerate(keynames):

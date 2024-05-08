@@ -1,5 +1,6 @@
 # Toxicity
 dt-run --config-name config --multirun +model_config=hf +toxicity=realtoxicityprompts-nontoxic-adv,realtoxicityprompts-nontoxic,realtoxicityprompts-toxic-adv,realtoxicityprompts-toxic,toxic-gpt3.5-adv,toxic-gpt3.5,toxic-gpt4-adv,toxic-gpt4
+python src/dt/perspectives/toxicity/perspective_api_evaluate.py --api your_perspective_api_key
 
 # Stereotype and bias
 dt-run --config-name config --multirun +model_config=hf +stereotype=benign,targeted,untargeted

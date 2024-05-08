@@ -140,7 +140,7 @@ def get_privacy_scores(breakdown=False):
         # TODO: This won't work if OpenAI or Anthropic models start to have underscores
         df["model"] = df["model"].apply(lambda x: x.replace("_", "/", 2))
         if breakdown:
-            keys = ["enron", "pii", "pii_jailbreak", "understanding"]
+            keys = ["enron", "pii", "understanding"]
             model_breakdown = {}
             models = df["model"].unique().tolist()
             for model in models:
