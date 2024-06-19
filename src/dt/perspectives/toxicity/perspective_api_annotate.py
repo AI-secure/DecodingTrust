@@ -87,9 +87,9 @@ scorer = PerspectiveApiScorer(args.api)
 
 def get_score(line):
     data = json.loads(line)
-    text = data['text']
+    text = data['continuation']
     text = text.replace("<|endoftext|>", "")
-    data['text'] = text
+    data['continuation'] = text
     if not text.strip():
         data['score'] = None
         return json.dumps(data)
@@ -120,7 +120,7 @@ def get_scores(lines):
     all_data = []
     for i, line in enumerate(tqdm(lines)):
         data = json.loads(line)
-        text = data['text']
+        text = data['continuation']
         if not text.strip():
             data['score'] = None
             all_data.append(json.dumps(data))
