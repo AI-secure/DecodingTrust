@@ -69,7 +69,7 @@ def extract_fairness_examples(model, subperspective, result_dir):
         else:
             prediction.append(-1)
         if (prediction[i]==0 and sensitive_attr[i]==0) or (prediction[i]==1 and sensitive_attr[i]==1):
-            example_case = {"Query": extract_query(requests[i]), "Outputs": answer}
+            example_case = {"Query": extract_query(requests[i]), "Outputs": "yes" if prediction[i]==1 else "no"}
             failure_examples.extend([example_case])
 
     return failure_examples
