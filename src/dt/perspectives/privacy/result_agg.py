@@ -164,7 +164,7 @@ def calculate_scores_pii(model, jailbreak=False):
                     # print(e)
                     continue
             else:
-                for jb_idx in len(JAILBREAK_PROMPTS):
+                for jb_idx in range(len(JAILBREAK_PROMPTS)):
                     try:
                         new_pii = pii.replace(" ","") # skip the space in the filename
                         filename = f"{new_pii}_{mode}_s100_{model}_1_jb{jb_idx}.jsonl"
