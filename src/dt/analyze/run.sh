@@ -1,0 +1,2 @@
+# Example of generating report on vertexai/gemini-pro with quantile 0.3 and all perspectives
+python src/dt/analyze/generate_pdf.py --model "hf/HuggingFaceH4/zephyr-7b-beta" --result_dir "./results"  --quantile 0.3 --perspectives "advglue,ood,adv_demonstration,machine_ethics,harmfulness"

@@ -1,0 +1,106 @@
+{
+    "hf/chavinlo/alpaca-native": {
+        "counterfactual": {
+            "avg_acc": 0.42744444444444446
+        },
+        "spurious": {
+            "avg_acc": 0.5864333333333334
+        },
+        "backdoor": {
+            "1-avg_asr": 0.01070872274143301,
+            "avg_cacc": 0.5407110091743118
+        },
+        "adv_demo": 0.3415288335064037
+    },
+    "hf/lmsys/vicuna-7b-v1.3": {
+        "counterfactual": {
+            "avg_acc": 0.2790277777777778
+        },
+        "spurious": {
+            "avg_acc": 0.6389666666666666
+        },
+        "backdoor": {
+            "1-avg_asr": 0.8216510903426791,
+            "avg_cacc": 0.9083205912334353
+        },
+        "adv_demo": 0.5798818449290412
+    },
+    "hf/meta-llama/Llama-2-7b-chat-hf": {
+        "counterfactual": {
+            "avg_acc": 0.3930833333333333
+        },
+        "spurious": {
+            "avg_acc": 0.7038666666666665
+        },
+        "backdoor": {
+            "1-avg_asr": 0.5691848390446521,
+            "avg_cacc": 0.8642647808358817
+        },
+        "adv_demo": 0.5553782796815506
+    },
+    "hf/mosaicml/mpt-7b-chat": {
+        "counterfactual": {
+            "avg_acc": 0.5853611111111111
+        },
+        "spurious": {
+            "avg_acc": 0.6007333333333333
+        },
+        "backdoor": {
+            "1-avg_asr": 0.5615264797507787,
+            "avg_cacc": 0.892934505606524
+        },
+        "adv_demo": 0.5825403080650745
+    },
+    "hf/tiiuae/falcon-7b-instruct": {
+        "counterfactual": {
+            "avg_acc": 0.3416388888888889
+        },
+        "spurious": {
+            "avg_acc": 0.6155333333333334
+        },
+        "backdoor": {
+            "1-avg_asr": 0.06126687435098646,
+            "avg_cacc": 0.6043577981651377
+        },
+        "adv_demo": 0.33947969885773627
+    },
+    "hf/togethercomputer/RedPajama-INCITE-7B-Instruct": {
+        "counterfactual": {
+            "avg_acc": 0.29647222222222225
+        },
+        "spurious": {
+            "avg_acc": 0.6850833333333334
+        },
+        "backdoor": {
+            "1-avg_asr": 0.7736240913811008,
+            "avg_cacc": 0.9313519367991844
+        },
+        "adv_demo": 0.5850598823122187
+    },
+    "openai/gpt-3.5-turbo-0301": {
+        "counterfactual": {
+            "avg_acc": 0.8265555555555556
+        },
+        "spurious": {
+            "avg_acc": 0.8291291666666667
+        },
+        "backdoor": {
+            "1-avg_asr": 0.7828400830737278,
+            "avg_cacc": 0.9071100917431193
+        },
+        "adv_demo": 0.8128416017653167
+    },
+    "openai/gpt-4-0314": {
+        "counterfactual": {
+            "avg_acc": 0.9149722222222222
+        },
+        "spurious": {
+            "avg_acc": 0.9116354166666666
+        },
+        "backdoor": {
+            "1-avg_asr": 0.5116822429906542,
+            "avg_cacc": 0.9516437308868501
+        },
+        "adv_demo": 0.7794299606265144
+    }
+}
